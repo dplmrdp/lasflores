@@ -2,28 +2,26 @@ name: Update calendars daily
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # todos los días a las 06:00
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 permissions:
-  contents: write   # ⬅️ Esto da permiso para hacer commit
+  contents: write
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # necesario para hacer push
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # ✅ Ya no usamos puppeteer → Instalamos solo node-fetch
       - name: Install dependencies
         run: npm install node-fetch@2
 
