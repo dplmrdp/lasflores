@@ -58,16 +58,18 @@ async function loadFederado() {
   const page = await browser.newPage();
   await page.goto(FED_URL, { waitUntil: "networkidle0" });
 
-  // ⬅️ Nueva extracción de estado
-  const nextData = await page.evaluate(() => window.__NEXT_DATA__);
+  // ✅ Nuevo método: leer script#__NEXT_DATA__
+  const raw = await page.$eval("script#__NEXT_DATA__", el => el.textContent);
+  const nextData = JSON.parse(raw);
+
   await browser.close();
 
-  if (!nextData || !nextData.props || !nextData.props.pageProps) {
-    throw new Error("No se pudo leer __NEXT_DATA__");
+  if (!nextData?.props?.pageProps) {
+    throw new Error("No se pudo leer datos desde <script id='__NEXT_DATA__'>");
   }
 
-  // Localizamos lista de partidos dentro del árbol
-  const matches = nextData.props.pageProps?.dehydratedState?.queries
+  // Buscar lista de partidos dentro del estado react
+  const matches = nextData.props.pageProps.dehydratedState?.queries
     ?.map(q => q.state?.data)
     ?.flat()
     ?.filter(x => x && typeof x === "object")
@@ -75,7 +77,7 @@ async function loadFederado() {
     ?.filter(Boolean) || [];
 
   if (!matches.length) {
-    throw new Error("No se encontraron partidos en __NEXT_DATA__");
+    throw new Error("No se encontraron partidos dentro de __NEXT_DATA__");
   }
 
   const events = [];
@@ -112,6 +114,7 @@ async function loadFederado() {
 
   return events;
 }
+
 
 
 // -------- TODO: loadIMD stays exactly as already implemented --------
