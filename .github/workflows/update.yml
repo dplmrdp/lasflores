@@ -1,51 +1,39 @@
-# .github/workflows/update.yml
 name: Update calendars daily
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # Every day at 06:00 UTC (adjust if you prefer another hour)
-  workflow_dispatch:        # allows manual run
- 
- permissions:
-  contents: write
-  
+    - cron: '0 6 * * *'   # todos los días a las 06:00
+  workflow_dispatch:
+
+permissions:
+  contents: write   # ⬅️ Esto da permiso para hacer commit
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
-          fetch-depth: 0
+          fetch-depth: 0   # necesario para hacer push
 
-      - name: Setup Node.js
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
 
+      # ✅ Ya no usamos puppeteer → Instalamos solo node-fetch
       - name: Install dependencies
-        run: |
-          npm init -y
-          npm i puppeteer@21.3.8
+        run: npm install node-fetch@2
 
-      - name: Run updater
+      - name: Run calendar update script
         run: node scripts/update_calendars.js
-
-      - name: Show generated files
-        run: ls -la calendarios || true
 
       - name: Commit and push changes
         run: |
+          git config user.email "github-actions@github.com"
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add calendarios/imd.ics calendarios/federado.ics
-          # Only commit if changed
-          if ! git diff --staged --quiet; then
-            git commit -m "Automated update of calendars (IMD + FEDERADO) [ci skip]"
-            git push origin HEAD:main
-          else
-            echo "No changes to commit"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git add calendarios/*.ics
+          git commit -m "Automated update of calendars (IMD + FEDERADO) [ci skip]" || exit 0
+          git push
