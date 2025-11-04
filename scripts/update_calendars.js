@@ -7,28 +7,21 @@ const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer");
 
-const TEAM_NAME = "C.D. LAS FLORES SEVILLA MORADO"; // identificación exacta ✅
+const TEAM_NAME = "C.D. LAS FLORES SEVILLA MORADO";
 const OUTPUT_DIR = "calendarios";
 
 if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-// --- Helpers ---
 function normalize(name) {
   return name.toUpperCase().replace(/\s+/g, " ").trim();
-}
-
-function toDate(day, month, year) {
-  year = year < 100 ? 2000 + year : year;
-  return new Date(year, month - 1, day);
 }
 
 function writeICS(filename, events, prodid) {
   let ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:${prodid}\n`;
   for (const ev of events) {
     if (ev.type === "timed") {
-      const dt = ev.date;
-      const start = dt.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z/, "Z");
-      const end = new Date(dt.getTime() + 7200000) // +2h
+      const start = ev.date.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z/, "Z");
+      const end = new Date(ev.date.getTime() + 2 * 60 * 60 * 1000)
         .toISOString()
         .replace(/[-:]/g, "")
         .replace(/\.\d+Z/, "Z");
@@ -46,64 +39,113 @@ function writeICS(filename, events, prodid) {
   fs.writeFileSync(path.join(OUTPUT_DIR, filename), ics);
 }
 
-// --- MAIN ---
+/* --- FEDERADO (FAVOLEY) --- */
+
+function parseFavoleyDateTime(text) {
+  const m = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4}).*?(\d{1,2}):(\d{2}).*?GMT([+-]\d{1,2})/i);
+  if (!m) return null;
+  const day = +m[1], month = +m[2], year = +m[3];
+  const hour = +m[4], min = +m[5], offset = +m[6];
+  const utcMillis = Date.UTC(year, month - 1, day, hour - offset, min, 0);
+  return new Date(utcMillis);
+}
+
+function parseFavoleyWeekendRange(text) {
+  const r = text.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})\s*(?:-|–)\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/);
+  if (!r) return null;
+  const d1 = r[1].split("/").map(Number);
+  const d2 = r[2].split("/").map(Number);
+  const y1 = d1[2] < 100 ? 2000 + d1[2] : d1[2];
+  const y2 = d2[2] < 100 ? 2000 + d2[2] : d2[2];
+  return {
+    start: new Date(y1, d1[1] - 1, d1[0]),
+    end: new Date(y2, d2[1] - 1, d2[0])
+  };
+}
+
+/* --- IMD --- */
+
+function toIMDDate(dateStr, timeStr) {
+  const [day, month, year] = dateStr.split("/").map(Number);
+  const [h, m] = timeStr.split(":").map(Number);
+  return new Date(year, month - 1, day, h, m);
+}
+
+/* --- MAIN --- */
+
 (async () => {
   const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
 
-  // ---------- FAVOLEY ----------
-  await page.goto("https://favoley.es/es/tournament/1321417/calendar/3652130/all", {
-    waitUntil: "networkidle2",
-  });
-  await page.waitForTimeout(1500);
-
+  /* FEDERADO */
+  await page.goto("https://favoley.es/es/tournament/1321417/calendar/3652130/all", { waitUntil: "networkidle2" });
+  await page.waitForTimeout(2000);
   const fedText = await page.evaluate(() => document.body.innerText);
+
   const fedEvents = [];
-
   fedText.split("\n").forEach((line) => {
-    if (normalize(line).includes(normalize(TEAM_NAME))) {
-      const dateRange = line.match(/(\d{1,2}\/\d{1,2}\/\d{2,4}).*(\d{1,2}\/\d{1,2}\/\d{2,4})/);
-      const vsMatch = line.match(/(.+?)\s*(?:-|vs|VS|V|–)\s*(.+)/i);
+    const n = normalize(line);
+    if (!n.includes(normalize(TEAM_NAME))) return;
 
-      if (dateRange && vsMatch) {
-        const start = toDate(...dateRange[1].split("/").map(Number));
-        const end = toDate(...dateRange[2].split("/").map(Number));
+    const dt = parseFavoleyDateTime(line);
+    if (dt) {
+      const vs = line.split(/ - | – | vs | VS | v /i);
+      let home = vs[0]?.trim() ?? TEAM_NAME;
+      let away = vs[1]?.trim() ?? TEAM_NAME;
+      home = home.replace(new RegExp(TEAM_NAME, "i"), "FLORES MORADO");
+      away = away.replace(new RegExp(TEAM_NAME, "i"), "FLORES MORADO");
 
-        const home = vsMatch[1].trim();
-        const away = vsMatch[2].trim();
+      fedEvents.push({
+        type: "timed",
+        date: dt,
+        summary: `${home} vs ${away} (FEDERADO)`,
+        location: "Por confirmar"
+      });
+      return;
+    }
 
-        if ([normalize(home), normalize(away)].includes(normalize(TEAM_NAME))) {
-          fedEvents.push({
-            type: "weekend",
-            start,
-            end,
-            summary: `${home} vs ${away}`.replace(normalize(TEAM_NAME), "FLORES MORADO"),
-            location: "Por confirmar",
-          });
-        }
-      }
+    const range = parseFavoleyWeekendRange(line);
+    if (range) {
+      const vs = line.split(/ - | – | vs | VS | v /i);
+      let home = vs[0]?.trim() ?? TEAM_NAME;
+      let away = vs[1]?.trim() ?? TEAM_NAME;
+      home = home.replace(new RegExp(TEAM_NAME, "i"), "FLORES MORADO");
+      away = away.replace(new RegExp(TEAM_NAME, "i"), "FLORES MORADO");
+
+      fedEvents.push({
+        type: "weekend",
+        start: range.start,
+        end: range.end,
+        summary: `${home} vs ${away} (FEDERADO)`,
+        location: "Por confirmar"
+      });
+      return;
     }
   });
 
-  // ---------- IMD ----------
+  /* IMD */
   await page.goto("https://imd.sevilla.org/app/jjddmm_resultados/", { waitUntil: "networkidle2" });
-  await page.waitForTimeout(1500);
-
+  await page.waitForTimeout(2000);
   const imdText = await page.evaluate(() => document.body.innerText);
-  const imdEvents = [];
 
+  const imdEvents = [];
   const pattern = /(\d{1,2}\/\d{1,2}\/\d{4}).*?(\d{1,2}:\d{2}).*?(.+?)\s+-\s+(.+?)\s+(COLEGIO|CD|C\.D\.)/gi;
   let match;
   while ((match = pattern.exec(imdText))) {
-    const [_, d, t, home, away] = match;
-    if ([normalize(home), normalize(away)].includes(normalize(TEAM_NAME))) {
-      const [day, month, year] = d.split("/").map(Number);
-      const [h, m] = t.split(":").map(Number);
+    const [_, d, t, homeRaw, awayRaw] = match;
+    const home = normalize(homeRaw);
+    const away = normalize(awayRaw);
+
+    if (home === normalize(TEAM_NAME) || away === normalize(TEAM_NAME)) {
+      const date = toIMDDate(d, t);
+      const h = homeRaw.replace(new RegExp(TEAM_NAME, "i"), "FLORES MORADO");
+      const a = awayRaw.replace(new RegExp(TEAM_NAME, "i"), "FLORES MORADO");
+
       imdEvents.push({
         type: "timed",
-        date: new Date(year, month - 1, day, h, m),
-        summary: `${home} vs ${away}`.replace(normalize(TEAM_NAME), "FLORES MORADO"),
-        location: "Por confirmar",
+        date,
+        summary: `${h} vs ${a} (IMD)`,
+        location: "Por confirmar"
       });
     }
   }
@@ -113,5 +155,5 @@ function writeICS(filename, events, prodid) {
   writeICS("federado.ics", fedEvents, "-//FLORES MORADO//FEDERADO//ES");
   writeICS("imd.ics", imdEvents, "-//FLORES MORADO//IMD//ES");
 
-  console.log("✅ Calendarios actualizados.");
+  console.log("✅ Calendarios actualizados automáticamente.");
 })();
