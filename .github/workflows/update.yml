@@ -5,7 +5,10 @@ on:
   schedule:
     - cron: '0 6 * * *'   # Every day at 06:00 UTC (adjust if you prefer another hour)
   workflow_dispatch:        # allows manual run
-
+ 
+ permissions:
+  contents: write
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
