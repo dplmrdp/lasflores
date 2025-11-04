@@ -36,44 +36,65 @@ function writeICS(filename, events, prodid) {
 
 /* --- FEDERADO VIA API --- */
 async function loadFederado() {
-  const res = await fetch("https://favoley.es/api/v1/matches?tournamentId=1321417&categoryId=3652130");
-  const matches = await res.json();
+  const url = "https://favoley.es/api/v1/matches?tournamentId=1321417&categoryId=3652130";
 
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Language": "es-ES,es;q=0.9",
+      "Referer": "https://favoley.es/",
+      "Origin": "https://favoley.es",
+      "Connection": "keep-alive"
+    }
+  });
+
+  const text = await res.text();
+
+  // Si no devuelve JSON → lo detectamos y mostramos una pista
+  if (text.trim().startsWith("<")) {
+    throw new Error("❌ FAVoley devolvió HTML (bloqueo). Probablemente falta una cabecera o el endpoint ha cambiado.");
+  }
+
+  const matches = JSON.parse(text);
   const events = [];
 
   for (const m of matches) {
-    const home = normalize(m.homeTeam.name);
-    const away = normalize(m.awayTeam.name);
+    const home = normalize(m.homeTeam.name || "");
+    const away = normalize(m.awayTeam.name || "");
     if (![home, away].includes(normalize(TEAM_NAME))) continue;
 
-    // when match has exact date & time
+    // ✅ Caso con fecha y hora correctas
     if (m.date && m.time) {
-      const dt = new Date(`${m.date}T${m.time}:00+01:00`); // adjusts automatically in .ics
+      const dt = new Date(`${m.date}T${m.time}:00+01:00`);
       events.push({
         type: "timed",
         date: dt,
         summary: `${m.homeTeam.shortName} vs ${m.awayTeam.shortName} (FEDERADO)`,
         location: m.facility?.name ?? "Por confirmar"
       });
-    } else {
-      // weekend case
-      const d = m.date ? new Date(m.date) : new Date();
-      const start = new Date(d);
-      start.setDate(start.getDate() - (d.getDay() === 0 ? 2 : d.getDay() - 5)); // set to Friday
-      const end = new Date(start);
-      end.setDate(end.getDate() + 2); // to Sunday
-      events.push({
-        type: "weekend",
-        start,
-        end,
-        summary: `${m.homeTeam.shortName} vs ${m.awayTeam.shortName} (FEDERADO)`,
-        location: m.facility?.name ?? "Por confirmar"
-      });
+      continue;
     }
+
+    // ✅ Caso sin hora → evento de fin de semana
+    const base = m.date ? new Date(m.date) : new Date();
+    const start = new Date(base);
+    start.setDate(start.getDate() - ((start.getDay() + 1) % 7)); // viernes semana del partido
+    const end = new Date(start);
+    end.setDate(end.getDate() + 2);
+
+    events.push({
+      type: "weekend",
+      start,
+      end,
+      summary: `${m.homeTeam.shortName} vs ${m.awayTeam.shortName} (FEDERADO)`,
+      location: m.facility?.name ?? "Por confirmar"
+    });
   }
 
   return events;
 }
+
 
 /* --- IMD: mantenemos el parseado existente (funciona bien) --- */
 async function loadIMD() {
