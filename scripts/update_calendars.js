@@ -7,6 +7,11 @@ const URL = "https://favoley.es/es/tournament/1321417/calendar/3652130/all";
 const OUTPUT = "public/calendario.csv";
 const TEAM = "C.D. LAS FLORES SEVILLA MORADO";
 
+// Crear carpeta 'public' si no existe
+if (!fs.existsSync("public")) {
+  fs.mkdirSync("public");
+}
+
 function downloadHTML(url) {
   return new Promise((resolve, reject) => {
     https
@@ -20,12 +25,12 @@ function downloadHTML(url) {
 }
 
 function parseDateRange(text) {
-  const match = text.match(/\((\d{2}\/\d{2}\/\d{2})\s*–\s*(\d{2}\/\d{2}\/\d{2})\)/);
+  const match = text.match(/\((\d{2}\/\d{2}\/\d{2})\s*[–\-]\s*(\d{2}\/\d{2}\/\d{2})\)/);
   if (!match) return { start: null, end: null };
   const [_, start, end] = match;
   const parse = (d) => {
     const [day, month, year] = d.split("/");
-    return `20${year}-${month}-${day}`; // formato ISO
+    return `20${year}-${month}-${day}`;
   };
   return { start: parse(start), end: parse(end) };
 }
@@ -46,24 +51,21 @@ function extractMatches(html) {
           .find("td.colstyle-equipo span.ellipsis")
           .each((_, e) => equipos.push($(e).text().trim()));
 
-        const fecha = $(row).find("td.colstyle-fecha span").text().trim();
-        const lugar = $(row)
-          .find("td.colstyle-fecha span .ellipsis")
-          .attr("title") || "";
-
         if (!equipos.length) return;
+        if (!equipos.some((e) => e.includes(TEAM))) return;
+
+        const fecha = $(row).find("td.colstyle-fecha span").text().trim();
+        const lugar =
+          $(row).find("td.colstyle-fecha span .ellipsis").attr("title") || "";
 
         const local = equipos[0];
         const visitante = equipos[1] || "";
 
-        // Solo partidos del equipo Las Flores
-        if (!equipos.some((e) => e.includes(TEAM))) return;
-
         matches.push({
           jornada: jornadaTitle.replace(/\s*\(.*?\)/, "").trim(),
+          fecha: fecha.replace(/\s+GMT\+\d+/, "").replace(/\s+/g, " "),
           local,
           visitante,
-          fecha: fecha.replace(/\s+GMT\+\d+/, "").replace(/\s+/g, " "),
           lugar,
           start: start || "",
           end: end || "",
