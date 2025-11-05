@@ -1,101 +1,121 @@
-const fs = require("fs");
-const { Builder, By, until } = require("selenium-webdriver");
-require("chromedriver");
+// ===============================================
+//  Scraper IMD Sevilla (Cadete Femenino Morado)
+//  Autor: (tu nombre o alias)
+//  Usa Selenium WebDriver con Chrome Headless
+// ===============================================
 
-function norm(s) {
-  return (s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-}
+const { Builder, By, until } = require("selenium-webdriver");
+const chrome = require("selenium-webdriver/chrome");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+
+const IMD_URL = "https://imd.sevilla.org/app/jjddmm_resultados/";
+const TEAM_NAME = "CD LAS FLORES SEVILLA MORADO";
+const CATEGORY_NAME = "CADETE FEMENINO";
+
+// 📁 Crear perfil temporal único para cada ejecución
+const tmpDir = path.join(os.tmpdir(), `chrome-profile-${Date.now()}`);
+
+// Configuración de Chrome en modo headless (para GitHub Actions)
+const options = new chrome.Options();
+options.addArguments(
+  "--headless",
+  "--no-sandbox",
+  "--disable-dev-shm-usage",
+  "--disable-gpu",
+  "--window-size=1920,1080",
+  `--user-data-dir=${tmpDir}` // 👈 evita conflicto de sesión
+);
 
 async function loadIMD() {
   console.log("Cargando calendario IMD (tabla de equipos)…");
-  const driver = await new Builder().forBrowser("chrome").build();
+
+  const driver = await new Builder()
+    .forBrowser("chrome")
+    .setChromeOptions(options)
+    .build();
 
   try {
-    // Ir a la web principal
-    await driver.get("https://imd.sevilla.org/app/jjddmm_resultados/");
-    await driver.manage().setTimeouts({ implicit: 10000 });
+    // 1️⃣ Abrir página principal
+    await driver.get(IMD_URL);
+    await driver.wait(until.elementLocated(By.id("busqueda")), 15000);
 
-    // Inyectar la búsqueda directamente en el buscador
-    console.log("➡️ Buscando equipos que contengan 'flores'…");
-    await driver.executeScript('document.getElementById("busqueda").value = "flores";');
-    await driver.executeScript("buscarequipo()");
+    // 2️⃣ Buscar “las flores”
+    const searchBox = await driver.findElement(By.id("busqueda"));
+    await searchBox.clear();
+    await searchBox.sendKeys("las flores");
 
-    // Esperar a que aparezca la tabla
-    await driver.wait(until.elementLocated(By.css("table.tt")), 10000);
+    // Esperar a que aparezcan resultados
+    await driver.sleep(2000);
+
+    // 3️⃣ Localizar tabla con los equipos
     const table = await driver.findElement(By.css("table.tt"));
     const rows = await table.findElements(By.css("tbody tr"));
+
     console.log(`🔍 Se han encontrado ${rows.length} filas en la tabla.`);
 
-    let clicked = false;
+    let targetRow = null;
     for (const row of rows) {
-      const cells = await row.findElements(By.css("td.cc"));
-      if (cells.length < 3) continue;
+      const text = await row.getText();
+      const normalized = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-      const teamName = norm(await cells[0].getText());
-      const category = norm(await cells[2].getText());
-      console.log(`• Fila detectada: [${teamName}] | [${category}]`);
-
-      if (
-        teamName.includes("flores") &&
-        teamName.includes("morado") &&
-        category.includes("cadete") &&
-        category.includes("femenino")
-      ) {
-        console.log(`✅ Fila encontrada: ${teamName} (${category})`);
-        const link = await cells[0].findElement(By.css("a[onclick^='datosequipo(']"));
-        await driver.executeScript("arguments[0].click();", link);
-        clicked = true;
+      if (normalized.includes("flores") && normalized.includes("morado") && normalized.includes("cadete femenino")) {
+        targetRow = row;
         break;
       }
     }
 
-    if (!clicked) {
-      console.warn("⚠️ No se encontró la fila 'CD LAS FLORES SEVILLA MORADO' (Cadete Femenino).");
+    if (!targetRow) {
+      console.warn(`⚠️ No se encontró la fila '${TEAM_NAME}' (${CATEGORY_NAME}).`);
       return [];
     }
 
-    // Esperar a que aparezca el selector de jornadas
-    console.log("🕐 Esperando a que se cargue el desplegable de jornadas...");
+    console.log(`✅ Fila encontrada: ${TEAM_NAME} (${CATEGORY_NAME})`);
+
+    // 4️⃣ Hacer clic en el enlace del equipo
+    const link = await targetRow.findElement(By.css("a[href^='#']"));
+    await driver.executeScript("arguments[0].click();", link);
+
+    // Esperar a que se cargue el selector de jornadas
     const sel = await driver.wait(until.elementLocated(By.id("seljor")), 15000);
 
-    // Seleccionar "Todas"
-    await driver.executeScript(`
-      const sel = document.getElementById("seljor");
-      if (sel) {
-        sel.value = "T";
-        sel.dispatchEvent(new Event("change"));
+    // 5️⃣ Seleccionar “Todas” en el desplegable
+    await sel.findElement(By.xpath("//option[contains(., 'Todas')]")).click();
+    await driver.sleep(3000);
+
+    // 6️⃣ Extraer las filas de partidos
+    const partidoRows = await driver.findElements(By.css("table.tt tbody tr"));
+    console.log(`📅 ${partidoRows.length} filas encontradas en el calendario.`);
+
+    const events = [];
+    for (const r of partidoRows) {
+      const cells = await r.findElements(By.css("td"));
+      const data = await Promise.all(cells.map(c => c.getText()));
+      if (data.length >= 5) {
+        const [jornada, fecha, hora, equipoLocal, equipoVisitante, pista] = data;
+        if (equipoLocal.toLowerCase().includes("flores") || equipoVisitante.toLowerCase().includes("flores")) {
+          events.push({
+            summary: `${equipoLocal} vs ${equipoVisitante}`,
+            location: pista || "Por confirmar",
+            date: fecha,
+            hour: hora,
+          });
+        }
       }
-    `);
+    }
 
-    console.log("✅ Seleccionada la opción 'Todas'.");
-
-    // Esperar unos segundos a que se carguen los partidos
-    await driver.sleep(5000);
-
-    // Aquí iría el código de scraping de los partidos y exportación del .ics
-    console.log("🕐 (Scraping de jornadas pendiente de implementar)");
-
-    return []; // De momento devolvemos vacío
+    console.log(`✅ Se han encontrado ${events.length} partidos del ${TEAM_NAME}`);
+    return events;
 
   } catch (err) {
-    console.error("❌ Error al cargar la tabla IMD:", err.message);
+    console.error("❌ Error en scraping IMD:", err.message);
     return [];
   } finally {
+    await driver.sleep(500); // Evita cierre brusco de Chrome
     await driver.quit();
   }
 }
 
-// ----------- MAIN -----------
-(async () => {
-  const imdEvents = await loadIMD();
-  if (!imdEvents.length) {
-    console.warn("⚠️ No se encontraron partidos IMD.");
-  } else {
-    console.log(`✅ Calendario IMD actualizado con ${imdEvents.length} partidos.`);
-  }
-})();
+// Exportar función para uso externo (por ejemplo, desde update.yml)
+module.exports = { loadIMD };
