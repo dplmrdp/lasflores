@@ -41,13 +41,21 @@ jobs:
         run: |
           npm install selenium-webdriver chromedriver
 
-      # 🟢 Ejecutar el script principal (Federado + IMD)
-      - name: Run update scripts
+      # 🟢 Ejecutar el script de FAVOLEY (federado)
+      - name: Run Federado update script
         env:
           CHROME_BIN: /usr/bin/google-chrome
           CHROMEDRIVER_PATH: /usr/local/bin/chromedriver
         run: |
           node scripts/update_calendars.js
+
+      # 🟣 Ejecutar el script de IMD (selenium)
+      - name: Run IMD update script
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+          CHROMEDRIVER_PATH: /usr/local/bin/chromedriver
+        run: |
+          node scripts/update_calendars_imd_selenium.js
 
       # 🟢 Subir los .ics actualizados
       - name: Commit and push calendar updates
