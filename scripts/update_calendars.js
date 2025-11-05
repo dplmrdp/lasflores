@@ -56,7 +56,7 @@ function fmtICSDate(d) {
   const Y = d.getUTCFullYear();
   const M = String(d.getUTCMonth() + 1).padStart(2, "0");
   const D = String(d.getUTCDate()).padStart(2, "0");
-  return `${Y}${M}${D`;
+  return `${Y}${M}${D}`;
 }
 
 function writeICS(filename, events) {
