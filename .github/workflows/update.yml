@@ -25,7 +25,8 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install cheerio node-fetch@2
+        run: npm install cheerio node-fetch@2 --legacy-peer-deps
+
 
       - name: Run update script
         run: node scripts/update_calendars.js
