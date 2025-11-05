@@ -3,7 +3,6 @@ const fs = require("fs");
 const { Builder, By, until } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 
-// Utilidades básicas
 const norm = s => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").toLowerCase().trim();
 
 function parseDateTime(text) {
@@ -81,33 +80,31 @@ async function loadIMD() {
   try {
     await driver.get("https://imd.sevilla.org/app/jjddmm_resultados/");
 
-    // 1) Buscar "flores"
     const search = await driver.wait(until.elementLocated(By.id("busqueda")), 15000);
     await search.clear();
     await search.sendKeys("flores");
 
-    // 2) Esperar la tabla y filas
     await driver.wait(until.elementLocated(By.css("table")), 15000);
     await driver.wait(until.elementsLocated(By.css("table tbody tr")), 15000);
 
     const rows = await driver.findElements(By.css("table tbody tr"));
-        let clicked = false;
+    let clicked = false;
 
     for (const row of rows) {
-      const htmlRow = await row.getAttribute("outerHTML");
+      const links = await row.findElements(By.css("a"));
+      const texts = [];
+      for (const link of links) {
+        const t = await link.getText();
+        texts.push(norm(t));
+      }
+      const rowText = texts.join(" | ");
 
-      // Extrae texto limpio de cada columna sin confiar en el orden estricto
-      const cells = [...htmlRow.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)].map(td =>
-        td[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().toLowerCase()
-      );
-
-      const fullText = cells.join(" | ");
-      const esFlores = fullText.includes("flores");
-      const esMorado = fullText.includes("morado");
-      const esCadete = fullText.includes("cadete") && fullText.includes("femenino");
+      const esFlores = rowText.includes("flores");
+      const esMorado = rowText.includes("morado");
+      const esCadete = rowText.includes("cadete") && rowText.includes("femenino");
 
       if (esFlores && esMorado && esCadete) {
-        console.log(`→ Fila encontrada: ${fullText}`);
+        console.log(`→ Fila encontrada: ${rowText}`);
         const link = await row.findElement(By.css("a[onclick^='datosequipo(']"));
         await driver.executeScript("arguments[0].click();", link);
         clicked = true;
@@ -115,13 +112,11 @@ async function loadIMD() {
       }
     }
 
-
     if (!clicked) {
       console.warn("⚠️ No se encontró la fila 'CD LAS FLORES SEVILLA MORADO' (Cadete Femenino).");
       return [];
     }
 
-    // 3) Esperar el desplegable y elegir “Todas”
     const sel = await driver.wait(until.elementLocated(By.id("seljor")), 15000);
     await driver.executeScript(`
       const s = document.querySelector('#seljor');
@@ -137,7 +132,6 @@ async function loadIMD() {
     `);
     await driver.sleep(2500);
 
-    // 4) Extraer calendario completo
     const html = await driver.getPageSource();
     const sections = html.split(/<h2[^>]*>[^<]*Jornada/).slice(1);
     const events = [];
