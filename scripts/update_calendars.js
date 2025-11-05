@@ -1,13 +1,6 @@
 const fs = require("fs");
 const https = require("https");
-
-// Cargador HTML mínimo (sin cheerio)
-function extractText(html, regex) {
-  const matches = [];
-  let m;
-  while ((m = regex.exec(html)) !== null) matches.push(m[1]);
-  return matches;
-}
+const cheerio = require("cheerio");
 
 const TEAM_NAME_FED = "C.D. LAS FLORES SEVILLA MORADO";
 const FED_URL = "https://favoley.es/es/tournament/1321417/calendar/3652130/all";
@@ -22,41 +15,83 @@ function fetchHtml(url) {
   });
 }
 
-(async () => {
-  console.log("Cargando calendario Federado desde HTML...");
+function parseDate(text) {
+  // "Sáb, 18/10/2025 10:00 GMT+1"
+  const match = text.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+  if (!match) return null;
+  const [_, d, m, y, h, min] = match;
+  return new Date(`${y}-${m}-${d}T${h}:${min}:00+01:00`);
+}
+
+function normalize(str) {
+  return str
+    ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
+    : "";
+}
+
+function writeICS(filename, events) {
+  let ics = `BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+`;
+  for (const evt of events) {
+    const dt = evt.date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    ics += `BEGIN:VEVENT
+DTSTART:${dt}
+SUMMARY:${evt.summary}
+LOCATION:${evt.location}
+END:VEVENT
+`;
+  }
+  ics += "END:VCALENDAR\n";
+  fs.mkdirSync("calendarios", { recursive: true });
+  fs.writeFileSync(filename, ics);
+}
+
+async function loadFederado() {
+  console.log("Cargando calendario Federado (HTML)...");
   const html = await fetchHtml(FED_URL);
+  const $ = cheerio.load(html);
 
-  // Filtramos solo partidos del equipo
-  const rows = html.split("<tr");
-  const eventos = [];
+  const events = [];
 
-  for (const row of rows) {
-    if (!row.includes(TEAM_NAME_FED)) continue;
+  $("tr").each((_, tr) => {
+    const equipos = $(tr)
+      .find(".colstyle-equipo span.ellipsis")
+      .map((i, el) => $(el).text().trim())
+      .get();
 
-    const equipos = extractText(row, /data-original-title="([^"]+)"/g);
-    const fechaTxt = (row.match(/(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/) || [])[1];
-    const lugar = (row.match(/data-original-title="([^"]+)"[^>]*><\/span>\s*<\/span>\s*<\/td>/) || [])[1] || "Por confirmar";
+    // Si no hay equipos o no está nuestro equipo, saltamos
+    if (!equipos.length) return;
+    if (!equipos.some(e => normalize(e).includes(normalize(TEAM_NAME_FED)))) return;
 
-    if (fechaTxt) {
-      const [d, m, y, h, min] = fechaTxt.match(/\d+/g);
-      const date = new Date(`${y}-${m}-${d}T${h}:${min}:00+01:00`);
-      eventos.push({
-        summary: `${equipos.join(" vs ")} (FEDERADO)`,
+    const fechaTd = $(tr).find(".colstyle-fecha span").first();
+    const fechaTxt = fechaTd.text().trim();
+    const lugar = fechaTd.find(".ellipsis").attr("data-original-title") || "Por confirmar";
+
+    const date = parseDate(fechaTxt);
+
+    if (date) {
+      events.push({
+        summary: `${equipos[0]} vs ${equipos[1]} (FEDERADO)`,
         date,
         location: lugar,
       });
     }
-  }
+  });
 
-  // Crear ICS
-  let ics = `BEGIN:VCALENDAR\nVERSION:2.0\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n`;
-  for (const evt of eventos) {
-    const dt = evt.date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-    ics += `BEGIN:VEVENT\nDTSTART:${dt}\nSUMMARY:${evt.summary}\nLOCATION:${evt.location}\nEND:VEVENT\n`;
-  }
-  ics += "END:VCALENDAR\n";
-  fs.mkdirSync("calendarios", { recursive: true });
-  fs.writeFileSync("calendarios/federado.ics", ics);
+  console.log(`→ ${events.length} partidos encontrados del ${TEAM_NAME_FED}`);
+  return events;
+}
 
-  console.log(`✅ ${eventos.length} partidos del ${TEAM_NAME_FED}`);
+(async () => {
+  const fed = await loadFederado();
+
+  if (fed.length === 0) {
+    console.warn("⚠️ No se encontraron partidos del equipo en el calendario federado.");
+  } else {
+    writeICS("calendarios/federado.ics", fed);
+    console.log(`✅ Calendario federado actualizado con ${fed.length} partidos.`);
+  }
 })();
