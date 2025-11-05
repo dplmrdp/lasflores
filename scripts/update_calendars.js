@@ -4,31 +4,61 @@ const https = require("https");
 const TEAM_NAME_FED = "C.D. LAS FLORES SEVILLA MORADO";
 const FED_URL = "https://favoley.es/es/tournament/1321417/calendar/3652130/all";
 
-// Utilidad mínima para obtener HTML
+// --------- utilidades básicas ---------
 function fetchHtml(url) {
   return new Promise((resolve, reject) => {
-    https
-      .get(url, (res) => {
-        let data = "";
-        res.on("data", (chunk) => (data += chunk));
-        res.on("end", () => resolve(data));
-      })
-      .on("error", reject);
+    https.get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => resolve(data));
+    }).on("error", reject);
   });
 }
 
-// Quitar acentos y pasar a minúsculas
-function normalize(str) {
-  return str
-    ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
-    : "";
+function normalize(s) {
+  return (s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+    .trim();
 }
 
-function parseDate(text) {
-  const match = text.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
-  if (!match) return null;
-  const [_, d, m, y, h, min] = match;
-  return new Date(`${y}-${m}-${d}T${h}:${min}:00+01:00`);
+function parseDateTime(text) {
+  // Busca patrones dd/mm/yyyy hh:mm en cualquier texto
+  const m = (text || "").match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+  if (!m) return null;
+  const [_, d, M, Y, h, m] = m;
+  // Usamos hora local Madrid (UTC+1 en invierno); Apple/Google ajustan DST al importar
+  return new Date(`${Y}-${M}-${d}T${h}:${m}:00+01:00`);
+}
+
+function parseDdmmyy(ddmmyy) {
+  // dd/mm/yy -> Date (a las 00:00 local)
+  const m = (ddmmyy || "").match(/(\d{2})\/(\d{2})\/(\d{2})/);
+  if (!m) return null;
+  const [_, d, M, yy] = m;
+  const Y = Number(yy) >= 70 ? `19${yy}` : `20${yy}`;
+  return new Date(`${Y}-${M}-${d}T00:00:00+01:00`);
+}
+
+function addDays(date, days) {
+  const d = new Date(date.getTime());
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function fmtICSDateTime(dt) {
+  // UTC en formato ICS
+  return dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+}
+
+function fmtICSDate(d) {
+  // YYYYMMDD
+  const Y = d.getUTCFullYear();
+  const M = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const D = String(d.getUTCDate()).padStart(2, "0");
+  return `${Y}${M}${D`;
 }
 
 function writeICS(filename, events) {
@@ -36,67 +66,142 @@ function writeICS(filename, events) {
 VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
+PRODID:-//Flores Morado//Calendario Federado//ES
 `;
+
   for (const evt of events) {
-    const dt = evt.date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-    ics += `BEGIN:VEVENT
-DTSTART:${dt}
+    if (evt.type === "timed") {
+      ics += `BEGIN:VEVENT
 SUMMARY:${evt.summary}
 LOCATION:${evt.location}
+DTSTART:${fmtICSDateTime(evt.start)}
 END:VEVENT
 `;
-  }
-  ics += "END:VCALENDAR\n";
-  fs.mkdirSync("calendarios", { recursive: true });
-  fs.writeFileSync(filename, ics);
-}
-
-async function loadFederado() {
-  console.log("Cargando calendario Federado (HTML simple)...");
-  const html = await fetchHtml(FED_URL);
-
-  // Extraer todas las filas <tr> donde aparezca el nombre del equipo
-  const filas = html.split("<tr");
-  const eventos = [];
-
-  for (const f of filas) {
-    if (!f.includes(TEAM_NAME_FED)) continue;
-
-    // Extraer nombres de equipos
-    const equipos = [...f.matchAll(/data-original-title="([^"]+)"/g)].map(
-      (m) => m[1].trim()
-    );
-
-    // Extraer fecha + hora
-    const fechaTxt =
-      (f.match(/(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/) || [])[1] || "";
-    const date = parseDate(fechaTxt);
-
-    // Extraer lugar
-    const lugar =
-      (f.match(
-        /data-original-title="([^"]+)"[^>]*><\/span>\s*<\/span>\s*<\/td>/
-      ) || [])[1] || "Por confirmar";
-
-    if (date && equipos.length >= 2) {
-      eventos.push({
-        date,
-        summary: `${equipos[0]} vs ${equipos[1]} (FEDERADO)`,
-        location: lugar,
-      });
+    } else if (evt.type === "allday") {
+      // En iCalendar, DTEND es no-inclusivo → ponemos lunes para cubrir vie-dom completos
+      ics += `BEGIN:VEVENT
+SUMMARY:${evt.summary}
+LOCATION:${evt.location}
+DTSTART;VALUE=DATE:${fmtICSDate(evt.start)}
+DTEND;VALUE=DATE:${fmtICSDate(evt.end)}
+END:VEVENT
+`;
     }
   }
 
-  console.log(`→ ${eventos.length} partidos encontrados del ${TEAM_NAME_FED}`);
-  return eventos;
+  ics += "END:VCALENDAR\n";
+
+  fs.mkdirSync("calendarios", { recursive: true });
+  fs.writeFileSync(`calendarios/${filename}`, ics);
 }
 
-(async () => {
-  const fed = await loadFederado();
-  if (!fed.length) {
-    console.warn("⚠️ No se encontraron partidos del equipo.");
-    return;
+// --------- parser específico del HTML de FAVoley ---------
+//
+// Estructura que nos diste:
+// <h2 ...>Jornada N <span ...>(dd/mm/yy&nbsp;&ndash;&nbsp;dd/mm/yy)</span></h2>
+// ... <table> ... <tr> con:
+//   <td class="colstyle-equipo"> ... <span class="ellipsis" title="Equipo A"> ... </span> <span class="ellipsis" title="Equipo B"> ... </span>
+//   <td class="colstyle-fecha"><span ...>Sáb, 18/10/2025 10:00 GMT+1 <span class="ellipsis" title="LUGAR">LUGAR</span></span>
+// En jornadas sin hora: el <td class="colstyle-fecha"> está vacío o con data-sort 9999-99-99 ...
+
+async function loadFederado() {
+  console.log("Cargando calendario Federado (todas las jornadas)...");
+  const html = await fetchHtml(FED_URL);
+
+  // Separar por secciones de jornada usando <h2 ...>Jornada ...
+  const sections = html.split(/<h2[^>]*>[^<]*Jornada/).slice(1); // descartamos lo anterior a la 1ª jornada
+
+  const events = [];
+
+  for (const sec of sections) {
+    // Rango de la jornada (para eventos sin hora)
+    // Busca "(dd/mm/yy&nbsp;&ndash;&nbsp;dd/mm/yy)"
+    const range = sec.match(/\((\d{2}\/\d{2}\/\d{2})[^)]*?(\d{2}\/\d{2}\/\d{2})\)/);
+    let weekendStart = null, weekendEnd = null;
+    if (range) {
+      const start = parseDdmmyy(range[1]); // viernes
+      const end = parseDdmmyy(range[2]);   // domingo
+      if (start && end) {
+        // Para iCal all-day, DTEND es no inclusivo: sumamos 1 día a domingo → lunes
+        weekendStart = start;
+        weekendEnd = addDays(end, 1);
+      }
+    }
+
+    // Extraer la primera <table ...> ... </table> dentro de esta jornada
+    const tableMatch = sec.match(/<table[\s\S]*?<\/table>/);
+    if (!tableMatch) continue;
+    const tableHtml = tableMatch[0];
+
+    // Partir por filas
+    const rows = tableHtml.split(/<tr[^>]*>/).slice(1);
+
+    for (const row of rows) {
+      // Equipos: títulos dentro de colstyle-equipo
+      const equipoTdMatch = row.match(/<td class="colstyle-equipo">([\s\S]*?)<\/td>/);
+      if (!equipoTdMatch) continue;
+      const equipoTd = equipoTdMatch[1];
+
+      const teams = [...equipoTd.matchAll(/<span class="ellipsis" title="([^"]+)">/g)].map(m => m[1].trim());
+      if (teams.length < 2) continue;
+
+      const [teamA, teamB] = teams;
+      const isMorado = normalize(teamA) === normalize(TEAM_NAME_FED) || normalize(teamB) === normalize(TEAM_NAME_FED);
+      if (!isMorado) continue;
+
+      // Fecha / lugar: dentro de colstyle-fecha
+      const fechaTdMatch = row.match(/<td class="colstyle-fecha">([\s\S]*?)<\/td>/);
+      const fechaTd = fechaTdMatch ? fechaTdMatch[1] : "";
+
+      const date = parseDateTime(fechaTd);
+      const lugarMatch = fechaTd.match(/<span class="ellipsis" title="([^"]+)">/);
+      const lugar = (lugarMatch ? lugarMatch[1] : "Por confirmar").trim();
+
+      // Construir evento
+      const summary = `${teamA} vs ${teamB} (FEDERADO)`;
+
+      if (date) {
+        events.push({
+          type: "timed",
+          summary,
+          location: lugar,
+          start: date
+        });
+      } else if (weekendStart && weekendEnd) {
+        events.push({
+          type: "allday",
+          summary,
+          location: lugar,
+          start: weekendStart,
+          end: weekendEnd
+        });
+      } else {
+        // Si no tenemos rango (muy raro), lo ignoramos para evitar basura
+        continue;
+      }
+    }
   }
-  writeICS("calendarios/federado.ics", fed);
-  console.log(`✅ Calendario federado actualizado con ${fed.length} partidos.`);
+
+  console.log(`→ ${events.length} partidos encontrados del ${TEAM_NAME_FED}`);
+  return events;
+}
+
+// --------- main ---------
+(async () => {
+  try {
+    const fed = await loadFederado();
+
+    if (!fed.length) {
+      console.warn("⚠️ No se encontraron partidos del equipo en Federado.");
+    } else {
+      writeICS("federado.ics", fed);
+      console.log(`✅ Calendario federado actualizado con ${fed.length} partidos.`);
+    }
+
+    // Si quieres, aquí integraríamos también IMD y la fusión en un único .ics
+
+  } catch (err) {
+    console.error("ERROR:", err);
+    process.exit(1);
+  }
 })();
