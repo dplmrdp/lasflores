@@ -74,12 +74,14 @@ DTSTART:${fmtICSDateTime(evt.start)}
 END:VEVENT
 `;
     } else if (evt.type === "allday") {
-      // En iCalendar, DTEND es no inclusivo → sumamos 1 día al final del rango
+      // 🔧 Ajuste: desplazamos +1 día el inicio para corregir el desfase jueves→viernes
+      const start = addDays(evt.start, 1);
+      const end = addDays(evt.end, 1); // mantenemos duración igual (2 días)
       ics += `BEGIN:VEVENT
 SUMMARY:${evt.summary}
 LOCATION:${evt.location}
-DTSTART;VALUE=DATE:${fmtICSDate(evt.start)}
-DTEND;VALUE=DATE:${fmtICSDate(addDays(evt.end, 1))}
+DTSTART;VALUE=DATE:${fmtICSDate(start)}
+DTEND;VALUE=DATE:${fmtICSDate(end)}
 END:VEVENT
 `;
     }
@@ -90,6 +92,7 @@ END:VEVENT
   fs.mkdirSync("calendarios", { recursive: true });
   fs.writeFileSync(`calendarios/${filename}`, ics);
 }
+
 
 // --------- parser específico del HTML de FAVoley ---------
 async function loadFederado() {
