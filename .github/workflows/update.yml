@@ -1,1 +1,41 @@
+name: Actualizar calendario
 
+on:
+  schedule:
+    - cron: "0 6 * * *"  # todos los días a las 6:00 UTC
+  workflow_dispatch:      # permite ejecutarlo manualmente
+
+permissions:
+  contents: write         # necesario para poder actualizar el CSV en el repo
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      # 🔧 Limpia posibles restos previos (opcional pero recomendable)
+      - name: Limpiar caché anterior
+        run: rm -rf node_modules package-lock.json || true
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Instalar dependencias
+        run: |
+          npm install cheerio
+
+      - name: Ejecutar script de actualización
+        run: node scripts/update_calendars.js
+
+      - name: Confirmar y subir cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/calendario.csv
+          git commit -m "Actualizar calendario automáticamente" || echo "Sin cambios para confirmar"
+          git push
