@@ -1,0 +1,13 @@
+{
+  "name": "cadete-morado",
+  "version": "1.0.0",
+  "description": "Actualización automática del calendario del equipo C.D. Las Flores Sevilla Morado",
+  "main": "scripts/update_calendars.js",
+  "type": "commonjs",
+  "scripts": {
+    "update": "node scripts/update_calendars.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
