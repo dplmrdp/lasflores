@@ -1,7 +1,7 @@
 // scripts/update_calendars.js
-import * as cheerio from "cheerio";
-import fs from "fs";
-import fetch from "node-fetch";
+const cheerio = require("cheerio");
+const fs = require("fs");
+const fetch = require("node-fetch");
 
 const URL = "https://favoley.es/es/tournament/1321417/calendar/3652130";
 
