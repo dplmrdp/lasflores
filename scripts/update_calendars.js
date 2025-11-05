@@ -1,32 +1,34 @@
 const fs = require("fs");
 const https = require("https");
-const cheerio = require("cheerio");
 
 const TEAM_NAME_FED = "C.D. LAS FLORES SEVILLA MORADO";
 const FED_URL = "https://favoley.es/es/tournament/1321417/calendar/3652130/all";
 
+// Utilidad mínima para obtener HTML
 function fetchHtml(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      let data = "";
-      res.on("data", (chunk) => (data += chunk));
-      res.on("end", () => resolve(data));
-    }).on("error", reject);
+    https
+      .get(url, (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => resolve(data));
+      })
+      .on("error", reject);
   });
 }
 
-function parseDate(text) {
-  // "Sáb, 18/10/2025 10:00 GMT+1"
-  const match = text.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
-  if (!match) return null;
-  const [_, d, m, y, h, min] = match;
-  return new Date(`${y}-${m}-${d}T${h}:${min}:00+01:00`);
-}
-
+// Quitar acentos y pasar a minúsculas
 function normalize(str) {
   return str
     ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
     : "";
+}
+
+function parseDate(text) {
+  const match = text.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+  if (!match) return null;
+  const [_, d, m, y, h, min] = match;
+  return new Date(`${y}-${m}-${d}T${h}:${min}:00+01:00`);
 }
 
 function writeICS(filename, events) {
@@ -50,48 +52,51 @@ END:VEVENT
 }
 
 async function loadFederado() {
-  console.log("Cargando calendario Federado (HTML)...");
+  console.log("Cargando calendario Federado (HTML simple)...");
   const html = await fetchHtml(FED_URL);
-  const $ = cheerio.load(html);
 
-  const events = [];
+  // Extraer todas las filas <tr> donde aparezca el nombre del equipo
+  const filas = html.split("<tr");
+  const eventos = [];
 
-  $("tr").each((_, tr) => {
-    const equipos = $(tr)
-      .find(".colstyle-equipo span.ellipsis")
-      .map((i, el) => $(el).text().trim())
-      .get();
+  for (const f of filas) {
+    if (!f.includes(TEAM_NAME_FED)) continue;
 
-    // Si no hay equipos o no está nuestro equipo, saltamos
-    if (!equipos.length) return;
-    if (!equipos.some(e => normalize(e).includes(normalize(TEAM_NAME_FED)))) return;
+    // Extraer nombres de equipos
+    const equipos = [...f.matchAll(/data-original-title="([^"]+)"/g)].map(
+      (m) => m[1].trim()
+    );
 
-    const fechaTd = $(tr).find(".colstyle-fecha span").first();
-    const fechaTxt = fechaTd.text().trim();
-    const lugar = fechaTd.find(".ellipsis").attr("data-original-title") || "Por confirmar";
-
+    // Extraer fecha + hora
+    const fechaTxt =
+      (f.match(/(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/) || [])[1] || "";
     const date = parseDate(fechaTxt);
 
-    if (date) {
-      events.push({
-        summary: `${equipos[0]} vs ${equipos[1]} (FEDERADO)`,
+    // Extraer lugar
+    const lugar =
+      (f.match(
+        /data-original-title="([^"]+)"[^>]*><\/span>\s*<\/span>\s*<\/td>/
+      ) || [])[1] || "Por confirmar";
+
+    if (date && equipos.length >= 2) {
+      eventos.push({
         date,
+        summary: `${equipos[0]} vs ${equipos[1]} (FEDERADO)`,
         location: lugar,
       });
     }
-  });
+  }
 
-  console.log(`→ ${events.length} partidos encontrados del ${TEAM_NAME_FED}`);
-  return events;
+  console.log(`→ ${eventos.length} partidos encontrados del ${TEAM_NAME_FED}`);
+  return eventos;
 }
 
 (async () => {
   const fed = await loadFederado();
-
-  if (fed.length === 0) {
-    console.warn("⚠️ No se encontraron partidos del equipo en el calendario federado.");
-  } else {
-    writeICS("calendarios/federado.ics", fed);
-    console.log(`✅ Calendario federado actualizado con ${fed.length} partidos.`);
+  if (!fed.length) {
+    console.warn("⚠️ No se encontraron partidos del equipo.");
+    return;
   }
+  writeICS("calendarios/federado.ics", fed);
+  console.log(`✅ Calendario federado actualizado con ${fed.length} partidos.`);
 })();
