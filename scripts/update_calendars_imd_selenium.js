@@ -87,7 +87,7 @@ async function loadIMD() {
     await driver.wait(until.elementLocated(By.css("table")), 15000);
     await driver.wait(until.elementsLocated(By.css("table tbody tr")), 15000);
 
-    // Buscar filas de la tabla principal de equipos (class="tt")
+     // Buscar filas de la tabla principal de equipos (class="tt")
     const rows = await driver.findElements(By.css("table.tt tbody tr"));
     let clicked = false;
 
@@ -118,6 +118,7 @@ async function loadIMD() {
       console.warn("⚠️ No se encontró la fila 'CD LAS FLORES SEVILLA MORADO' (Cadete Femenino).");
       return [];
     }
+
 
 
 
