@@ -70,49 +70,54 @@ END:VEVENT
   fs.writeFileSync(`calendarios/${filename}`, ics);
 }
 
-async function loadIMD() {
-console.log("Cargando calendario IMD (tabla de equipos)…");
+async function loadIMD(driver) {
+  console.log("Cargando calendario IMD (tabla de equipos)…");
 
-try {
-  // Esperar a que aparezca la tabla de resultados de equipos
-  await driver.wait(until.elementLocated(By.css("table.tt")), 10000);
+  try {
+    // Esperar a que aparezca la tabla de resultados de equipos
+    await driver.wait(until.elementLocated(By.css("table.tt")), 10000);
 
-  const table = await driver.findElement(By.css("table.tt"));
-  const rows = await table.findElements(By.css("tbody tr"));
-  console.log(`🔍 Se han encontrado ${rows.length} filas en la tabla.`);
+    const table = await driver.findElement(By.css("table.tt"));
+    const rows = await table.findElements(By.css("tbody tr"));
+    console.log(`🔍 Se han encontrado ${rows.length} filas en la tabla.`);
 
-  let clicked = false;
+    let clicked = false;
 
-  for (const row of rows) {
-    const cells = await row.findElements(By.css("td.cc"));
-    if (cells.length < 3) continue;
+    for (const row of rows) {
+      const cells = await row.findElements(By.css("td.cc"));
+      if (cells.length < 3) continue;
 
-    const teamName = norm(await cells[0].getText());
-    const category = norm(await cells[2].getText());
-    console.log(`• Fila detectada: [${teamName}] | [${category}]`);
+      const teamName = norm(await cells[0].getText());
+      const category = norm(await cells[2].getText());
+      console.log(`• Fila detectada: [${teamName}] | [${category}]`);
 
-    if (
-      teamName.includes("flores") &&
-      teamName.includes("morado") &&
-      category.includes("cadete") &&
-      category.includes("femenino")
-    ) {
-      console.log(`✅ Fila encontrada: ${teamName} (${category})`);
-      const link = await cells[0].findElement(By.css("a[onclick^='datosequipo(']"));
-      await driver.executeScript("arguments[0].click();", link);
-      clicked = true;
-      break;
+      if (
+        teamName.includes("flores") &&
+        teamName.includes("morado") &&
+        category.includes("cadete") &&
+        category.includes("femenino")
+      ) {
+        console.log(`✅ Fila encontrada: ${teamName} (${category})`);
+        const link = await cells[0].findElement(By.css("a[onclick^='datosequipo(']"));
+        await driver.executeScript("arguments[0].click();", link);
+        clicked = true;
+        break;
+      }
     }
-  }
 
-  if (!clicked) {
-    console.warn("⚠️ No se encontró la fila 'CD LAS FLORES SEVILLA MORADO' (Cadete Femenino).");
+    if (!clicked) {
+      console.warn("⚠️ No se encontró la fila 'CD LAS FLORES SEVILLA MORADO' (Cadete Femenino).");
+      return [];
+    }
+
+    // (aquí continuarías con el scraping de las jornadas y partidos tras el clic)
+
+  } catch (err) {
+    console.error("❌ Error al cargar la tabla IMD:", err.message);
     return [];
   }
-} catch (err) {
-  console.error("❌ Error al cargar la tabla IMD:", err.message);
-  return [];
 }
+
 
 
     if (!clicked) {
