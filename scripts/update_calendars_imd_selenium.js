@@ -87,32 +87,38 @@ async function loadIMD() {
     await driver.wait(until.elementLocated(By.css("table")), 15000);
     await driver.wait(until.elementsLocated(By.css("table tbody tr")), 15000);
 
-   // Buscar filas de la tabla principal de equipos (class="tt")
-const rows = await driver.findElements(By.css("table.tt tbody tr"));
-let clicked = false;
+    // Buscar filas de la tabla principal de equipos (class="tt")
+    const rows = await driver.findElements(By.css("table.tt tbody tr"));
+    let clicked = false;
 
-for (const row of rows) {
-  const cells = await row.findElements(By.css("td.cc"));
-  if (cells.length < 3) continue;
+    console.log(`🔍 Se han encontrado ${rows.length} filas en la tabla.`);
 
-  const teamName = norm(await cells[0].getText());
-  const category = norm(await cells[2].getText());
+    for (const row of rows) {
+      const cells = await row.findElements(By.css("td.cc"));
+      if (cells.length < 3) continue;
 
-  if (teamName.includes("flores") && teamName.includes("morado") &&
-      category.includes("cadete") && category.includes("femenino")) {
+      const teamName = norm(await cells[0].getText());
+      const category = norm(await cells[2].getText());
 
-    console.log(`→ Fila encontrada: ${teamName} (${category})`);
-    const link = await cells[0].findElement(By.css("a[onclick^='datosequipo(']"));
-    await driver.executeScript("arguments[0].click();", link);
-    clicked = true;
-    break;
-  }
-}
+      // Mostrar información de depuración
+      console.log(`• Fila detectada: [${teamName}] | [${category}]`);
 
-if (!clicked) {
-  console.warn("⚠️ No se encontró la fila 'CD LAS FLORES SEVILLA MORADO' (Cadete Femenino).");
-  return [];
-}
+      if (teamName.includes("flores") && teamName.includes("morado") &&
+          category.includes("cadete") && category.includes("femenino")) {
+
+        console.log(`✅ Fila encontrada: ${teamName} (${category})`);
+        const link = await cells[0].findElement(By.css("a[onclick^='datosequipo(']"));
+        await driver.executeScript("arguments[0].click();", link);
+        clicked = true;
+        break;
+      }
+    }
+
+    if (!clicked) {
+      console.warn("⚠️ No se encontró la fila 'CD LAS FLORES SEVILLA MORADO' (Cadete Femenino).");
+      return [];
+    }
+
 
 
     const sel = await driver.wait(until.elementLocated(By.id("seljor")), 15000);
