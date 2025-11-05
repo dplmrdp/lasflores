@@ -28,7 +28,7 @@ jobs:
         run: npm cache clean --force
 
       - name: Install dependencies
-        run: npm install cheerio node-fetch@2 --legacy-peer-deps
+        run: npm install cheerio 
 
       - name: Run update script
         run: node scripts/update_calendars.js
