@@ -4,7 +4,7 @@
 //  Usa Selenium WebDriver con Chrome Headless
 // ===============================================
 
-const { Builder, By, until } = require("selenium-webdriver");
+const { Builder, By, until, Key } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const fs = require("fs");
 const os = require("os");
