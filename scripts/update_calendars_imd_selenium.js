@@ -1,144 +1,85 @@
-// ===============================================
-//  Scraper IMD Sevilla (Cadete Femenino Morado)
-//  Autor: (tu nombre o alias)
-//  Usa Selenium WebDriver con Chrome Headless
-// ===============================================
-
-const { Builder, By, until, Key } = require("selenium-webdriver");
-const chrome = require("selenium-webdriver/chrome");
 const fs = require("fs");
-const os = require("os");
-const path = require("path");
+const { Builder, By, until } = require("selenium-webdriver");
+require("chromedriver");
 
-const IMD_URL = "https://imd.sevilla.org/app/jjddmm_resultados/";
+// 🏐 Configuración base
+const IMD_URL = "[https://imd.sevilla.org/app/jjddmm_resultados/](https://imd.sevilla.org/app/jjddmm_resultados/)";
 const TEAM_NAME = "CD LAS FLORES SEVILLA MORADO";
-const CATEGORY_NAME = "CADETE FEMENINO";
+const TEAM_COLOR = "#bfd0d9"; // color que usa IMD para marcar al equipo seleccionado
 
-// 📁 Crear perfil temporal único para cada ejecución
-const tmpDir = path.join(os.tmpdir(), `chrome-profile-${Date.now()}`);
-
-// Configuración de Chrome en modo headless (para GitHub Actions)
-const options = new chrome.Options();
-options.addArguments(
-  "--headless",
-  "--no-sandbox",
-  "--disable-dev-shm-usage",
-  "--disable-gpu",
-  "--window-size=1920,1080",
-  `--user-data-dir=${tmpDir}` // 👈 evita conflicto de sesión
-);
-
-async function loadIMD() {
-  console.log("Cargando calendario IMD (tabla de equipos)…");
-
-  const driver = await new Builder()
-    .forBrowser("chrome")
-    .setChromeOptions(options)
-    .build();
-
-  console.log("✅ Navegador Chrome iniciado correctamente");
-
-  try {
-    await driver.get(IMD_URL);
-    console.log("🌐 Página IMD abierta:", IMD_URL);
-
-    await driver.wait(until.elementLocated(By.id("busqueda")), 15000);
-    console.log("🔎 Cuadro de búsqueda encontrado");
-
-    const searchBox = await driver.findElement(By.id("busqueda"));
-    await searchBox.clear();
-    await searchBox.sendKeys("las flores", Key.ENTER);
-console.log("⌨️  Texto 'las flores' introducido y búsqueda lanzada con Enter");
-
-// 🔄 Esperar a que aparezca la tabla con resultados (hasta 25 segundos)
-try {
-  await driver.wait(until.elementLocated(By.css("table.tt")), 25000);
-  await driver.wait(async () => {
-    const rows = await driver.findElements(By.css("table.tt tbody tr"));
-    return rows.length > 0;
-  }, 10000);
-  console.log("📋 Tabla de equipos encontrada y cargada");
-} catch (e) {
-  console.error("❌ No se pudo cargar la tabla de equipos:", e.message);
-  return [];
+// Utilidades básicas
+function fmtICSDateTime(dt) {
+return dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 }
 
+function writeICS(filename, events) {
+let ics = `BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+PRODID:-//Las Flores Morado//Calendario IMD//ES
+`;
 
-    // Esperar a que aparezcan resultados
-    await driver.sleep(2000);
+for (const evt of events) {
+ics += `BEGIN:VEVENT
+SUMMARY:${evt.summary}
+LOCATION:${evt.location}
+DTSTART:${fmtICSDateTime(evt.start)}
+END:VEVENT
+`;
+}
 
-    // 3️⃣ Localizar tabla con los equipos
-    const table = await driver.findElement(By.css("table.tt"));
-    const rows = await table.findElements(By.css("tbody tr"));
+ics += "END:VCALENDAR\n";
 
-    console.log(`🔍 Se han encontrado ${rows.length} filas en la tabla.`);
+fs.mkdirSync("calendarios", { recursive: true });
+fs.writeFileSync(`calendarios/${filename}`, ics);
+}
 
-    let targetRow = null;
-    for (const row of rows) {
-      const text = await row.getText();
-      const normalized = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// 🧩 Función principal
+async function loadIMD() {
+console.log("Cargando calendario IMD (tabla de equipos)…");
 
-      if (normalized.includes("flores") && normalized.includes("morado") && normalized.includes("cadete femenino")) {
-        targetRow = row;
-        break;
-      }
-    }
+let driver = await new Builder().forBrowser("chrome").build();
+const events = [];
 
-    if (!targetRow) {
-      console.warn(`⚠️ No se encontró la fila '${TEAM_NAME}' (${CATEGORY_NAME}).`);
-      return [];
-    }
+try {
+console.log("✅ Navegador Chrome iniciado correctamente");
+await driver.get(IMD_URL);
+console.log(`🌐 Página IMD abierta: ${IMD_URL}`);
 
-    console.log(`✅ Fila encontrada: ${TEAM_NAME} (${CATEGORY_NAME})`);
+```
+// Buscar el cuadro de búsqueda
+const input = await driver.wait(until.elementLocated(By.id("busqueda")), 15000);
+console.log("🔎 Cuadro de búsqueda encontrado");
 
-    // 4️⃣ Hacer clic en el enlace del equipo
-    const link = await targetRow.findElement(By.css("a[href^='#']"));
-    await driver.executeScript("arguments[0].click();", link);
+// Escribir "las flores" y lanzar búsqueda (Enter)
+await input.sendKeys("las flores");
+console.log("⌨️  Texto 'las flores' introducido y búsqueda lanzada con Enter");
 
-    // Esperar a que se cargue el selector de jornadas
-    const sel = await driver.wait(until.elementLocated(By.id("seljor")), 15000);
+// Esperar a que aparezca la tabla de equipos
+const table = await driver.wait(until.elementLocated(By.css("table.tt")), 15000);
+console.log("📋 Tabla de equipos encontrada y cargada");
 
-    // 5️⃣ Seleccionar “Todas” en el desplegable
-    await sel.findElement(By.xpath("//option[contains(., 'Todas')]")).click();
-    await driver.sleep(3000);
+// Buscar filas de la tabla
+const rows = await table.findElements(By.css("tbody tr"));
+console.log(`🔍 Se han encontrado ${rows.length} filas en la tabla.`);
 
-    // 6️⃣ Extraer las filas de partidos
-    const partidoRows = await driver.findElements(By.css("table.tt tbody tr"));
-    console.log(`📅 ${partidoRows.length} filas encontradas en el calendario.`);
-
-    const events = [];
-    for (const r of partidoRows) {
-      const cells = await r.findElements(By.css("td"));
-      const data = await Promise.all(cells.map(c => c.getText()));
-      if (data.length >= 5) {
-        const [jornada, fecha, hora, equipoLocal, equipoVisitante, pista] = data;
-        if (equipoLocal.toLowerCase().includes("flores") || equipoVisitante.toLowerCase().includes("flores")) {
-          events.push({
-            summary: `${equipoLocal} vs ${equipoVisitante}`,
-            location: pista || "Por confirmar",
-            date: fecha,
-            hour: hora,
-          });
-        }
-      }
-    }
-
-    console.log(`✅ Se han encontrado ${events.length} partidos del ${TEAM_NAME}`);
-    return events;
-
-  } catch (err) {
-    console.error("❌ Error en scraping IMD:", err.message);
-    return [];
-  } finally {
-    await driver.sleep(500); // Evita cierre brusco de Chrome
-    await driver.quit();
+// Buscar el equipo CD LAS FLORES SEVILLA MORADO (Cadete Femenino)
+let targetRow = null;
+for (const row of rows) {
+  const text = (await row.getText()).toUpperCase();
+  if (text.includes("LAS FLORES SEVILLA MORADO") && text.includes("CADETE FEMENINO")) {
+    targetRow = row;
+    break;
   }
 }
 
-// Exportar función para uso externo (por ejemplo, desde update.yml)
-module.exports = { loadIMD };
+if (!targetRow) {
+  console.warn(`⚠️ No se encontró la fila '${TEAM_NAME}' (Cadete Femenino).`);
+  return [];
+}
 
-(async () => {
-  const events = await loadIMD();
-  console.log(`🏁 Proceso IMD completado con ${events.length} partidos.`);
-})();
+console.log(`✅ Fila encontrada: ${TEAM_NAME} (Cadete Femenino)`);
+
+// Pu
+```
