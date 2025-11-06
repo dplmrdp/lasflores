@@ -124,3 +124,8 @@ async function loadIMD() {
 
 // Exportar función para uso externo (por ejemplo, desde update.yml)
 module.exports = { loadIMD };
+
+(async () => {
+  const events = await loadIMD();
+  console.log(`🏁 Proceso IMD completado con ${events.length} partidos.`);
+})();
