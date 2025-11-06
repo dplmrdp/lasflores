@@ -1,10 +1,10 @@
-const { Builder, By, until } = require("selenium-webdriver");
+const { Builder, By, until, Key } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 
 const IMD_URL = "https://imd.sevilla.org/app/jjddmm_resultados/";
 
 async function main() {
-  console.log("Cargando calendario IMD (modo mínimo)…");
+  console.log("Cargando calendario IMD (modo mínimo v1)…");
 
   // Perfil temporal único por ejecución
   const userDataDir = "/tmp/chrome-profile-" + Date.now();
@@ -29,10 +29,10 @@ async function main() {
     const input = await driver.wait(until.elementLocated(By.id("busqueda")), 20000);
     console.log("Input #busqueda localizado");
 
-    // Escribir “las flores”
+    // Escribir “las flores” y pulsar Enter
     await input.clear();
-    await input.sendKeys("las flores");
-    console.log("Texto escrito: las flores");
+    await input.sendKeys("las flores", Key.ENTER);
+    console.log("Texto 'las flores' introducido y búsqueda lanzada con Enter");
 
     // Esperar a que aparezca la tabla de equipos
     const table = await driver.wait(until.elementLocated(By.css("table.tt")), 20000);
@@ -42,7 +42,7 @@ async function main() {
     console.log("Filas encontradas en la tabla: " + rows.length);
 
   } catch (err) {
-    console.error("ERROR IMD v0:", err && err.message ? err.message : err);
+    console.error("ERROR IMD v1:", err && err.message ? err.message : err);
     process.exit(1);
   } finally {
     try { if (driver) await driver.quit(); } catch (_) {}
