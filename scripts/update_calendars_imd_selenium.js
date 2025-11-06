@@ -2,8 +2,22 @@ const { Builder, By, until, Key } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const IMD_URL = "https://imd.sevilla.org/app/jjddmm_resultados/";
 
+async function waitForAllJornadas(driver, maxWait = 30000) {
+  const start = Date.now();
+  let lastCount = 0;
+  while (Date.now() - start < maxWait) {
+    const tables = await driver.findElements(By.css("table.tt"));
+    if (tables.length >= 10 && tables.length === lastCount) {
+      return tables;
+    }
+    lastCount = tables.length;
+    await driver.sleep(1500);
+  }
+  return driver.findElements(By.css("table.tt")); // devolver lo que haya
+}
+
 async function main() {
-  console.log("Cargando calendario IMD (v2.2: ejecutar datosequipo)…");
+  console.log("Cargando calendario IMD (v2.3: esperar todas las jornadas)…");
 
   const userDataDir = "/tmp/chrome-profile-" + Date.now();
   const options = new chrome.Options()
@@ -22,18 +36,15 @@ async function main() {
     await driver.get(IMD_URL);
     console.log("🌐 Página IMD abierta: " + IMD_URL);
 
-    // Buscar el cuadro de búsqueda
     const input = await driver.wait(until.elementLocated(By.id("busqueda")), 20000);
     await input.clear();
     await input.sendKeys("las flores", Key.ENTER);
     console.log("⌨️  Texto 'las flores' introducido y búsqueda lanzada con Enter");
 
-    // Esperar tabla de equipos
     const table = await driver.wait(until.elementLocated(By.css("table.tt")), 20000);
     const rows = await table.findElements(By.css("tbody tr"));
     console.log(`📋 Tabla de equipos encontrada (${rows.length} filas).`);
 
-    // Buscar la fila del Cadete Femenino Morado y extraer su ID de datosequipo('...')
     let equipoID = null;
     for (const row of rows) {
       const html = await row.getAttribute("innerHTML");
@@ -53,29 +64,25 @@ async function main() {
     console.log(`✅ ID del equipo obtenido: ${equipoID}`);
     console.log("▶️ Ejecutando datosequipo() directamente...");
 
-    // Ejecutar el JavaScript que carga el calendario
     await driver.executeScript(`datosequipo('${equipoID}')`);
 
-    // Esperar hasta que aparezca el desplegable de jornadas
     const sel = await driver.wait(until.elementLocated(By.id("seljor")), 20000);
     await driver.wait(until.elementIsVisible(sel), 20000);
     console.log("📅 Desplegable de jornadas detectado.");
 
-    // Seleccionar la opción “Todas”
     const optionTodas = await sel.findElement(By.css("option[value='']"));
     await optionTodas.click();
     console.log("📊 Seleccionada la opción 'Todas las jornadas'.");
 
-    // Esperar a que carguen todas las tablas de jornadas
-    await driver.wait(until.elementsLocated(By.css("table.tt")), 20000);
-    const jornadas = await driver.findElements(By.css("table.tt"));
+    console.log("⏳ Esperando a que se carguen todas las jornadas...");
+    const jornadas = await waitForAllJornadas(driver, 45000);
     console.log(`✅ Se han encontrado ${jornadas.length} tablas de jornadas.`);
 
   } catch (err) {
-    console.error("❌ Error en scraping IMD v2.2:", err.message || err);
+    console.error("❌ Error en scraping IMD v2.3:", err.message || err);
   } finally {
     try { if (driver) await driver.quit(); } catch (_) {}
-    console.log("🏁 Proceso IMD v2.2 completado.");
+    console.log("🏁 Proceso IMD v2.3 completado.");
   }
 }
 
