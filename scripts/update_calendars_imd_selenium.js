@@ -47,12 +47,12 @@ async function loadIMD() {
 
     const searchBox = await driver.findElement(By.id("busqueda"));
     await searchBox.clear();
-    await searchBox.sendKeys("las flores");
-    console.log("⌨️  Texto 'las flores' introducido");
-    
-// 🔄 Esperar a que aparezca la tabla con resultados
+    await searchBox.sendKeys("las flores", Key.ENTER);
+console.log("⌨️  Texto 'las flores' introducido y búsqueda lanzada con Enter");
+
+// 🔄 Esperar a que aparezca la tabla con resultados (hasta 25 segundos)
 try {
-  await driver.wait(until.elementLocated(By.css("table.tt")), 15000);
+  await driver.wait(until.elementLocated(By.css("table.tt")), 25000);
   await driver.wait(async () => {
     const rows = await driver.findElements(By.css("table.tt tbody tr"));
     return rows.length > 0;
@@ -62,6 +62,7 @@ try {
   console.error("❌ No se pudo cargar la tabla de equipos:", e.message);
   return [];
 }
+
 
     // Esperar a que aparezcan resultados
     await driver.sleep(2000);
