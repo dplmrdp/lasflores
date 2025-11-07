@@ -86,46 +86,22 @@ function addDays(date, days) {
   return d;
 }
 
-// ----------------------------
-// ICS helpers (igual filosofía que federado)
-// ----------------------------
-function fmtICSDateTime(dt) {
-  // Mantiene hora local (sin convertir a UTC)
+// ---- zona ICS (reemplazar completa) ----
+const ICS_TZID = "Europe/Madrid";
+
+function fmtICSDateTimeTZID(dt) {
+  // Formato local sin 'Z': YYYYMMDDTHHMMSS
+  const pad = (n) => String(n).padStart(2, "0");
   const Y = dt.getFullYear();
-  const M = String(dt.getMonth() + 1).padStart(2, "0");
-  const D = String(dt.getDate()).padStart(2, "0");
-  const h = String(dt.getHours()).padStart(2, "0");
-  const m = String(dt.getMinutes()).padStart(2, "0");
-  const s = String(dt.getSeconds()).padStart(2, "0");
+  const M = pad(dt.getMonth() + 1);
+  const D = pad(dt.getDate());
+  const h = pad(dt.getHours());
+  const m = pad(dt.getMinutes());
+  const s = pad(dt.getSeconds());
   return `${Y}${M}${D}T${h}${m}${s}`;
 }
 
-// 👇 Añade esto junto a los helpers ICS
-const ICS_TZID = "Europe/Madrid";
-
-function fmtICSDateTimeTZID(dt, tzid = ICS_TZID) {
-  // Formatea la fecha 'dt' en la zona 'tzid' SIN convertir a Zulu (sin "Z")
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: tzid,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).formatToParts(dt).reduce((acc, p) => (acc[p.type] = p.value, acc), {});
-  const Y = parts.year;
-  const M = parts.month;
-  const D = parts.day;
-  const h = parts.hour;
-  const m = parts.minute;
-  const s = parts.second;
-  return `${Y}${M}${D}T${h}${m}${s}`; // sin 'Z'
-}
-
 function fmtICSDate(d) {
-  // YYYYMMDD (UTC)
   const Y = d.getUTCFullYear();
   const M = String(d.getUTCMonth() + 1).padStart(2, "0");
   const D = String(d.getUTCDate()).padStart(2, "0");
@@ -138,25 +114,18 @@ VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 PRODID:-//Las Flores//Calendario IMD Cadete Morado//ES
-+X-WR-TIMEZONE:${ICS_TZID}
 `;
 
   for (const evt of events) {
     if (evt.type === "timed") {
-ics += `BEGIN:VEVENT
--SUMMARY:${evt.summary}
--LOCATION:${evt.location}
--DTSTART:${fmtICSDateTime(evt.start)}
--DESCRIPTION:${evt.description || ""}
--END:VEVENT
--`;
-ics += `BEGIN:VEVENT
-+SUMMARY:${evt.summary}
-+LOCATION:${evt.location}
-+DTSTART;TZID=${ICS_TZID}:${fmtICSDateTimeTZID(evt.start)}
-+DESCRIPTION:${evt.description || ""}
-+END:VEVENT
-+`;
+      // ✅ Solo este bloque para eventos con hora (sin el antiguo en UTC)
+      ics += `BEGIN:VEVENT
+SUMMARY:${evt.summary}
+LOCATION:${evt.location}
+DTSTART;TZID=${ICS_TZID}:${fmtICSDateTimeTZID(evt.start)}
+DESCRIPTION:${evt.description || ""}
+END:VEVENT
+`;
     } else if (evt.type === "allday") {
       ics += `BEGIN:VEVENT
 SUMMARY:${evt.summary}
@@ -174,6 +143,9 @@ END:VEVENT
   fs.writeFileSync(outPath, ics);
   log(`✅ ICS escrito: ${outPath} (${events.length} eventos)`);
 }
+// ---- fin zona ICS ----
+
+
 
 
 // ----------------------------
