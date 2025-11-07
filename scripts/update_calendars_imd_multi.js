@@ -1,11 +1,13 @@
 // scripts/update_calendars_imd_multi.js
 // Genera un calendario .ics por cada equipo del C.D. LAS FLORES desde la web del IMD Sevilla
+// y al final genera automáticamente el index.html
 
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { Builder, By, Key, until } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
+const { execSync } = require("child_process");
 
 const IMD_URL = "https://imd.sevilla.org/app/jjddmm_resultados/";
 const SEARCH_TERM = "las flores";
@@ -111,8 +113,7 @@ async function parseTeamCalendar(driver, teamName) {
       const time = hora.match(/(\d{2}):(\d{2})/);
       const start = new Date(`${yyyy}-${MM}-${dd}T${time ? time[0] : "00:00"}:00`);
 
-      const home = local.toUpperCase().includes(TEAM_EXACT);
-      const summary = home ? `${local} vs ${visitante} (IMD)` : `${local} vs ${visitante} (IMD)`;
+      const summary = `${local} vs ${visitante} (IMD)`;
       const descriptionParts = [];
       if (resultado && resultado !== "-") descriptionParts.push(`Resultado: ${resultado}`);
       if (obsEncuentro && obsEncuentro !== "-") descriptionParts.push(`Obs. Encuentro: ${obsEncuentro}`);
@@ -156,7 +157,6 @@ async function parseTeamCalendar(driver, teamName) {
     log(`🔎 Buscando '${SEARCH_TERM}'...`);
     await driver.sleep(2000);
 
-    // 🕒 Esperar a que aparezca la tabla completa
     await driver.wait(
       until.elementLocated(By.xpath("//table[contains(@class,'tt')]//td[contains(.,'Nº.Equipos')]")),
       20000
@@ -195,6 +195,11 @@ async function parseTeamCalendar(driver, teamName) {
       writeICS(nombre, categoria, events);
       log(`✅ ${nombre} (${categoria}): ${events.length} partidos.`);
     }
+
+    // 🧩 Generar automáticamente el index.html al final
+    log("\n🧱 Generando index.html automáticamente...");
+    execSync("node scripts/generate_index_html.js", { stdio: "inherit" });
+    log("✅ index.html actualizado correctamente.");
 
   } catch (err) {
     log(`❌ ERROR GENERAL: ${err}`);
