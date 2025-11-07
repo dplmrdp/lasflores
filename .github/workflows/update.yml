@@ -37,19 +37,23 @@ jobs:
 
       - name: Install deps
         run: npm install selenium-webdriver
-        
+
       - name: Prepare debug folder
         run: mkdir -p calendarios/debug
-        
-      - name: Run update (Federado + IMD mínimo)
+
+      - name: Run update (Federado + IMD mínimo + IMD multi)
         env:
           CHROME_BIN: /usr/bin/google-chrome
           CHROMEDRIVER_PATH: /usr/local/bin/chromedriver
           DEBUG_IMD: "1"  # <-- ACTIVAR MODO DEBUG
         run: |
+          # Federado (ya existente)
           node scripts/update_calendars.js
+          # IMD multi-equipo (genera todos los .ics, incluidos EVB LAS FLORES…)
           node scripts/update_calendars_imd_multi.js
-          
+          # Regenerar el index.html con los .ics detectados
+          node scripts/generate_index_html.js
+
       - name: Upload debug artifacts
         if: always()  # se ejecuta incluso si el scraping falla
         uses: actions/upload-artifact@v4
@@ -61,6 +65,6 @@ jobs:
         run: |
           git config user.email "github-actions@github.com"
           git config user.name "github-actions[bot]"
-          git add calendarios/*.ics || true
-          git commit -m "Automated update of calendars (IMD + FEDERADO) [ci skip]" || echo "No changes to commit"
+          git add calendarios/*.ics index.html || true
+          git commit -m "Automated update of calendars (IMD multi + FEDERADO + HTML) [ci skip]" || echo "No changes to commit"
           git push
