@@ -311,7 +311,7 @@ async function findTeamGuidFromResultsHTML(pageHTML) {
     const rows = await resultsTable.findElements(By.css("tbody > tr"));
     log(`📋 Tabla de equipos detectada con ${rows.length} filas (incluye cabeceras).`);
 
-   // --- 🔍 Buscar el equipo "CD LAS FLORES SEVILLA MORADO (Cadete Femenino)" ---
+  // --- 🔍 Buscar el equipo "CD LAS FLORES SEVILLA MORADO (Cadete Femenino)" ---
 let equipoId = null;
 let filasTexto = [];
 
@@ -324,18 +324,26 @@ for (const row of await resultsTable.findElements(By.css("tr"))) {
   filasTexto.push(`${nombre} | ${categoria}`);
 
   // 🟢 Coincidencia estricta: solo "CD LAS FLORES SEVILLA MORADO" en "CADETE FEMENINO"
-  if (
-    nombre.includes("CD LAS FLORES SEVILLA MORADO") &&
-    categoria.includes("CADETE FEMENINO")
-  ) {
-    const enlace = await celdas[0].findElement(By.css("a"));
-   const onclick = await enlace.getAttribute("onclick");
-if (onclick) {
-  const match = onclick.match(/datosequipo\('(.+?)'\)/);
-  if (match) equipoId = match[1];
-}
+  if (nombre.includes("CD LAS FLORES SEVILLA MORADO") && categoria.includes("CADETE FEMENINO")) {
     log(`✅ Fila encontrada: ${nombre} (${categoria})`);
-    break;
+
+    try {
+      const enlace = await celdas[0].findElement(By.css("a"));
+      const onclick = (await enlace.getAttribute("onclick")) || "";
+      const cleanOnclick = onclick.trim();
+      const match = cleanOnclick.match(/datosequipo\(['"]?([A-F0-9-]+)['"]?\)/i);
+
+      if (match && match[1]) {
+        equipoId = match[1];
+        log(`✅ GUID extraído correctamente: ${equipoId}`);
+      } else {
+        log(`⚠️ No se pudo extraer GUID del onclick: "${cleanOnclick}"`);
+      }
+    } catch (e) {
+      log(`❌ Error extrayendo GUID: ${e}`);
+    }
+
+    break; // detenemos el bucle tras encontrar nuestro equipo
   }
 }
 
