@@ -223,7 +223,12 @@ async function parseFederadoCalendarPage(driver, meta) {
 async function discoverTournamentIds(driver) {
   await driver.get(BASE_LIST_URL);
   log(`🌐 Página base: ${BASE_LIST_URL}`);
-
+  
+  // DEBUG: guardar HTML real que devuelve FAVOLE
+  const html = await driver.getPageSource();
+  const debugPath = path.join(DEBUG_DIR, `fed_list_debug_${RUN_STAMP}.html`);
+  fs.writeFileSync(debugPath, html);
+  log(`📄 Snapshot HTML lista de torneos guardado en: ${debugPath}`);
   await driver
     .wait(until.elementLocated(By.css("a[href*='/es/tournament/']")), 20000)
     .catch(() => {});
