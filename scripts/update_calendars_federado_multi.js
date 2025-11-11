@@ -231,58 +231,123 @@ async function discoverTournamentIds(driver) {
   await driver.get(BASE_LIST_URL);
   log(`🌐 Página base: ${BASE_LIST_URL}`);
 
-  // Guardar snapshot de la lista (para debug)
+  // Snapshot para depuración siempre
   try {
-    const html = await driver.getPageSource();
+    const html0 = await driver.getPageSource();
     const debugPath = path.join(DEBUG_DIR, `fed_list_debug_${RUN_STAMP}.html`);
-    fs.writeFileSync(debugPath, html);
+    fs.writeFileSync(debugPath, html0);
     log(`📄 Snapshot HTML lista de torneos guardado en: ${debugPath}`);
   } catch (_) {}
 
-  // Esperar a que aparezca la tabla
+  // 1) Intento: esperar distintos patrones de tabla renderizada
   try {
-    await driver.wait(until.elementLocated(By.css("table.table tbody tr")), 15000);
+    await driver.wait(
+      async () => {
+        const candidates = await driver.findElements(
+          By.css(
+            "table.table tbody tr, .ml-table .table tbody tr, .table-responsive table tbody tr"
+          )
+        );
+        return candidates.length > 0;
+      },
+      25000
+    );
   } catch (_) {
-    log("⚠️ No se localizaron filas de la tabla de torneos");
+    // seguimos al plan B (regex sobre HTML)
   }
 
-  const rows = await driver.findElements(By.css("table.table tbody tr"));
+  // 2) Intento DOM: leer filas si existen
+  let rows = [];
+  try {
+    rows = await driver.findElements(
+      By.css("table.table tbody tr, .ml-table .table tbody tr, .table-responsive table tbody tr")
+    );
+  } catch (_) {}
+
   const tournaments = [];
 
-  for (const row of rows) {
-    try {
-      // Link con el id del torneo (está en la primera columna "Estado" como /tournament/{id}/summary)
-      const a = await row.findElement(By.css("a[href*='/es/tournament/']"));
-      const href = await a.getAttribute("href");
-      const m = href.match(/\/es\/tournament\/(\d+)/);
-      if (!m) continue;
-      const id = m[1];
-
-      // Columna de categoría
-      let category = "";
+  if (rows.length > 0) {
+    // Vía DOM normal
+    for (const row of rows) {
       try {
-        const tdCat = await row.findElement(By.css("td.colstyle-categoria"));
-        category = (await tdCat.getText()).trim();
-      } catch (_) {}
+        const a = await row.findElement(By.css("a[href*='/es/tournament/']"));
+        const href = await a.getAttribute("href");
+        const m = href.match(/\/es\/tournament\/(\d+)/);
+        if (!m) continue;
+        const id = m[1];
 
-      // Columna de nombre (útil como label)
+        let category = "";
+        try {
+          const tdCat = await row.findElement(By.css("td.colstyle-categoria"));
+          category = (await tdCat.getText()).trim();
+        } catch (_) {}
+
+        let label = "";
+        try {
+          const tdName = await row.findElement(By.css("td.colstyle-nombre"));
+          label = (await tdName.getText()).trim();
+        } catch (_) {}
+
+        tournaments.push({
+          id,
+          label: label || `Torneo ${id}`,
+          category: (normalize(category).toUpperCase() || "SIN-CATEGORIA").replace("JUNIOR", "JUVENIL"),
+        });
+      } catch (_) {}
+    }
+  }
+
+  // 3) Plan B: si no hay filas DOM, parsear el HTML con regex
+  if (tournaments.length === 0) {
+    log("⚠️ No se localizaron filas por DOM; aplicando extracción por HTML (regex)...");
+    const html = await driver.getPageSource();
+
+    // Capturar todos los IDs /es/tournament/{id}/summary
+    const ids = new Set();
+    for (const m of html.matchAll(/\/es\/tournament\/(\d+)\/summary/g)) {
+      ids.add(m[1]);
+    }
+
+    // Para cada id, intentar encontrar su <tr> completo y extraer campos
+    for (const id of ids) {
+      // Busca el TR que contiene el link del torneo
+      const trRegex = new RegExp(
+        `<tr[\\s\\S]*?href="[^"]*/es/tournament/${id}/summary"[\\s\\S]*?<\\/tr>`,
+        "i"
+      );
+      const trMatch = html.match(trRegex);
+      const tr = trMatch ? trMatch[0] : "";
+
+      // Nombre (columna .colstyle-nombre)
       let label = "";
-      try {
-        const tdName = await row.findElement(By.css("td.colstyle-nombre"));
-        label = (await tdName.getText()).trim(); // ej: "ALEVIN FEMENINO SEVILLA LIGA PROVINCIAL"
-      } catch (_) {}
+      const nameMatch = tr.match(/<td[^>]*class="[^"]*colstyle-nombre[^"]*"[^>]*>([\\s\\S]*?)<\\/td>/i);
+      if (nameMatch) {
+        label = normalize(
+          nameMatch[1].replace(/<[^>]+>/g, " ")
+        ).trim();
+      }
+
+      // Categoría (columna .colstyle-categoria)
+      let category = "";
+      const catMatch = tr.match(/<td[^>]*class="[^"]*colstyle-categoria[^"]*"[^>]*>([\\s\\S]*?)<\\/td>/i);
+      if (catMatch) {
+        category = normalize(
+          catMatch[1].replace(/<[^>]+>/g, " ")
+        ).trim();
+      }
 
       tournaments.push({
         id,
         label: label || `Torneo ${id}`,
         category: (normalize(category).toUpperCase() || "SIN-CATEGORIA").replace("JUNIOR", "JUVENIL"),
       });
-    } catch (_) {}
+    }
   }
 
   log(`🔎 Torneos detectados: ${tournaments.length}`);
   return tournaments;
 }
+
 
 // ------------------------------------------------------------
 // Descubrir grupos leyendo <select name="group"> (sin clicks)
