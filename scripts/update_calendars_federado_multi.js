@@ -258,49 +258,88 @@ async function discoverTournamentIds(driver) {
 // ------------------------------------------------------------
 async function discoverGroupIds(driver, tournamentId) {
   const url = `https://favoley.es/es/tournament/${tournamentId}`;
-  log(`➡️ Abriendo torneo: ${url}`);
+  log(`➡️ Abriendo torneo (solo DOM, sin clicks): ${url}`);
   await driver.get(url);
 
-  await driver.wait(until.elementLocated(By.css(".bootstrap-select")), 15000);
-  const dropdownBtn = await driver.findElement(By.css(".bootstrap-select > button.dropdown-toggle"));
+  // Esperar a que cargue el select de grupos (aunque esté oculto tras overlays)
+  await driver.wait(until.elementLocated(By.css(".bootstrap-select")), 15000).catch(()=>{});
 
-  await dropdownBtn.click();
-  await driver.sleep(300);
+  // EXTRAER los grupos mediante JS, sin interactuar con la UI
+  const groups = await driver.executeScript(() => {
+    const result = [];
 
-  const lis = await driver.findElements(By.css(".bootstrap-select .dropdown-menu.inner li"));
-  const groups = [];
+    // localizar la lista interna del bootstrap-select
+    const lis = document.querySelectorAll(".bootstrap-select .dropdown-menu.inner li");
 
-  for (const li of lis) {
-    try {
-      const textEl = await li.findElement(By.css("span.text"));
-      const label = (await textEl.getText()).trim();
-      if (!label || label.startsWith("LIGA PROVINCIAL")) continue;
+    lis.forEach(li => {
+      const span = li.querySelector("span.text");
+      if (!span) return;
 
-      await dropdownBtn.click();
-      await li.click();
-      await driver.sleep(400);
+      const label = span.textContent.trim();
+      if (!label) return;
 
-      const links = await driver.findElements(By.css("a[href*='/calendar/']"));
-      let groupId = null;
+      // Saltar cabeceras o división
+      if (li.classList.contains("divider")) return;
+      if (li.classList.contains("dropdown-header")) return;
 
-      for (const a of links) {
-        const href = await a.getAttribute("href");
-        const m = href.match(/\/calendar\/(\d+)/);
-        if (m) {
-          groupId = m[1];
-          break;
-        }
-      }
+      result.push(label);
+    });
 
-      if (groupId) {
-        groups.push({ groupId, label });
-        log(`✅ Grupo encontrado: ${label} → ${groupId}`);
-      }
-    } catch (_) {}
+    return result;
+  });
+
+  if (!groups.length) {
+    log(`⚠️ No se encontraron grupos por DOM en torneo ${tournamentId}`);
+    const html = await driver.getPageSource();
+    fs.writeFileSync(path.join(DEBUG_DIR, `fed_groups_fail_${tournamentId}.html`), html);
+    return [];
   }
 
-  return groups;
+  log(`📌 Grupos encontrados (por DOM): ${groups.join(" | ")}`);
+
+  // Para cada grupo → obtener su groupId consultando el link "Ver calendario"
+  const discovered = [];
+
+  for (const label of groups) {
+    try {
+      // Seleccionar el grupo ejecutando JS (simulando click interno)
+      await driver.executeScript((lbl) => {
+        const lis = document.querySelectorAll(".bootstrap-select .dropdown-menu.inner li");
+        const btn = document.querySelector(".bootstrap-select > button");
+        lis.forEach(li => {
+          const txt = li.querySelector("span.text")?.textContent.trim();
+          if (txt && txt === lbl) {
+            li.classList.add("selected");
+            if (btn) btn.querySelector(".filter-option").textContent = lbl;
+          }
+        });
+      }, label);
+
+      await driver.sleep(300);
+
+      // Leer enlaces del DOM buscndo href .../calendar/{groupId}
+      const groupId = await driver.executeScript(() => {
+        const links = Array.from(document.querySelectorAll("a[href*='/calendar/']"));
+        for (const a of links) {
+          const m = a.href.match(/\/calendar\/(\d+)/);
+          if (m) return m[1];
+        }
+        return null;
+      });
+
+      if (groupId) {
+        discovered.push({ label, groupId });
+        log(`✅ Grupo detectado: '${label}' → ${groupId}`);
+      }
+
+    } catch (e) {
+      log(`❌ Error extrayendo grupo '${label}': ${e}`);
+    }
+  }
+
+  return discovered;
 }
+
 
 // ------------------------------------------------------------
 // MAIN
