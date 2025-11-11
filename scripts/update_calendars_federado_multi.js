@@ -165,36 +165,141 @@ async function discoverGroupIds(driver, tournamentId) {
   log(`➡️ Abriendo torneo (solo DOM): ${url}`);
   await driver.get(url);
 
-  // Espera al select REAL (no el bootstrap clonado)
-  let selectEl;
+  // ¿Existe el select de grupos?
+  const selectExists = (await driver.findElements(By.css("select[name='group']"))).length > 0;
+
+  if (selectExists) {
+    const selectEl = await driver.findElement(By.css("select[name='group']"));
+    const options = await selectEl.findElements(By.css("option"));
+    const groups = [];
+    for (const opt of options) {
+      const value = await opt.getAttribute("value");
+      if (value) groups.push(value);
+    }
+    if (groups.length) {
+      log(`📌 Grupos detectados: ${groups.map(g => `→ ${g}`).join(" | ")}`);
+      return groups; // array de groupId (strings)
+    }
+  }
+
+  // No hay select: ¿hay calendario inline?
+  const inlineRows = await driver.findElements(By.css("#custom-domain-calendar-widget table.tablestyle-e1d9 tbody tr"));
+  if (inlineRows.length > 0) {
+    log("📌 Calendario inline detectado (sin grupos).");
+    return ["__INLINE__"];
+  }
+
+  log(`⚠️ No se encontraron grupos ni calendario inline en torneo ${tournamentId}`);
+  // Snapshot de ayuda
   try {
-    selectEl = await driver.wait(until.elementLocated(By.css("select[name='group']")), 15000);
-  } catch {
-    log(`⚠️ No se encontró <select name="group"> en torneo ${tournamentId}`);
     const html = await driver.getPageSource();
     fs.writeFileSync(path.join(DEBUG_DIR, `fed_groups_empty_${tournamentId}.html`), html);
-    return [];
-  }
+  } catch (_){}
+  return [];
+}
 
-  const options = await selectEl.findElements(By.css("option"));
-  const groups = [];
-  for (const opt of options) {
+
+// ------------------------------------------------------------
+// PARSEAR CALENDARIO INLINE (sin grupos) — usa el HTML que me pasaste (tablestyle-e1d9)
+// ------------------------------------------------------------
+async function parseFederadoInlineCalendar(driver, meta) {
+  const pageHTML = await driver.getPageSource();
+  const fname = `fed_inline_${meta.tournamentId}.html`;
+  fs.writeFileSync(path.join(DEBUG_DIR, fname), pageHTML);
+  log(`🧩 Snapshot inline guardado: ${fname}`);
+
+  // Seleccionamos filas de la tabla inline
+  const rows = await driver.findElements(By.css("#custom-domain-calendar-widget table.tablestyle-e1d9 tbody tr"));
+  const matches = [];
+
+  for (const r of rows) {
     try {
-      const value = await opt.getAttribute("value");
-      const text = (await opt.getText()).trim();
-      if (value) groups.push({ id: value, label: text });
-    } catch {}
+      // Equipos: en la celda .colstyle-equipo hay dos spans .ellipsis (local y visitante) con el nombre
+      const equiposTd = await r.findElement(By.css("td.colstyle-equipo"));
+      const equipos = await equiposTd.findElements(By.css(".ellipsis"));
+      if (equipos.length < 2) continue;
+
+      const local = (await equipos[0].getText()).trim();
+      const visitante = (await equipos[1].getText()).trim();
+
+      // Fecha / hora / sede: en la celda .colstyle-fecha hay un span con texto tipo:
+      // "Vie, 14/11/2025 17:30 GMT+1 PABELLON LA ESTACION"
+      const fechaTd = await r.findElement(By.css("td.colstyle-fecha span"));
+      const fechaTexto = (await fechaTd.getText()).trim();
+
+      // Extraer fecha y hora
+      // dd/mm/yyyy hh:mm (ignoramos el "Vie," y "GMT+1")
+      const mFecha = fechaTexto.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      const mHora = fechaTexto.match(/(\d{2}):(\d{2})/);
+
+      if (!mFecha) continue;
+      const fecha = `${mFecha[1]}/${mFecha[2]}/${mFecha[3]}`;
+      const hora = mHora ? `${mHora[1]}:${mHora[2]}` : "";
+
+      // Sede: si hay un span.ellipsis al final, úsalo como lugar
+      let lugar = "";
+      try {
+        const lugarSpan = await fechaTd.findElement(By.css(".ellipsis"));
+        lugar = (await lugarSpan.getText()).trim();
+      } catch (_) {}
+
+      // Resultado: en esta tabla no es imprescindible; lo dejamos vacío
+      matches.push({ fecha, hora, local, visitante, lugar, resultado: "" });
+    } catch (_) {}
   }
 
-  if (!groups.length) {
-    log(`⚠️ Torneo ${tournamentId}: select[name='group'] sin opciones`);
-    const html = await driver.getPageSource();
-    fs.writeFileSync(path.join(DEBUG_DIR, `fed_groups_noopts_${tournamentId}.html`), html);
-  } else {
-    log(`📌 Grupos detectados: ${groups.map(g => `${g.label} → ${g.id}`).join(" | ")}`);
+  if (matches.length === 0) {
+    log("⚠️ No se detectaron filas en el calendario inline. Revisa el snapshot.");
   }
 
-  return groups; // [{id,label}]
+  // Igual que el parser de grupos: agrupar por cada equipo LAS FLORES
+  const teams = new Map();
+
+  for (const m of matches) {
+    const localN = normLower(m.local);
+    const visitN = normLower(m.visitante);
+
+    // Misma lógica que antes (needle simple). Si quieres, aquí puedes mantener EXACTO el filtro anterior.
+    const involve = localN.includes(TEAM_NEEDLE) || visitN.includes(TEAM_NEEDLE);
+    if (!involve) continue;
+
+    const teamName = localN.includes(TEAM_NEEDLE) ? m.local : m.visitante;
+
+    const d = parseDateDDMMYYYY(m.fecha);
+    if (!d) continue;
+
+    const t = parseTimeHHMM(m.hora);
+    const start = toLocalDate(d, t);
+
+    const summary = `${m.local} vs ${m.visitante} (Federado)`;
+    const description = ""; // no hay resultado en esta vista
+
+    const evt =
+      t != null
+        ? { type: "timed", start, summary, location: m.lugar, description }
+        : {
+            type: "allday",
+            start,
+            end: new Date(start.getTime() + 86400000),
+            summary,
+            location: m.lugar,
+            description,
+          };
+
+    if (!teams.has(teamName)) teams.set(teamName, []);
+    teams.get(teamName).push(evt);
+  }
+
+  const outFiles = [];
+  for (const [teamName, events] of teams.entries()) {
+    events.sort((a, b) => a.start - b.start);
+    const fnameOut = `federado_${slug(teamName)}_${slug(meta.category)}_${meta.tournamentId}.ics`;
+    writeICS(fnameOut, events);
+    outFiles.push(fnameOut);
+  }
+
+  log(`📦 Generados ${outFiles.length} calendarios inline para torneo=${meta.tournamentId}`);
+  if (outFiles.length) log(`↪ ${outFiles.join(", ")}`);
 }
 
 // --- Parsear calendario de un grupo ---
@@ -336,27 +441,43 @@ async function parseFederadoCalendarPage(driver, meta) {
         onError(e, `discoverGroupIds t=${t.id}`);
         continue;
       }
-      log(`🔹 Grupos detectados: ${groups.length}${groups.length ? " → ["+groups.map(g=>g.id).join(", ")+"]" : ""}`);
+      log(`🔹 Grupos detectados: ${groups.length}${groups.length ? " → ["+groups.join(", ")+"]" : ""}`);
 
-      for (const g of groups) {
-        try {
-          await parseFederadoCalendarPage(driver, {
-            tournamentId: t.id,
-            groupId: g.id,
-            category
-          });
-        } catch (e) {
-          onError(e, `parse calendar t=${t.id} g=${g.id}`);
-          try {
-            const html = await driver.getPageSource();
-            fs.writeFileSync(path.join(DEBUG_DIR, `fed_err_${t.id}_${g.id}.html`), html);
-          } catch {}
-          // seguimos con el siguiente grupo
-        }
-      }
-      // pausa corta entre torneos para no estresar el server
-      await driver.sleep(400);
+     for (const g of groups) {
+  if (g === "__INLINE__") {
+    // ✅ Calendario directamente en la página del torneo (caso JUNIOR)
+    try {
+      await parseFederadoInlineCalendar(driver, {
+        tournamentId: t.id,
+        groupId: "inline",
+        category
+      });
+    } catch (e) {
+      onError(e, `parse inline calendar t=${t.id}`);
     }
+    continue;
+  }
+
+  // ✅ Flujo normal por groupId
+  const calURL = `https://favoley.es/es/tournament/${t.id}/calendar/${g}/all`;
+  try {
+    log(`➡️ Abriendo calendario: ${calURL}`);
+    await driver.get(calURL);
+    await driver.wait(until.elementLocated(By.css("table, .table, .row, tbody")), 15000);
+
+    await parseFederadoCalendarPage(driver, {
+      tournamentId: t.id,
+      groupId: g,
+      category,
+    });
+  } catch (e) {
+    onError(e, `parse calendar t=${t.id} g=${g}`);
+  }
+       // pausa corta entre torneos para no estresar el server
+      await driver.sleep(400);
+}
+
+    
 
     log("\n✅ Scraping federado multi-equipos completado.");
   } catch (err) {
