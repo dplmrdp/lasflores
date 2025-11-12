@@ -5,8 +5,12 @@ const TEAM_NEEDLE = "C.D. LAS FLORES SEVILLA";
 function normalize(s) {
   return (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
+
 function normLower(s) {
   return normalize(s).toLowerCase();
+}
+
+// 🧩 Función mejorada: detecta fechas tanto dd/mm/yyyy hh:mm como ISO (data-sort)
 function parseDateTime(text) {
   if (!text) return null;
 
@@ -37,12 +41,14 @@ function parseDateTime(text) {
 function fmtICSDateTime(dt) {
   return dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 }
+
 function fmtICSDate(d) {
   const Y = d.getUTCFullYear();
   const M = String(d.getUTCMonth() + 1).padStart(2, "0");
   const D = String(d.getUTCDate()).padStart(2, "0");
   return `${Y}${M}${D}`;
 }
+
 function writeICS(team, events) {
   const filename = `calendarios/federado_${team.replace(/\s+/g, "_").toLowerCase()}.ics`;
   let ics = `BEGIN:VCALENDAR
@@ -69,38 +75,61 @@ function parseFederadoHTML(html, meta) {
   const eventsByTeam = new Map();
   const jornadas = html.split(/<h2[^>]*>[^<]*Jornada/i).slice(1);
 
+  if (!jornadas.length) {
+    console.log(`⚠️ No se encontraron jornadas en ${meta.tournamentId}/${meta.groupId}`);
+  }
+
   for (const jornada of jornadas) {
     const tableMatch = jornada.match(/<table[\s\S]*?<\/table>/);
     if (!tableMatch) continue;
     const rows = tableMatch[0].split(/<tr[^>]*>/).slice(1);
 
     for (const row of rows) {
-      const equipoTd = row.match(/<td class="colstyle-equipo">([\s\S]*?)<\/td>/);
-      if (!equipoTd) continue;
+      try {
+        const equipoTd = row.match(/<td class="colstyle-equipo">([\s\S]*?)<\/td>/);
+        if (!equipoTd) continue;
 
-      const equipos = [...equipoTd[1].matchAll(/<span class="ellipsis"[^>]*>(.*?)<\/span>/g)].map((m) => normalize(m[1]));
-      if (equipos.length < 2) continue;
-      const [teamA, teamB] = equipos;
+        const equipos = [...equipoTd[1].matchAll(/<span class="ellipsis"[^>]*>(.*?)<\/span>/g)]
+          .map((m) => normalize(m[1]))
+          .filter((t) => t);
+        if (equipos.length < 2) continue;
+        const [teamA, teamB] = equipos;
 
-      const fechaTd = row.match(/<td class="colstyle-fecha">([\s\S]*?)<\/td>/);
-      if (!fechaTd) continue;
-      const date = parseDateTime(fechaTd[1]);
-      const lugarM = fechaTd[1].match(/<span class="ellipsis"[^>]*>(.*?)<\/span>/);
-      const lugar = lugarM ? normalize(lugarM[1]) : "Por confirmar";
+        const fechaTd = row.match(/<td class="colstyle-fecha">([\s\S]*?)<\/td>/);
+        if (!fechaTd) continue;
 
-      const localN = normLower(teamA);
-      const visitN = normLower(teamB);
-      const involve = localN.includes(normLower(TEAM_NEEDLE)) || visitN.includes(normLower(TEAM_NEEDLE));
-      if (!involve) continue;
+        const date = parseDateTime(fechaTd[1]);
+        const lugarM = fechaTd[1].match(/<span class="ellipsis"[^>]*>(.*?)<\/span>/);
+        const lugar = lugarM ? normalize(lugarM[1]) : "Por confirmar";
 
-      const equiposInvolucrados = [];
-      if (localN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamA);
-      if (visitN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamB);
+        const localN = normLower(teamA);
+        const visitN = normLower(teamB);
+        const involve =
+          localN.includes(normLower(TEAM_NEEDLE)) ||
+          visitN.includes(normLower(TEAM_NEEDLE));
 
-      const evt = { summary: `${teamA} vs ${teamB}`, location: lugar, start: date };
-      for (const t of equiposInvolucrados) {
-        if (!eventsByTeam.has(t)) eventsByTeam.set(t, []);
-        eventsByTeam.get(t).push(evt);
+        if (!involve) continue;
+
+        // 🔍 Log de depuración
+        if (!date) {
+          console.log(`⚠️ Sin fecha válida para ${teamA} vs ${teamB}`);
+        } else {
+          console.log(`📅 ${teamA} vs ${teamB} → ${date.toISOString()} @ ${lugar}`);
+        }
+
+        const equiposInvolucrados = [];
+        if (localN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamA);
+        if (visitN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamB);
+
+        if (!date) continue;
+
+        const evt = { summary: `${teamA} vs ${teamB}`, location: lugar, start: date };
+        for (const t of equiposInvolucrados) {
+          if (!eventsByTeam.has(t)) eventsByTeam.set(t, []);
+          eventsByTeam.get(t).push(evt);
+        }
+      } catch (err) {
+        console.log("⚠️ Error procesando fila:", err);
       }
     }
   }
@@ -109,6 +138,7 @@ function parseFederadoHTML(html, meta) {
     evs.sort((a, b) => a.start - b.start);
     writeICS(team, evs);
   }
+
   console.log(`📦 Generados ${eventsByTeam.size} calendarios para t=${meta.tournamentId} g=${meta.groupId}`);
 }
 
