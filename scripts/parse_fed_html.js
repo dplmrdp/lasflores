@@ -39,8 +39,10 @@ function parseDateTime(text) {
 }
 
 function fmtICSDateTime(dt) {
+  if (!(dt instanceof Date) || isNaN(dt)) return "19700101T000000Z";
   return dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 }
+
 
 function fmtICSDate(d) {
   const Y = d.getUTCFullYear();
@@ -135,9 +137,16 @@ function parseFederadoHTML(html, meta) {
   }
 
   for (const [team, evs] of eventsByTeam.entries()) {
-    evs.sort((a, b) => a.start - b.start);
-    writeICS(team, evs);
+  // Filtra eventos sin fecha válida
+  const validEvents = evs.filter(e => e.start instanceof Date && !isNaN(e.start));
+  if (!validEvents.length) {
+    console.log(`⚠️ Ningún evento válido para ${team}`);
+    continue;
   }
+  validEvents.sort((a, b) => a.start - b.start);
+  writeICS(team, validEvents);
+}
+
 
   console.log(`📦 Generados ${eventsByTeam.size} calendarios para t=${meta.tournamentId} g=${meta.groupId}`);
 }
