@@ -10,25 +10,22 @@ function normLower(s) {
   return normalize(s).toLowerCase();
 }
 
-// 🧩 Función mejorada: detecta fechas tanto dd/mm/yyyy hh:mm como ISO (data-sort)
+// 🧩 Soporta dd/mm/yyyy hh:mm, ISO y solo fecha
 function parseDateTime(text) {
   if (!text) return null;
 
-  // 1️⃣ formato dd/mm/yyyy hh:mm
   let m = text.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
   if (m) {
     const [_, dd, MM, yyyy, HH, mm] = m;
     return new Date(`${yyyy}-${MM}-${dd}T${HH}:${mm}:00+01:00`);
   }
 
-  // 2️⃣ formato ISO dentro de data-sort="2025-10-18 08:00:00"
   m = text.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
   if (m) {
     const [_, yyyy, MM, dd, HH, mm, ss] = m;
     return new Date(`${yyyy}-${MM}-${dd}T${HH}:${mm}:${ss}+01:00`);
   }
 
-  // 3️⃣ fallback: solo dd/mm/yyyy
   m = text.match(/(\d{2})\/(\d{2})\/(\d{4})/);
   if (m) {
     const [_, dd, MM, yyyy] = m;
@@ -38,11 +35,26 @@ function parseDateTime(text) {
   return null;
 }
 
+// 🧠 Nuevas funciones para rango de jornada
+function parseDdmmyy(ddmmyy) {
+  const m = (ddmmyy || "").match(/(\d{2})\/(\d{2})\/(\d{2})/);
+  if (!m) return null;
+  const [_, d, M, yy] = m;
+  const Y = Number(yy) >= 70 ? `19${yy}` : `20${yy}`;
+  return new Date(`${Y}-${M}-${d}T00:00:00+01:00`);
+}
+
+function addDays(date, days) {
+  const d = new Date(date.getTime());
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+// --- formato ICS ---
 function fmtICSDateTime(dt) {
   if (!(dt instanceof Date) || isNaN(dt)) return "19700101T000000Z";
   return dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 }
-
 
 function fmtICSDate(d) {
   const Y = d.getUTCFullYear();
@@ -60,12 +72,22 @@ METHOD:PUBLISH
 PRODID:-//Las Flores//Calendarios Federado//ES
 `;
   for (const evt of events) {
-    ics += `BEGIN:VEVENT
+    if (evt.type === "timed") {
+      ics += `BEGIN:VEVENT
 SUMMARY:${evt.summary}
 LOCATION:${evt.location}
 DTSTART:${fmtICSDateTime(evt.start)}
 END:VEVENT
 `;
+    } else if (evt.type === "allday") {
+      ics += `BEGIN:VEVENT
+SUMMARY:${evt.summary}
+LOCATION:${evt.location}
+DTSTART;VALUE=DATE:${fmtICSDate(evt.start)}
+DTEND;VALUE=DATE:${fmtICSDate(evt.end)}
+END:VEVENT
+`;
+    }
   }
   ics += "END:VCALENDAR\n";
   fs.mkdirSync("calendarios", { recursive: true });
@@ -82,6 +104,15 @@ function parseFederadoHTML(html, meta) {
   }
 
   for (const jornada of jornadas) {
+    // 🟢 Detectar rango de jornada (ej: 17/10/25 – 19/10/25)
+    let weekendStart = null,
+      weekendEnd = null;
+    const range = jornada.match(/\((\d{2}\/\d{2}\/\d{2})[^)]*?(\d{2}\/\d{2}\/\d{2})\)/);
+    if (range) {
+      weekendStart = parseDdmmyy(range[1]);
+      weekendEnd = parseDdmmyy(range[2]);
+    }
+
     const tableMatch = jornada.match(/<table[\s\S]*?<\/table>/);
     if (!tableMatch) continue;
     const rows = tableMatch[0].split(/<tr[^>]*>/).slice(1);
@@ -98,34 +129,41 @@ function parseFederadoHTML(html, meta) {
         const [teamA, teamB] = equipos;
 
         const fechaTd = row.match(/<td class="colstyle-fecha">([\s\S]*?)<\/td>/);
-        if (!fechaTd) continue;
-
-        const date = parseDateTime(fechaTd[1]);
-        const lugarM = fechaTd[1].match(/<span class="ellipsis"[^>]*>(.*?)<\/span>/);
+        const fechaHtml = fechaTd ? fechaTd[1] : "";
+        const date = parseDateTime(fechaHtml);
+        const lugarM = fechaHtml.match(/<span class="ellipsis"[^>]*>(.*?)<\/span>/);
         const lugar = lugarM ? normalize(lugarM[1]) : "Por confirmar";
 
         const localN = normLower(teamA);
         const visitN = normLower(teamB);
-        const involve =
-          localN.includes(normLower(TEAM_NEEDLE)) ||
-          visitN.includes(normLower(TEAM_NEEDLE));
-
+        const involve = localN.includes(normLower(TEAM_NEEDLE)) || visitN.includes(normLower(TEAM_NEEDLE));
         if (!involve) continue;
-
-        // 🔍 Log de depuración
-        if (!date) {
-          console.log(`⚠️ Sin fecha válida para ${teamA} vs ${teamB}`);
-        } else {
-          console.log(`📅 ${teamA} vs ${teamB} → ${date.toISOString()} @ ${lugar}`);
-        }
 
         const equiposInvolucrados = [];
         if (localN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamA);
         if (visitN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamB);
 
-        if (!date) continue;
+        let evt;
+        if (date) {
+          evt = {
+            type: "timed",
+            start: date,
+            summary: `${teamA} vs ${teamB}`,
+            location: lugar,
+          };
+        } else if (weekendStart && weekendEnd) {
+          evt = {
+            type: "allday",
+            start: weekendStart,
+            end: addDays(weekendEnd, 1), // ICS necesita fin +1 día
+            summary: `${teamA} vs ${teamB}`,
+            location: lugar,
+          };
+        } else {
+          console.log(`⚠️ Sin fecha ni rango para ${teamA} vs ${teamB}`);
+          continue;
+        }
 
-        const evt = { summary: `${teamA} vs ${teamB}`, location: lugar, start: date };
         for (const t of equiposInvolucrados) {
           if (!eventsByTeam.has(t)) eventsByTeam.set(t, []);
           eventsByTeam.get(t).push(evt);
@@ -137,16 +175,9 @@ function parseFederadoHTML(html, meta) {
   }
 
   for (const [team, evs] of eventsByTeam.entries()) {
-  // Filtra eventos sin fecha válida
-  const validEvents = evs.filter(e => e.start instanceof Date && !isNaN(e.start));
-  if (!validEvents.length) {
-    console.log(`⚠️ Ningún evento válido para ${team}`);
-    continue;
+    evs.sort((a, b) => a.start - b.start);
+    writeICS(team, evs);
   }
-  validEvents.sort((a, b) => a.start - b.start);
-  writeICS(team, validEvents);
-}
-
 
   console.log(`📦 Generados ${eventsByTeam.size} calendarios para t=${meta.tournamentId} g=${meta.groupId}`);
 }
