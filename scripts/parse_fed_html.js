@@ -63,14 +63,18 @@ function fmtICSDate(d) {
   return `${Y}${M}${D}`;
 }
 
-function writeICS(team, events) {
-  const filename = `calendarios/federado_${team.replace(/\s+/g, "_").toLowerCase()}.ics`;
+function writeICS(team, category, events) {
+  const safeCat = category.toLowerCase().replace(/\s+/g, "_");
+  const safeTeam = team.replace(/\s+/g, "_").toLowerCase();
+  const filename = `calendarios/federado_${safeCat}_${safeTeam}.ics`;
+
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 PRODID:-//Las Flores//Calendarios Federado//ES
 `;
+
   for (const evt of events) {
     if (evt.type === "timed") {
       ics += `BEGIN:VEVENT
@@ -89,6 +93,7 @@ END:VEVENT
 `;
     }
   }
+
   ics += "END:VCALENDAR\n";
   fs.mkdirSync("calendarios", { recursive: true });
   fs.writeFileSync(filename, ics);
