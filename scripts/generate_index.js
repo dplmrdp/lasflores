@@ -1,10 +1,9 @@
-// scripts/generate_index.js (versión corregida)
+// scripts/generate_index.js (versión simplificada con detección directa por color)
 const fs = require("fs");
 const path = require("path");
 
 const OUTPUT_HTML = "index.html";
 const CALENDAR_DIR = "calendarios";
-const ICON_DIR = path.join(CALENDAR_DIR, "icons");
 
 // Orden fijo de categorías
 const CATEGORIES_ORDER = [
@@ -35,19 +34,22 @@ function normalizeKey(s) {
     .toUpperCase();
 }
 
-function loadIconsOnce() {
-  const map = {};
-  if (!fs.existsSync(ICON_DIR)) return map;
-  const files = fs.readdirSync(ICON_DIR);
-  for (const f of files) {
-    const ext = path.extname(f).toLowerCase();
-    if (![".svg", ".png", ".jpg", ".jpeg", ".webp"].includes(ext)) continue;
-    const name = path.basename(f, ext);
-    const key = normalizeKey(name);
-    map[key] = path.posix.join("calendarios", "icons", f);
-  }
-  return map;
+// ------------------------------
+// NUEVA FUNCIÓN → Selección simple de iconos
+// ------------------------------
+function getIconForTeamName(teamName) {
+  const n = teamName.toLowerCase();
+
+  if (n.includes("morado"))   return "calendarios/icons/flores-morado.svg";
+  if (n.includes("amarillo")) return "calendarios/icons/flores-amarillo.svg";
+  if (n.includes("purpura") || n.includes("púrpura"))
+    return "calendarios/icons/flores-purpura.svg";
+  if (n.includes("albero"))   return "calendarios/icons/flores-albero.svg";
+
+  return "calendarios/icons/flores.svg";
 }
+
+// ------------------------------
 
 function getCategoryFromFilename(filename) {
   const lower = filename.toLowerCase();
@@ -61,31 +63,7 @@ function getCategoryFromFilename(filename) {
   return "OTROS";
 }
 
-function findIconForTeam(iconsMap, teamName) {
-  // Intenta varias variantes para encontrar icono: exacto, sin "LAS ", sin "C.D."...
-  const tries = [];
-  tries.push(teamName);
-  tries.push(teamName.replace(/^LAS\s+/i, ""));
-  tries.push(teamName.replace(/^C\.?D\.?\s*/i, ""));
-  tries.push(teamName.replace(/^C D\s*/i, ""));
-  // nombres cortos: "flores morado" y "flores"
-  tries.push(teamName.replace(/^LAS\s+FLORES\s*/i, "FLORES "));
-  tries.push(teamName.replace(/^LAS\s+/i, ""));
-  for (const t of tries) {
-    const key = normalizeKey(t);
-    if (iconsMap[key]) return iconsMap[key];
-  }
-  // fallback: icono que contenga "FLORES" en la key
-  for (const k of Object.keys(iconsMap)) {
-    if (k.includes("FLORES")) return iconsMap[k];
-  }
-  // último recurso: primer icono disponible
-  const keys = Object.keys(iconsMap);
-  return keys.length ? iconsMap[keys[0]] : path.posix.join("calendarios", "icons", "flores.svg");
-}
-
 function collectCalendars() {
-  const iconsMap = loadIconsOnce();
   const data = {};
 
   if (!fs.existsSync(CALENDAR_DIR)) return data;
@@ -114,13 +92,14 @@ function collectCalendars() {
     let teamName = "LAS FLORES";
     if (restKey.includes("MORADO")) teamName = "LAS FLORES MORADO";
     else if (restKey.includes("AMARILLO")) teamName = "LAS FLORES AMARILLO";
-    else if (restKey.includes("PURPURA") || restKey.includes("PURPÚRA")) teamName = "LAS FLORES PÚRPURA";
+    else if (restKey.includes("PURPURA") || restKey.includes("PURPÚRA"))
+      teamName = "LAS FLORES PÚRPURA";
     else if (restKey.includes("ALBERO")) teamName = "LAS FLORES ALBERO";
     else if (restKey.includes("LAS FLORES")) teamName = restKey; // fallback
 
     if (!data[category]) data[category] = { FEDERADO: [], IMD: [] };
 
-    const iconForTeam = findIconForTeam(iconsMap, teamName);
+    const iconForTeam = getIconForTeamName(teamName);
 
     data[category][competition].push({
       originalFile: file,
@@ -174,10 +153,9 @@ function generateHTML(calendars) {
     const catData = calendars[cat] || { FEDERADO: [], IMD: [] };
     html += `<section class="category-block"><h2 class="category-title">${cat}</h2>`;
 
-    // SOLO RENDERIZAR competición si tiene equipos
     for (const comp of ["FEDERADO", "IMD"]) {
       const teams = catData[comp] || [];
-      if (!teams.length) continue; // <-- aquí: saltar si vacío (no mostrar "— sin calendarios —")
+      if (!teams.length) continue;
       html += `<div class="competition"><h3 class="competition-title">${comp}</h3>`;
       html += `<ul class="team-list">`;
       for (const t of teams) {
