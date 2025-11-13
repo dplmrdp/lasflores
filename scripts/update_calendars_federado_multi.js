@@ -1,13 +1,14 @@
 // scripts/update_calendars_federado_multi.js
-// Scraper federado multi (FAVOLE) → genera 1 ICS por cada equipo "LAS FLORES"
+// Scraper federado multi (FAVOLEY) → genera 1 ICS por cada equipo "LAS FLORES"
 // en cada grupo de cada torneo femenino Sevilla (temporada 2025/26).
 
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { parseFederadoHTML } = require("./parse_fed_html");
-const { Builder, By, until } = require("selenium-webdriver");
+const { By, until } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
+const { setupDriver } = require("./setupDriver");
 
 // --- Config ---
 const BASE_LIST_URL = "https://favoley.es/es/tournaments?season=8565&category=&sex=2&sport=&tournament_status=&delegation=1630";
@@ -99,8 +100,6 @@ function toLocalDate({ yyyy, MM, dd }, timeOrNull) {
   }
 
   // 3) Construir una fecha ISO local (no con zona) y crear Date a partir de ella
-  // Esto produce un Date en la zona horaria del servidor; lo importante es que las
-  // componentes reflejen la hora correcta para Europe/Madrid.
   const isoLocal = `${out.y}-${out.m}-${out.d}T${out.H}:${out.M}:00`;
   return new Date(isoLocal);
 }
@@ -238,8 +237,12 @@ async function discoverTournamentIds(driver) {
   fs.writeFileSync(listSnap, html0);
   log(`📄 Snapshot lista guardado en: ${listSnap}`);
 
-  // Espera a que exista la tabla
-  await driver.wait(until.elementLocated(By.css("table.tabletype-public tbody")), 15000).catch(() => {});
+  // Espera a que exista la tabla - intentar varias opciones robustas
+  try {
+    await driver.wait(until.elementLocated(By.css("table.tabletype-public tbody")), 15000);
+  } catch (e) {
+    // intentar selectores alternativos o seguir (snapshot ya guardado)
+  }
 
   let trs = [];
   try {
@@ -253,7 +256,7 @@ async function discoverTournamentIds(driver) {
   const tournaments = [];
   for (const tr of trs) {
     try {
-      const a = await tr.findElement(By.css('td.colstyle-estado a[href*="/tournament/"]'));
+      const a = await tr.findElement(By.css('td.colstyle-estado a[href*=\"/tournament/\"]'));
       const href = await a.getAttribute("href");
       const m = href && href.match(/\/tournament\/(\d+)\//);
       if (!m) continue;
@@ -279,6 +282,13 @@ async function discoverGroupIds(driver, tournamentId) {
   const url = `https://favoley.es/es/tournament/${tournamentId}`;
   log(`➡️ Abriendo torneo (solo DOM): ${url}`);
   await driver.get(url);
+
+  // Esperar a que cargue el DOM de la página de torneo
+  try {
+    await driver.wait(until.elementLocated(By.css("select[name='group'], #custom-domain-calendar-widget, .table")), 12000);
+  } catch (e) {
+    // seguir y sacar snapshot
+  }
 
   // ¿Existe el select de grupos?
   const selectNodes = await driver.findElements(By.css("select[name='group']"));
@@ -447,7 +457,11 @@ async function parseFederadoCalendarPage(driver, meta) {
   await driver.get(url);
 
   // Espera algo tipo tabla/listado y guarda snapshot
-  await driver.wait(until.elementLocated(By.css("table, .table, tbody, .row")), 15000).catch(() => {});
+  try {
+    await driver.wait(until.elementLocated(By.css("table, .table, tbody, .row")), 15000);
+  } catch (e) {
+    // continuar de todas formas y guardar snapshot
+  }
   const pageHTML = await driver.getPageSource();
   const snapName = `fed_${meta.tournamentId}_${meta.groupId}.html`;
   fs.writeFileSync(path.join(DEBUG_DIR, snapName), pageHTML);
@@ -625,20 +639,61 @@ async function parseFederadoCalendarPage(driver, meta) {
 (async () => {
   log("🏐 Iniciando scraping FEDERADO multi-equipos LAS FLORES…");
 
-  const tmpUserDir = fs.mkdtempSync(path.join(os.tmpdir(), "chrome-fed-"));
-  const options = new chrome.Options()
-    .addArguments("--headless=new")
-    .addArguments("--disable-gpu")
-    .addArguments("--no-sandbox")
-    .addArguments("--disable-dev-shm-usage")
-    .addArguments("--lang=es-ES")
-    .addArguments("--window-size=1280,1024")
-    .addArguments("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36")
-    .addArguments(`--user-data-dir=${tmpUserDir}`);
+  let driver;
+  try {
+    // arrancar driver indetectable
+    driver = await setupDriver();
+    log("🚗 Chrome indetectable iniciado");
 
- const { setupDriver } = require("./setupDriver");
-let driver = await setupDriver();
+    // 1) Torneos
+    const tournaments = await discoverTournamentIds(driver);
+    if (!tournaments.length) {
+      log("⚠️ No hay torneos: revisa el snapshot de la lista y la URL de filtros.");
+    }
 
+    // 2) Por torneo → grupos → calendario
+    for (const t of tournaments) {
+      const category = (normalize(t.category) || normalize(t.label)).toUpperCase();
+      log(`\n======= 🏷 Torneo ${t.id} :: ${t.label} (cat: ${category}) =======`);
+
+      let groups = [];
+      try {
+        groups = await discoverGroupIds(driver, t.id); // ["__INLINE__"] o ["3652...", ...]
+      } catch (e) {
+        onError(e, `discoverGroupIds t=${t.id}`);
+        continue;
+      }
+
+      log(`🔹 Grupos detectados: ${groups.length}${groups.length ? " → ["+groups.join(", ")+"]" : ""}`);
+
+      for (const g of groups) {
+        if (g === "__INLINE__") {
+          try {
+            await parseFederadoInlineCalendar(driver, {
+              tournamentId: t.id,
+              groupId: "inline",
+              category
+            });
+          } catch (e) {
+            onError(e, `parse inline calendar t=${t.id}`);
+          }
+          continue;
+        }
+
+        try {
+          await parseFederadoCalendarPage(driver, {
+            tournamentId: t.id,
+            groupId: g,
+            category
+          });
+        } catch (e) {
+          onError(e, `parse calendar t=${t.id} g=${g}`);
+        }
+
+        // pausa corta entre grupos para no estresar el server
+        await driver.sleep(400);
+      }
+    }
 
     log("\n✅ Scraping federado multi-equipos completado.");
   } catch (err) {
