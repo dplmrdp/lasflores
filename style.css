@@ -1,74 +1,25 @@
-body {
-  font-family: "Segoe UI", Roboto, sans-serif;
-  background: #fafafa;
-  color: #222;
-  margin: 2em;
-  line-height: 1.5;
-}
+/* style.css - básico para controlar tamaño de iconos y jerarquía */
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 24px; color:#222; }
+.container { max-width: 980px; margin: 0 auto; }
+h1 { font-size: 1.8rem; margin-bottom: 18px; }
+.category-block { margin: 28px 0; border-bottom: 1px solid #eee; padding-bottom: 12px; }
+.category-title { font-size: 1.4rem; margin: 8px 0 12px; }
 
-h1 {
-  text-align: center;
-  font-size: 2.6em;
-  color: #333;
-  margin-bottom: 1.5em;
-}
+/* Competición (FEDERADO / IMD) */
+.competition { margin-left: 8px; margin-bottom: 8px; }
+.competition-title { font-size: 1.05rem; margin: 6px 0; color:#444; }
 
-.category {
-  font-size: 2em;
-  color: #004aad;
-  border-bottom: 3px solid #004aad;
-  margin-top: 2em;
-  padding-bottom: 0.3em;
-}
+/* Lista de equipos */
+.team-list { list-style: none; padding: 0; margin: 8px 0 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+.team-item { display: flex; align-items: center; gap: 8px; background: #fafafa; padding: 6px 10px; border-radius: 8px; box-shadow: 0 1px 0 rgba(0,0,0,0.03); }
+.team-link { font-weight: 600; color: #0a58ca; text-decoration: none; }
 
-h3 {
-  font-size: 1.3em;
-  margin-top: 1em;
-  margin-left: 0.5em;
-  padding: 0.3em 0.6em;
-  border-radius: 6px;
-  display: inline-block;
-  color: white;
-}
+/* Icono: límite de tamaño */
+.team-icon { width: 32px; height: 32px; object-fit: contain; display:block; }
 
-h3.federado {
-  background: #2c64d4;
-}
-
-h3.imd {
-  background: #3fa35b;
-}
-
-.team-list {
-  list-style: none;
-  margin-left: 2em;
-  padding-left: 0;
-}
-
-.team-list li {
-  margin: 0.4em 0;
-  display: flex;
-  align-items: center;
-  font-size: 1.1em;
-}
-
-.icon {
-  width: 32px;
-  height: 32px;
-  margin-right: 0.6em;
-  vertical-align: middle;
-  border-radius: 6px;
-  object-fit: contain;
-  background: #fff;
-  border: 1px solid #ccc;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.15);
-}
-
-a {
-  text-decoration: none;
-  color: #0056b3;
-}
-
-a:hover {
-  text-decoration: underline;
+/* tamaños para pantallas pequeñas */
+@media (max-width: 520px) {
+  .team-icon { width: 26px; height: 26px; }
+  .category-title { font-size: 1.2rem; }
+  .competition-title { font-size: 1rem; }
 }
