@@ -1,4 +1,4 @@
-// scripts/generate_index.js (versión corregida)
+// scripts/generate_index.js (versión corregida final)
 const fs = require("fs");
 const path = require("path");
 
@@ -6,7 +6,7 @@ const OUTPUT_HTML = "index.html";
 const CALENDAR_DIR = "calendarios";
 const ICON_DIR = path.join(CALENDAR_DIR, "icons");
 
-// orden deseado de categorías (mayúsculas)
+// Orden fijo de categorías
 const CATEGORIES_ORDER = [
   "BENJAMÍN",
   "ALEVÍN",
@@ -25,6 +25,7 @@ const TEAM_ORDER = [
   "LAS FLORES ALBERO",
 ];
 
+// Normaliza texto (acentos, mayúsculas, símbolos)
 function normalizeKey(s) {
   return (s || "")
     .toString()
@@ -35,6 +36,7 @@ function normalizeKey(s) {
     .toUpperCase();
 }
 
+// Carga los iconos disponibles en /calendarios/icons
 function loadIconsOnce() {
   const map = {};
   if (!fs.existsSync(ICON_DIR)) return map;
@@ -49,62 +51,77 @@ function loadIconsOnce() {
   return map;
 }
 
+// Deducción robusta de categoría a partir del nombre del fichero
+function getCategoryFromFilename(filename) {
+  const lower = filename.toLowerCase();
+  if (lower.includes("benjamin")) return "BENJAMÍN";
+  if (lower.includes("alevin")) return "ALEVÍN";
+  if (lower.includes("infantil")) return "INFANTIL";
+  if (lower.includes("cadete")) return "CADETE";
+  if (lower.includes("juvenil")) return "JUVENIL";
+  if (lower.includes("junior")) return "JUNIOR";
+  if (lower.includes("senior")) return "SENIOR";
+  return "OTROS";
+}
+
 function collectCalendars() {
   const iconsMap = loadIconsOnce();
-  const defaultIcon = iconsMap["LAS FLORES"] || path.posix.join("calendarios","icons","flores.svg");
+  const defaultIcon =
+    iconsMap["LAS FLORES"] ||
+    path.posix.join("calendarios", "icons", "flores.svg");
   const data = {};
 
   if (!fs.existsSync(CALENDAR_DIR)) return data;
-  const files = fs.readdirSync(CALENDAR_DIR).filter(f => f.toLowerCase().endsWith(".ics"));
+  const files = fs
+    .readdirSync(CALENDAR_DIR)
+    .filter((f) => f.toLowerCase().endsWith(".ics"));
 
   for (const file of files) {
     const lower = file.toLowerCase();
 
-    // Competición: por prefijo del fichero
+    // Competición: prefijo del fichero
     let competition = "FEDERADO";
-    if (/^imd[_\-]/i.test(file) || /_imd_/i.test(file) || lower.startsWith("imd_")) competition = "IMD";
-    if (/^federado[_\-]/i.test(file) || lower.startsWith("federado_")) competition = "FEDERADO";
+    if (lower.startsWith("imd_")) competition = "IMD";
+    else if (lower.startsWith("federado_")) competition = "FEDERADO";
 
-    // Intentamos extraer categoría por patrón: prefix_category_rest (ej. federado_alevin_....ics)
-    let category = null;
-    const catMatch = file.match(/^(?:imd|federado)[_\-]([a-záéíóúüñ]+)[_\-]/i);
-    if (catMatch) {
-      category = catMatch[1].toUpperCase();
-      category = category.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    } else {
-      // fallback: buscar tokens conocidos dentro del nombre
-      const tryCat = file.match(/_(benjamin|alevin|infantil|cadete|juvenil|junior|senior)[_\.\-]/i);
-      category = tryCat ? tryCat[1].toUpperCase() : "OTROS";
-    }
+    // Categoría robusta
+    const category = getCategoryFromFilename(file);
 
-    // Equipo: heurística: tomar todo lo que quede tras el token categoria y posibles sufijos
-    // ejemplo: federado_alevin_c.d._las_flores_sevilla_amarillo.ics
-    // quitamos prefijos conocidos
-    let rest = file.replace(/^(?:imd|federado)[_\-]/i, "");
-    // remove leading category token if present
-    rest = rest.replace(new RegExp(`^${category}`, "i"), "");
-    // remove common tags
-    rest = rest.replace(/(femenino|masculino|cd|evb|_?\.?ics)/gi, " ");
-    rest = rest.replace(/[_\-\.\s]+/g, " ").trim();
+    // Equipo (basado en color y palabra FLORES)
+    const rest = file
+      .replace(/^(?:imd|federado)[_\-]/i, "")
+      .replace(/(femenino|masculino|cd|evb|ics)/gi, " ")
+      .replace(/[_\-\.\s]+/g, " ")
+      .trim();
 
-    // Map to team name: buscar el token 'FLORES' y color
     const restKey = normalizeKey(rest);
-    let teamName = null;
-    if (restKey.includes("FLORES")) {
-      if (restKey.includes("MORADO")) teamName = "LAS FLORES MORADO";
-      else if (restKey.includes("AMARILLO")) teamName = "LAS FLORES AMARILLO";
-      else if (restKey.includes("PURPURA") || restKey.includes("PURPÚRA")) teamName = "LAS FLORES PÚRPURA";
-      else if (restKey.includes("ALBERO")) teamName = "LAS FLORES ALBERO";
-      else teamName = "LAS FLORES";
-    } else {
-      // fallback: usar fragmento legible
-      teamName = rest.replace(/\b(femenino|masculino)\b/gi, "").trim() || file;
-    }
+    let teamName = "LAS FLORES";
+    if (restKey.includes("MORADO")) teamName = "LAS FLORES MORADO";
+    else if (restKey.includes("AMARILLO")) teamName = "LAS FLORES AMARILLO";
+    else if (restKey.includes("PURPURA")) teamName = "LAS FLORES PÚRPURA";
+    else if (restKey.includes("ALBERO")) teamName = "LAS FLORES ALBERO";
 
     if (!data[category]) data[category] = { FEDERADO: [], IMD: [] };
 
-    // elegir icono por teamName (normalizado)
-    const iconForTeam = iconsMap[normalizeKey(teamName)] || defaultIcon;
+    // Asigna icono en función del nombre del equipo
+    const normalized = normalizeKey(teamName);
+    let iconForTeam = defaultIcon;
+    if (normalized.includes("MORADO"))
+      iconForTeam =
+        iconsMap["LAS FLORES MORADO"] ||
+        path.posix.join("calendarios", "icons", "flores morado.svg");
+    else if (normalized.includes("AMARILLO"))
+      iconForTeam =
+        iconsMap["LAS FLORES AMARILLO"] ||
+        path.posix.join("calendarios", "icons", "flores amarillo.svg");
+    else if (normalized.includes("PURPURA"))
+      iconForTeam =
+        iconsMap["LAS FLORES PÚRPURA"] ||
+        path.posix.join("calendarios", "icons", "flores purpura.svg");
+    else if (normalized.includes("ALBERO"))
+      iconForTeam =
+        iconsMap["LAS FLORES ALBERO"] ||
+        path.posix.join("calendarios", "icons", "flores albero.svg");
 
     data[category][competition].push({
       originalFile: file,
@@ -114,10 +131,10 @@ function collectCalendars() {
     });
   }
 
-  // ordenar categorías: mantener todas del orden definido (añadir vacías si no existen)
+  // Ordenar equipos dentro de cada categoría
   for (const cat of Object.keys(data)) {
-    for (const comp of ["FEDERADO","IMD"]) {
-      data[cat][comp].sort((a,b) => {
+    for (const comp of ["FEDERADO", "IMD"]) {
+      data[cat][comp].sort((a, b) => {
         const ai = TEAM_ORDER.indexOf(a.team);
         const bi = TEAM_ORDER.indexOf(b.team);
         if (ai === -1 && bi === -1) return a.team.localeCompare(b.team);
@@ -128,12 +145,13 @@ function collectCalendars() {
     }
   }
 
-  // ensure all categories in order exist (even empty)
+  // Crear estructura completa con categorías vacías si faltan
   const full = {};
   for (const cat of CATEGORIES_ORDER) {
     full[cat] = data[cat] || { FEDERADO: [], IMD: [] };
   }
-  // include any other categories found
+
+  // Añadir otras categorías no previstas
   for (const cat of Object.keys(data)) {
     if (!full[cat]) full[cat] = data[cat];
   }
@@ -155,11 +173,11 @@ function generateHTML(calendars) {
 <h1>Calendarios C.D. Las Flores</h1>
 `;
 
-  for (const cat of Object.keys(calendars)) {
-    const catData = calendars[cat];
+  for (const cat of CATEGORIES_ORDER) {
+    const catData = calendars[cat] || { FEDERADO: [], IMD: [] };
     html += `<section class="category-block"><h2 class="category-title">${cat}</h2>`;
 
-    for (const comp of ["FEDERADO","IMD"]) {
+    for (const comp of ["FEDERADO", "IMD"]) {
       const teams = catData[comp] || [];
       html += `<div class="competition"><h3 class="competition-title">${comp}</h3>`;
       if (!teams.length) {
@@ -167,9 +185,8 @@ function generateHTML(calendars) {
       } else {
         html += `<ul class="team-list">`;
         for (const t of teams) {
-          const iconPath = t.icon || path.posix.join("calendarios","icons","flores.svg");
           html += `<li class="team-item">
-  <img class="team-icon" src="${iconPath}" alt="${t.team}" />
+  <img class="team-icon" src="${t.icon}" alt="${t.team}" />
   <a class="team-link" href="${t.href}">${t.team}</a>
 </li>`;
         }
@@ -182,9 +199,8 @@ function generateHTML(calendars) {
   }
 
   html += `</div></body></html>`;
-
   fs.writeFileSync(OUTPUT_HTML, html, "utf-8");
-  console.log("✅ index.html generado");
+  console.log("✅ index.html generado correctamente");
 }
 
 function main() {
