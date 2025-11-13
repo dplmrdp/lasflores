@@ -55,10 +55,17 @@ function parseTimeHHMM(s) {
   const [, HH, mm] = m;
   return { HH, mm };
 }
+// Reemplaza tu toLocalDate actual por ésta (asegura que la función se llame igual)
 function toLocalDate({ yyyy, MM, dd }, timeOrNull) {
-  const h = timeOrNull ? `${timeOrNull.HH}:${timeOrNull.mm}` : "00:00";
-  return new Date(`${yyyy}-${MM}-${dd}T${h}:00`);
+  // Construimos un ISO con offset CET (+01:00) para evitar desfases de +1h.
+  // Atención: esto asume hora de la península (CET/CEST). Si necesitas DST correcto,
+  // lo ideal es usar luxon o Intl; esto arregla el desfase inmediato.
+  const timePart = timeOrNull ? `${timeOrNull.HH}:${timeOrNull.mm}` : "00:00";
+  const iso = `${yyyy}-${MM}-${dd}T${timePart}:00+01:00`;
+  const d = new Date(iso);
+  return d;
 }
+
 function fmtICSDateTimeTZID(dt) {
   const pad = n => String(n).padStart(2, "0");
   return `${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}${pad(dt.getSeconds())}`;
