@@ -107,6 +107,41 @@ END:VEVENT
   log(`✅ ICS escrito: ${out} (${events.length} eventos)`);
 }
 
+// -------------------------
+// NUEVA FUNCIÓN: normalizar equipo para filename
+// -------------------------
+// Devuelve un slug con guiones bajos (ej: las_flores_morado o otra_equipo)
+function normalizeTeamForFilename(raw) {
+  if (!raw) return "equipo";
+
+  // 1) normalizar texto y quitar tildes
+  let n = normalize(raw).toLowerCase();
+
+  // 2) quitar IDs numéricos (ej: 1321295) que a veces incluye FAVoley
+  n = n.replace(/\d+/g, " ");
+
+  // 3) reemplazar símbolos no alfanum por espacio
+  n = n.replace(/[^\p{L}0-9]+/gu, " ");
+
+  // 4) colapsar espacios
+  n = n.replace(/\s+/g, " ").trim();
+
+  // 5) unificar formas de "las flores"
+  if (n.includes("las flores") || n.includes("c d las flores") || n.includes("cd las flores") || n.includes("c.d. las flores") || n.includes("c d las flores")) {
+    // detectar color si existe
+    if (n.includes("morado"))   return "las_flores_morado";
+    if (n.includes("amarillo")) return "las_flores_amarillo";
+    if (n.includes("albero"))   return "las_flores_albero";
+    if (n.includes("purpura") || n.includes("púrpura")) return "las_flores_purpura";
+    return "las_flores";
+  }
+
+  // 6) fallback: convertir a guiones bajos y quitar caracteres sobrantes
+  const out = n.replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+  return out || "equipo";
+}
+// -------------------------
+
 // --- 1) Lista de torneos (tabla server-side) ---
 async function discoverTournamentIds(driver) {
   log(`🌐 Página base: ${BASE_LIST_URL}`);
@@ -263,7 +298,12 @@ async function parseFederadoInlineCalendar(driver, meta) {
   const outFiles = [];
   for (const [teamName, events] of teams.entries()) {
     events.sort((a, b) => a.start - b.start);
-    const fnameOut = `federado_${slug(teamName)}_${slug(meta.category)}_${meta.tournamentId}.ics`;
+
+    // nuevo: normalizar teamName para filename y categoría
+    const teamSlug = normalizeTeamForFilename(teamName); // ej: las_flores_morado
+    const catSlug = slug(meta.category || "general");    // ej: infantil -> infantil
+    const fnameOut = `federado_${catSlug}_${teamSlug}.ics`;
+
     writeICS(fnameOut, events);
     outFiles.push(fnameOut);
   }
@@ -391,7 +431,12 @@ try {
   const outFiles = [];
   for (const [teamName, events] of teams.entries()) {
     events.sort((a, b) => a.start - b.start);
-    const fname = `federado_${slug(teamName)}_${slug(meta.category)}_${meta.groupId}.ics`;
+
+    // nuevo: normalizar teamName para filename y categoría
+    const teamSlug = normalizeTeamForFilename(teamName); // ej: las_flores_morado
+    const catSlug = slug(meta.category || "general");    // ej: infantil -> infantil
+    const fname = `federado_${catSlug}_${teamSlug}.ics`;
+
     writeICS(fname, events);
     outFiles.push(fname);
   }
