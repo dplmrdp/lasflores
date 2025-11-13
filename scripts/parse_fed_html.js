@@ -165,20 +165,20 @@ if (range) {
     location: lugar,
   };
 } else if (weekendStart instanceof Date && weekendEnd instanceof Date) {
+  // 🔧 Ajuste fechas: +1 día de margen, jornada de viernes a domingo
+  const fixedStart = addDays(weekendStart, 1);
+  const fixedEnd = addDays(weekendEnd, 1);
+
   evt = {
     type: "allday",
-    start: weekendStart,
-    end: weekendEnd,
+    start: fixedStart,
+    end: fixedEnd,
     summary: `${teamA} vs ${teamB}`,
     location: lugar,
   };
+  console.log(`📅 Sin hora: jornada ${fmtICSDate(fixedStart)}–${fmtICSDate(fixedEnd)} para ${teamA} vs ${teamB}`);
 }
 
-  console.log(`📅 Sin hora: usando jornada ${fmtICSDate(weekendStart)}–${fmtICSDate(weekendEnd)} para ${teamA} vs ${teamB}`);
-} else {
-  console.log(`⚠️ Sin fecha ni rango válido para ${teamA} vs ${teamB}`);
-  continue;
-}
 
         for (const t of equiposInvolucrados) {
           if (!eventsByTeam.has(t)) eventsByTeam.set(t, []);
