@@ -22,12 +22,13 @@ const TEAM_ORDER = [
   "LAS FLORES ALBERO",
 ];
 
+// ✅ tus iconos SVG
 const TEAM_ICONS = {
-  "LAS FLORES": "icons/flores.png",
-  "LAS FLORES MORADO": "icons/morado.png",
-  "LAS FLORES AMARILLO": "icons/amarillo.png",
-  "LAS FLORES PÚRPURA": "icons/purpura.png",
-  "LAS FLORES ALBERO": "icons/albero.png",
+  "LAS FLORES": "icons/flores.svg",
+  "LAS FLORES MORADO": "icons/flores morado.svg",
+  "LAS FLORES AMARILLO": "icons/flores amarillo.svg",
+  "LAS FLORES PÚRPURA": "icons/flores purpura.svg",
+  "LAS FLORES ALBERO": "icons/flores albero.svg",
 };
 
 // --- Recopilar los ficheros .ics ---
@@ -36,14 +37,23 @@ function collectCalendars() {
   const data = {};
 
   for (const file of allFiles) {
-    const competition = file.startsWith("federado_") ? "FEDERADO" : "IMD";
-    const parts = file
-      .replace(/^(federado_|imd_)/, "")
-      .replace(".ics", "")
-      .split("_");
+    // Detectar si es IMD o FEDERADO (aunque no empiece con ese texto)
+    const competition = file.toLowerCase().includes("imd") ? "IMD" : "FEDERADO";
 
-    const category = (parts[0] || "").toUpperCase();
-    const teamName = parts.slice(1).join(" ").toUpperCase();
+    // Buscar categoría en el nombre del archivo (INFANTIL, CADETE, etc.)
+    const upperName = file.toUpperCase();
+    const category =
+      CATEGORIES_ORDER.find(cat => upperName.includes(cat)) || "OTROS";
+
+    // Extraer el nombre del equipo
+    const teamNameRaw = file
+      .replace(/_/g, " ")
+      .replace(".ics", "")
+      .replace(/FEDERADO|IMD/gi, "")
+      .replace(/\.ICS/gi, "")
+      .trim();
+
+    const teamName = teamNameRaw.toUpperCase();
 
     if (!data[category]) data[category] = { FEDERADO: [], IMD: [] };
 
@@ -86,11 +96,9 @@ function generateHTML(calendars) {
       });
 
       for (const { team, path: filePath } of teams) {
-        const icon =
-          TEAM_ICONS[
-            Object.keys(TEAM_ICONS).find(k => team.includes(k)) || "LAS FLORES"
-          ];
-        const label = team.replace("C.D.", "").trim();
+        const matchedKey = Object.keys(TEAM_ICONS).find(k => team.includes(k));
+        const icon = matchedKey ? TEAM_ICONS[matchedKey] : TEAM_ICONS["LAS FLORES"];
+        const label = team.replace(/C\.D\./i, "").trim();
         html += `<li><img src="${icon}" alt="${team}" class="icon"><a href="${filePath}">${label}</a></li>\n`;
       }
 
