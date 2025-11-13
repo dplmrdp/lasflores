@@ -44,10 +44,19 @@ function slug(s) {
   return normalize(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
 }
 function parseDateDDMMYYYY(s) {
-  const m = (s || "").match(/(\d{2})\/(\d{2})\/(\d{4})/);
-  if (!m) return null;
-  const [, dd, MM, yyyy] = m;
-  return { yyyy, MM, dd };
+  // Accept dd/mm/yy or dd/mm/yyyy
+  const m4 = (s || "").match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m4) {
+    const [, dd, MM, yyyy] = m4;
+    return { yyyy, MM, dd };
+  }
+  const m2 = (s || "").match(/(\d{2})\/(\d{2})\/(\d{2})/);
+  if (m2) {
+    const [, dd, MM, yy] = m2;
+    const yyyy = `20${yy}`;
+    return { yyyy, MM, dd };
+  }
+  return null;
 }
 function parseTimeHHMM(s) {
   const m = (s || "").match(/(\d{2}):(\d{2})/);
@@ -55,25 +64,66 @@ function parseTimeHHMM(s) {
   const [, HH, mm] = m;
   return { HH, mm };
 }
-// Reemplaza tu toLocalDate actual por ésta (asegura que la función se llame igual)
+
+// -------------------------
+// toLocalDate: crea un Date representando la hora local en Europe/Madrid
+// tomando la fecha (yyyy,MM,dd) y la hora (HH,mm).
+// Esto evita poner offsets fijos y respeta DST.
+// -------------------------
 function toLocalDate({ yyyy, MM, dd }, timeOrNull) {
-  // Construimos un ISO con offset CET (+01:00) para evitar desfases de +1h.
-  // Atención: esto asume hora de la península (CET/CEST). Si necesitas DST correcto,
-  // lo ideal es usar luxon o Intl; esto arregla el desfase inmediato.
-  const timePart = timeOrNull ? `${timeOrNull.HH}:${timeOrNull.mm}` : "00:00";
-  const iso = `${yyyy}-${MM}-${dd}T${timePart}:00+01:00`;
-  const d = new Date(iso);
-  return d;
+  const h = timeOrNull ? parseInt(timeOrNull.HH, 10) : 0;
+  const m = timeOrNull ? parseInt(timeOrNull.mm, 10) : 0;
+
+  // 1) Crear un Date UTC con los componentes pedidos (como si fueran UTC)
+  const dtUtc = new Date(Date.UTC(parseInt(yyyy,10), parseInt(MM,10)-1, parseInt(dd,10), h, m, 0));
+
+  // 2) Usar Intl para formatear esa fecha en Europe/Madrid y obtener componentes locales
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Madrid",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+
+  const parts = formatter.formatToParts(dtUtc);
+  const out = {};
+  for (const p of parts) {
+    if (p.type === "year") out.y = p.value;
+    if (p.type === "month") out.m = p.value;
+    if (p.type === "day") out.d = p.value;
+    if (p.type === "hour") out.H = p.value;
+    if (p.type === "minute") out.M = p.value;
+  }
+
+  // 3) Construir una fecha ISO local (no con zona) y crear Date a partir de ella
+  // Esto produce un Date en la zona horaria del servidor; lo importante es que las
+  // componentes reflejen la hora correcta para Europe/Madrid.
+  const isoLocal = `${out.y}-${out.m}-${out.d}T${out.H}:${out.M}:00`;
+  return new Date(isoLocal);
 }
 
+// -------------------------
+// ICS format helpers
+// -------------------------
+function pad(n) { return String(n).padStart(2, "0"); }
 function fmtICSDateTimeTZID(dt) {
-  const pad = n => String(n).padStart(2, "0");
   return `${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}${pad(dt.getSeconds())}`;
 }
-function fmtICSDateUTC(d) {
-  const Y = d.getUTCFullYear(), M = String(d.getUTCMonth()+1).padStart(2,"0"), D = String(d.getUTCDate()).padStart(2,"0");
-  return `${Y}${M}${D}`;
+function fmtICSDateYYYYMMDD_fromParts(yyyy, MM, dd) {
+  return `${yyyy}${MM}${dd}`;
 }
+function addDaysToDateParts({ yyyy, MM, dd }, days) {
+  const d = new Date(Date.UTC(parseInt(yyyy,10), parseInt(MM,10)-1, parseInt(dd,10)));
+  d.setUTCDate(d.getUTCDate() + days);
+  const Y = d.getUTCFullYear();
+  const M = String(d.getUTCMonth()+1).padStart(2,"0");
+  const D = String(d.getUTCDate()).padStart(2,"0");
+  return { yyyy: String(Y), MM: M, dd: D };
+}
+
 function writeICS(filename, events) {
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
@@ -84,19 +134,23 @@ PRODID:-//Las Flores//Calendarios Federado//ES
   for (const evt of events) {
     if (evt.type === "timed") {
       ics += `BEGIN:VEVENT
-SUMMARY:${evt.summary}
-LOCATION:${evt.location || ""}
+SUMMARY:${escapeICSText(evt.summary)}
+LOCATION:${escapeICSText(evt.location || "")}
 DTSTART;TZID=${ICS_TZID}:${fmtICSDateTimeTZID(evt.start)}
-DESCRIPTION:${evt.description || ""}
+DESCRIPTION:${escapeICSText(evt.description || "")}
 END:VEVENT
 `;
-    } else {
+    } else if (evt.type === "allday") {
+      // evt.startDateParts and evt.endDateParts expected: {yyyy,MM,dd}
+      const dtStart = fmtICSDateYYYYMMDD_fromParts(evt.startDateParts.yyyy, evt.startDateParts.MM, evt.startDateParts.dd);
+      const endPlusOne = addDaysToDateParts(evt.endDateParts, 1); // DTEND is exclusive: end + 1
+      const dtEnd = fmtICSDateYYYYMMDD_fromParts(endPlusOne.yyyy, endPlusOne.MM, endPlusOne.dd);
       ics += `BEGIN:VEVENT
-SUMMARY:${evt.summary}
-LOCATION:${evt.location || ""}
-DTSTART;VALUE=DATE:${fmtICSDateUTC(evt.start)}
-DTEND;VALUE=DATE:${fmtICSDateUTC(evt.end)}
-DESCRIPTION:${evt.description || ""}
+SUMMARY:${escapeICSText(evt.summary)}
+LOCATION:${escapeICSText(evt.location || "")}
+DTSTART;VALUE=DATE:${dtStart}
+DTEND;VALUE=DATE:${dtEnd}
+DESCRIPTION:${escapeICSText(evt.description || "")}
 END:VEVENT
 `;
     }
@@ -105,6 +159,11 @@ END:VEVENT
   const out = path.join(OUTPUT_DIR, filename);
   fs.writeFileSync(out, ics);
   log(`✅ ICS escrito: ${out} (${events.length} eventos)`);
+}
+
+function escapeICSText(s) {
+  if (!s) return "";
+  return String(s).replace(/\r\n/g, '\\n').replace(/\n/g, '\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
 }
 
 // -------------------------
@@ -140,7 +199,33 @@ function normalizeTeamForFilename(raw) {
   const out = n.replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
   return out || "equipo";
 }
+
 // -------------------------
+// Extraer rango de jornada desde HTML (ejemplo):
+// <h2>Jornada 5 <span class="text-light-gray">21/11/25 – 23/11/25</span></h2>
+// Devuelve { start: {yyyy,MM,dd}, end: {yyyy,MM,dd} }
+// -------------------------
+function extractJornadaRangeFromHTML(html) {
+  if (!html) return null;
+  // Buscar patrón dd/mm/yy(yy) – dd/mm/yy(yy)
+  const m = html.match(/Jornada\s*\d+\s*<[^>]*>\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*(?:&nbsp;|&nbsp;|&mdash;|–|—|-)\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})/i)
+    || html.match(/<h2[^>]*>[^<]*<span[^>]*>\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*(?:&nbsp;|&nbsp;|&mdash;|–|—|-)\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*<\/span>/i);
+
+  if (!m) {
+    // intentar una variante más simple: buscar cualquier dd/mm/yy – dd/mm/yy en el html cerca de "Jornada"
+    const m2 = html.match(/([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*(?:&nbsp;|&nbsp;|&mdash;|–|—|-)\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})/);
+    if (!m2) return null;
+    return {
+      start: parseDateDDMMYYYY(m2[1]),
+      end: parseDateDDMMYYYY(m2[2])
+    };
+  }
+
+  const start = parseDateDDMMYYYY(m[1]);
+  const end = parseDateDDMMYYYY(m[2]);
+  if (!start || !end) return null;
+  return { start, end };
+}
 
 // --- 1) Lista de torneos (tabla server-side) ---
 async function discoverTournamentIds(driver) {
@@ -234,6 +319,12 @@ async function parseFederadoInlineCalendar(driver, meta) {
   fs.writeFileSync(path.join(DEBUG_DIR, fname), pageHTML);
   log(`🧩 Snapshot inline guardado: ${fname}`);
 
+  // Extraer rango de jornada del header (si existe)
+  const jornadaRange = extractJornadaRangeFromHTML(pageHTML); // {start, end} with parts
+  if (jornadaRange) {
+    log(`📆 Jornada rango detectado: ${jornadaRange.start.dd}/${jornadaRange.start.MM}/${jornadaRange.start.yyyy} – ${jornadaRange.end.dd}/${jornadaRange.end.MM}/${jornadaRange.end.yyyy}`);
+  }
+
   const rows = await driver.findElements(By.css("#custom-domain-calendar-widget table.tablestyle-e1d9 tbody tr"));
   const matches = [];
 
@@ -249,11 +340,11 @@ async function parseFederadoInlineCalendar(driver, meta) {
       const fechaTd = await r.findElement(By.css("td.colstyle-fecha span"));
       const fechaTexto = (await fechaTd.getText()).trim();
 
-      const mFecha = fechaTexto.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      const mFecha = fechaTexto.match(/(\d{2}\/\d{2}\/\d{2,4})/);
       const mHora  = fechaTexto.match(/(\d{2}):(\d{2})/);
 
-      if (!mFecha) continue;
-      const fecha = `${mFecha[1]}/${mFecha[2]}/${mFecha[3]}`;
+      // If there's a specific date in the cell we capture it, otherwise leave blank
+      const fecha = mFecha ? mFecha[1] : "";
       const hora = mHora ? `${mHora[1]}:${mHora[2]}` : "";
 
       let lugar = "";
@@ -278,28 +369,65 @@ async function parseFederadoInlineCalendar(driver, meta) {
     if (!localN.includes(TEAM_NEEDLE) && !visitN.includes(TEAM_NEEDLE)) continue;
 
     const teamName = localN.includes(TEAM_NEEDLE) ? m.local : m.visitante;
-    const d = parseDateDDMMYYYY(m.fecha);
-    if (!d) continue;
 
-    const t = parseTimeHHMM(m.hora);
-    const start = toLocalDate(d, t);
+    // Si el row trae fecha explícita, úsala; si no trae hora -> usaremos jornadaRange para allday
+    const dParts = m.fecha ? parseDateDDMMYYYY(m.fecha) : null;
+    const tParts = m.hora ? parseTimeHHMM(m.hora) : null;
 
-    const summary = `${m.local} vs ${m.visitante} (Federado)`;
-    const description = "";
+    if (tParts && dParts) {
+      const start = toLocalDate(dParts, tParts);
+      const summary = `${m.local} vs ${m.visitante} (Federado)`;
+      const description = "";
+      const evt = { type: "timed", start, summary, location: m.lugar, description };
+      if (!teams.has(teamName)) teams.set(teamName, []);
+      teams.get(teamName).push(evt);
+      continue;
+    }
 
-    const evt = t
-      ? { type: "timed", start, summary, location: m.lugar, description }
-      : { type: "allday", start, end: new Date(start.getTime()+86400000), summary, location: m.lugar, description };
+    // Si no tiene hora: crear evento ALLDAY que cubra la jornadaRange (si existe)
+    if (jornadaRange) {
+      const summary = `${m.local} vs ${m.visitante} (Jornada)`;
+      const description = "";
+      const evt = {
+        type: "allday",
+        startDateParts: jornadaRange.start,
+        endDateParts: jornadaRange.end,
+        summary,
+        location: m.lugar || "",
+        description
+      };
+      if (!teams.has(teamName)) teams.set(teamName, []);
+      teams.get(teamName).push(evt);
+      continue;
+    }
 
-    if (!teams.has(teamName)) teams.set(teamName, []);
-    teams.get(teamName).push(evt);
+    // Fallback: if no jornada range and no time but a date exists, create single-day all-day
+    if (dParts) {
+      const summary = `${m.local} vs ${m.visitante} (Jornada)`;
+      const description = "";
+      const evt = {
+        type: "allday",
+        startDateParts: dParts,
+        endDateParts: dParts,
+        summary,
+        location: m.lugar || "",
+        description
+      };
+      if (!teams.has(teamName)) teams.set(teamName, []);
+      teams.get(teamName).push(evt);
+    }
   }
 
   const outFiles = [];
   for (const [teamName, events] of teams.entries()) {
-    events.sort((a, b) => a.start - b.start);
+    // ordenar: timed por start, allday quedan al principio (no crítico)
+    events.sort((a, b) => {
+      if (a.type === "allday" && b.type !== "allday") return -1;
+      if (b.type === "allday" && a.type !== "allday") return 1;
+      if (a.type === "timed" && b.type === "timed") return a.start - b.start;
+      return 0;
+    });
 
-    // nuevo: normalizar teamName para filename y categoría
     const teamSlug = normalizeTeamForFilename(teamName); // ej: las_flores_morado
     const catSlug = slug(meta.category || "general");    // ej: infantil -> infantil
     const fnameOut = `federado_${catSlug}_${teamSlug}.ics`;
@@ -325,13 +453,18 @@ async function parseFederadoCalendarPage(driver, meta) {
   fs.writeFileSync(path.join(DEBUG_DIR, snapName), pageHTML);
   log(`🧩 Snapshot guardado: ${snapName}`);
 
-  // Llamar al parser local para generar los ICS directamente
-try {
-  parseFederadoHTML(pageHTML, meta);
-} catch (err) {
-  log(`⚠️ Error al parsear calendario t=${meta.tournamentId} g=${meta.groupId}: ${err}`);
-}
+  // Primero, intenta usar parser dedicado si existe
+  try {
+    parseFederadoHTML(pageHTML, meta);
+  } catch (err) {
+    log(`⚠️ Error al parsear calendario t=${meta.tournamentId} g=${meta.groupId}: ${err}`);
+  }
 
+  // Extraer rango de jornada del encabezado
+  const jornadaRange = extractJornadaRangeFromHTML(pageHTML);
+  if (jornadaRange) {
+    log(`📆 Jornada rango detectado: ${jornadaRange.start.dd}/${jornadaRange.start.MM}/${jornadaRange.start.yyyy} – ${jornadaRange.end.dd}/${jornadaRange.end.MM}/${jornadaRange.end.yyyy}`);
+  }
 
   // Plan A: tabla clásica
   let rows = [];
@@ -359,6 +492,9 @@ try {
 
           if (fecha && local && visitante) {
             matches.push({ fecha, hora, local, visitante, lugar, resultado });
+          } else if (local && visitante) {
+            // si no hay fecha en la fila, lo añadimos igualmente y se tratará como sin hora
+            matches.push({ fecha: "", hora: "", local, visitante, lugar, resultado });
           }
         }
       } catch {}
@@ -369,7 +505,7 @@ try {
   if (!matches.length) {
     const text = normalize(pageHTML);
     // Heurística: detectar bloques con fecha y " vs " o " - "
-    const dateRegex = /(\d{2}\/\d{2}\/\d{4})/g;
+    const dateRegex = /(\d{2}\/\d{2}\/\d{2,4})/g;
     let m;
     while ((m = dateRegex.exec(text)) !== null) {
       const fecha = m[1];
@@ -410,27 +546,67 @@ try {
     if (localN.includes(TEAM_NEEDLE)) involved.push(m.local);
     if (visitN.includes(TEAM_NEEDLE)) involved.push(m.visitante);
 
-    const d = parseDateDDMMYYYY(m.fecha);
-    if (!d) { log(`⚠️ Fecha inválida: ${m.fecha}`); continue; }
-    const t = parseTimeHHMM(m.hora);
-    const start = toLocalDate(d, t);
+    const dParts = m.fecha ? parseDateDDMMYYYY(m.fecha) : null;
+    const tParts = m.hora ? parseTimeHHMM(m.hora) : null;
 
-    const summary = `${m.local} vs ${m.visitante} (Federado)`;
-    const description = m.resultado && m.resultado !== "-" ? `Resultado: ${m.resultado}` : "";
+    if (tParts && dParts) {
+      const start = toLocalDate(dParts, tParts);
+      const summary = `${m.local} vs ${m.visitante} (Federado)`;
+      const description = m.resultado && m.resultado !== "-" ? `Resultado: ${m.resultado}` : "";
+      const evt = { type: "timed", start, summary, location: m.lugar || "", description };
+      for (const teamName of involved) {
+        if (!teams.has(teamName)) teams.set(teamName, []);
+        teams.get(teamName).push(evt);
+      }
+      continue;
+    }
 
-    const evt = t
-      ? { type: "timed", start, summary, location: m.lugar || "", description }
-      : { type: "allday", start, end: new Date(start.getTime()+86400000), summary, location: m.lugar || "", description };
+    // Si no tiene hora: crear evento ALLDAY que cubra la jornadaRange (si existe)
+    if (jornadaRange) {
+      const summary = `${m.local} vs ${m.visitante} (Jornada)`;
+      const description = m.resultado && m.resultado !== "-" ? `Resultado: ${m.resultado}` : "";
+      const evt = {
+        type: "allday",
+        startDateParts: jornadaRange.start,
+        endDateParts: jornadaRange.end,
+        summary,
+        location: m.lugar || "",
+        description
+      };
+      for (const teamName of involved) {
+        if (!teams.has(teamName)) teams.set(teamName, []);
+        teams.get(teamName).push(evt);
+      }
+      continue;
+    }
 
-    for (const teamName of involved) {
-      if (!teams.has(teamName)) teams.set(teamName, []);
-      teams.get(teamName).push(evt);
+    // fallback: si no hay jornadaRange pero sí fecha, crear all-day single day
+    if (dParts) {
+      const summary = `${m.local} vs ${m.visitante} (Jornada)`;
+      const evt = {
+        type: "allday",
+        startDateParts: dParts,
+        endDateParts: dParts,
+        summary,
+        location: m.lugar || "",
+        description: m.resultado && m.resultado !== "-" ? `Resultado: ${m.resultado}` : ""
+      };
+      for (const teamName of involved) {
+        if (!teams.has(teamName)) teams.set(teamName, []);
+        teams.get(teamName).push(evt);
+      }
     }
   }
 
   const outFiles = [];
   for (const [teamName, events] of teams.entries()) {
-    events.sort((a, b) => a.start - b.start);
+    // ordenar: timed por start, allday quedan al principio (no crítico)
+    events.sort((a, b) => {
+      if (a.type === "allday" && b.type !== "allday") return -1;
+      if (b.type === "allday" && a.type !== "allday") return 1;
+      if (a.type === "timed" && b.type === "timed") return a.start - b.start;
+      return 0;
+    });
 
     // nuevo: normalizar teamName para filename y categoría
     const teamSlug = normalizeTeamForFilename(teamName); // ej: las_flores_morado
@@ -486,6 +662,9 @@ try {
       log(`🔹 Grupos detectados: ${groups.length}${groups.length ? " → ["+groups.join(", ")+"]" : ""}`);
 
       for (const g of groups) {
+        if (g === "__INLINE__') {
+          // (nota: inline handled below)
+        }
         if (g === "__INLINE__") {
           try {
             await parseFederadoInlineCalendar(driver, {
