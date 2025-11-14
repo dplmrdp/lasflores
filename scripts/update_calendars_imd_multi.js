@@ -1,6 +1,7 @@
 // scripts/update_calendars_imd_multi.js
-// Genera un calendario .ics por cada equipo del C.D. LAS FLORES desde la web del IMD Sevilla
-// y al final genera automáticamente el index.html
+// Genera calendarios IMD para todos los equipos LAS FLORES.
+// Usa normalización de nombres común (EVB / colores) con team_name_utils.js
+// y crea debug adicional seguro.
 
 const fs = require("fs");
 const path = require("path");
@@ -8,6 +9,9 @@ const os = require("os");
 const { Builder, By, Key, until } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const { execSync } = require("child_process");
+
+// 🔥 NUEVO: normalizador de nombres unificado
+const { normalizeTeamDisplay } = require("./team_name_utils");
 
 const IMD_URL = "https://imd.sevilla.org/app/jjddmm_resultados/";
 const SEARCH_TERM = "las flores";
@@ -29,7 +33,11 @@ function log(msg) {
 }
 
 function normalize(s) {
-  return (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+  return (s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
 }
 
 // --------------------
@@ -37,8 +45,12 @@ function normalize(s) {
 // --------------------
 function fmtICSDateTimeTZID(dt) {
   const pad = (n) => String(n).padStart(2, "0");
-  return `${dt.getFullYear()}${pad(dt.getMonth() + 1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}00`;
+  return (
+    `${dt.getFullYear()}${pad(dt.getMonth() + 1)}${pad(dt.getDate())}` +
+    `T${pad(dt.getHours())}${pad(dt.getMinutes())}00`
+  );
 }
+
 function fmtICSDate(d) {
   const Y = d.getUTCFullYear();
   const M = String(d.getUTCMonth() + 1).padStart(2, "0");
@@ -47,8 +59,13 @@ function fmtICSDate(d) {
 }
 
 function writeICS(teamName, category, events) {
-  const safeName = `${category}_${teamName}`.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+  // No cambiamos la estructura de nombres de archivo
+  const safeName = `${category}_${teamName}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_");
+
   const filename = `imd_${safeName}.ics`;
+
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
@@ -78,6 +95,7 @@ END:VEVENT
   }
 
   ics += "END:VCALENDAR\n";
+
   fs.writeFileSync(path.join(OUTPUT_DIR, filename), ics);
   log(`✅ ${filename} (${events.length} eventos)`);
 }
@@ -85,13 +103,33 @@ END:VEVENT
 // --------------------
 // Scraping Helpers
 // --------------------
-async function parseTeamCalendar(driver, teamName) {
-  const TEAM_EXACT = teamName.trim().toUpperCase();
+async function parseTeamCalendar(driver, teamNameRaw) {
+  const TEAM_EXACT = teamNameRaw.trim().toUpperCase();
   const allEvents = [];
+
+  // Normalizamos el nombre para mostrar, como en Federado
+  const teamDisplayName = normalizeTeamDisplay(teamNameRaw);
+
+  // Debug global
+  const debugTeamsPath = path.join(DEBUG_DIR, `imd_last_teams.json`);
+  let debugList = [];
+  try {
+    if (fs.existsSync(debugTeamsPath)) {
+      debugList = JSON.parse(fs.readFileSync(debugTeamsPath, "utf8"));
+    }
+  } catch {}
+
+  debugList.push({
+    raw: teamNameRaw,
+    display: teamDisplayName,
+    categoryUsed: TEAM_EXACT
+  });
+
+  fs.writeFileSync(debugTeamsPath, JSON.stringify(debugList, null, 2));
 
   const container = await driver.findElement(By.id("tab1"));
   const tables = await container.findElements(By.css("table.tt"));
-  log(`📑 ${tables.length} tablas detectadas para ${teamName}`);
+  log(`📑 ${tables.length} tablas detectadas para ${teamNameRaw}`);
 
   for (const table of tables) {
     const rows = await table.findElements(By.css("tbody > tr"));
@@ -104,30 +142,59 @@ async function parseTeamCalendar(driver, teamName) {
       const vals = await Promise.all(cols.map((c) => c.getText().then((t) => t.trim())));
       const [fecha, hora, local, visitante, resultado, lugar, obsEncuentro, obsResultado] = vals;
 
-      const involves = local.toUpperCase().includes(TEAM_EXACT) || visitante.toUpperCase().includes(TEAM_EXACT);
+      const involves =
+        local.toUpperCase().includes(TEAM_EXACT) ||
+        visitante.toUpperCase().includes(TEAM_EXACT);
+
       if (!involves) continue;
 
       const match = fecha.match(/(\d{2})\/(\d{2})\/(\d{4})/);
       if (!match) continue;
+
       const [_, dd, MM, yyyy] = match;
       const time = hora.match(/(\d{2}):(\d{2})/);
-      const start = new Date(`${yyyy}-${MM}-${dd}T${time ? time[0] : "00:00"}:00`);
 
-      const summary = `${local} vs ${visitante} (IMD)`;
+      const start = new Date(
+        `${yyyy}-${MM}-${dd}T${time ? time[0] : "00:00"}:00`
+      );
+
+      const localDisplay = normalizeTeamDisplay(local);
+      const visitanteDisplay = normalizeTeamDisplay(visitante);
+
+      const summary = `${localDisplay} vs ${visitanteDisplay} (IMD)`;
+
       const descriptionParts = [];
-      if (resultado && resultado !== "-") descriptionParts.push(`Resultado: ${resultado}`);
-      if (obsEncuentro && obsEncuentro !== "-") descriptionParts.push(`Obs. Encuentro: ${obsEncuentro}`);
-      if (obsResultado && obsResultado !== "-") descriptionParts.push(`Obs. Resultado: ${obsResultado}`);
+      if (resultado && resultado !== "-")
+        descriptionParts.push(`Resultado: ${resultado}`);
+      if (obsEncuentro && obsEncuentro !== "-")
+        descriptionParts.push(`Obs. Encuentro: ${obsEncuentro}`);
+      if (obsResultado && obsResultado !== "-")
+        descriptionParts.push(`Obs. Resultado: ${obsResultado}`);
+
       const description = descriptionParts.join(" | ");
 
-      allEvents.push({
-        type: time ? "timed" : "allday",
-        summary,
-        location: lugar || "Por confirmar",
-        start,
-        end: time ? null : new Date(start.getTime() + 86400000),
-        description,
-      });
+      const evt =
+        time
+          ? {
+              type: "timed",
+              summary,
+              location: lugar || "Por confirmar",
+              start,
+              description,
+            }
+          : {
+              type: "allday",
+              summary,
+              location: lugar || "Por confirmar",
+              start,
+              end: new Date(start.getTime() + 86400000),
+              description,
+            };
+
+      // 🔥 Debug por evento
+      log(`📝 Evento IMD → ${summary}`);
+
+      allEvents.push(evt);
     }
   }
 
@@ -142,8 +209,18 @@ async function parseTeamCalendar(driver, teamName) {
 
   const tmpUserDir = fs.mkdtempSync(path.join(os.tmpdir(), "chrome-imd-"));
   const options = new chrome.Options()
-    .addArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage", `--user-data-dir=${tmpUserDir}`);
-  const driver = await new Builder().forBrowser("chrome").setChromeOptions(options).build();
+    .addArguments(
+      "--headless=new",
+      "--disable-gpu",
+      "--no-sandbox",
+      "--disable-dev-shm-usage",
+      `--user-data-dir=${tmpUserDir}`
+    );
+
+  const driver = await new Builder()
+    .forBrowser("chrome")
+    .setChromeOptions(options)
+    .build();
 
   try {
     await driver.get(IMD_URL);
@@ -158,21 +235,26 @@ async function parseTeamCalendar(driver, teamName) {
     await driver.sleep(2000);
 
     await driver.wait(
-      until.elementLocated(By.xpath("//table[contains(@class,'tt')]//td[contains(.,'Nº.Equipos')]")),
+      until.elementLocated(
+        By.xpath("//table[contains(@class,'tt')]//td[contains(.,'Nº.Equipos')]")
+      ),
       20000
     );
+
     const tab1 = await driver.findElement(By.id("tab1"));
     const table = await tab1.findElement(By.css("table.tt"));
     const rows = await table.findElements(By.css("tbody > tr"));
     log(`📋 ${rows.length} filas encontradas en tabla de equipos.`);
 
     const equipos = [];
+
     for (const row of rows) {
       const cols = await row.findElements(By.css("td"));
       if (cols.length < 3) continue;
 
       const nombre = (await cols[0].getText()).trim().toUpperCase();
       const categoria = (await cols[2].getText()).trim().toUpperCase();
+
       if (nombre.includes("LAS FLORES")) {
         const rowHtml = await row.getAttribute("outerHTML");
         const match = rowHtml.match(/datosequipo\('([A-F0-9-]+)'\)/i);
@@ -184,6 +266,7 @@ async function parseTeamCalendar(driver, teamName) {
 
     for (const { id, nombre, categoria } of equipos) {
       log(`\n➡️ Procesando ${nombre} (${categoria})...`);
+
       await driver.executeScript(`datosequipo("${id}")`);
 
       const selJor = await driver.wait(until.elementLocated(By.id("seljor")), 15000);
@@ -196,7 +279,7 @@ async function parseTeamCalendar(driver, teamName) {
       log(`✅ ${nombre} (${categoria}): ${events.length} partidos.`);
     }
 
-    // 🧩 Generar automáticamente el index.html al final
+    // 🧩 Generar automáticamente el index.html
     log("\n🧱 Generando index.html automáticamente...");
     execSync("node scripts/generate_index_html.js", { stdio: "inherit" });
     log("✅ index.html actualizado correctamente.");
