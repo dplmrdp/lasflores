@@ -1,3 +1,4 @@
+// scripts/parse_fed_html.js
 const fs = require("fs");
 
 const TEAM_NEEDLE = "C.D. LAS FLORES SEVILLA";
@@ -46,26 +47,65 @@ function parseDdmmyy(ddmmyy) {
 
 function addDays(date, days) {
   const d = new Date(date.getTime());
-  d.setDate(d.getDate() + days);
+  d.setUTCDate(d.getUTCDate() + days); // use UTC to avoid timezone local shifts
   return d;
 }
 
-// --- formato ICS ---
-function fmtICSDateTime(dt) {
-  if (!(dt instanceof Date) || isNaN(dt)) return "19700101T000000Z";
-  return dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+// --- Helpers para formatear en TZ Europe/Madrid ---
+const ICS_TZ = "Europe/Madrid";
+
+function pad(n) { return String(n).padStart(2, "0"); }
+
+// formatea instante Date -> YYYYMMDDTHHMMSS usando timezone Europe/Madrid
+function fmtICSDateTimeTZID(dt) {
+  if (!(dt instanceof Date) || isNaN(dt)) return "19700101T000000";
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: ICS_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).formatToParts(dt);
+
+  const y = parts.find(p => p.type === "year").value;
+  const mo = parts.find(p => p.type === "month").value;
+  const d = parts.find(p => p.type === "day").value;
+  const H = parts.find(p => p.type === "hour").value;
+  const M = parts.find(p => p.type === "minute").value;
+  const S = parts.find(p => p.type === "second").value;
+
+  return `${y}${mo}${d}T${H}${M}${S}`;
 }
 
-function fmtICSDate(d) {
-  const Y = d.getUTCFullYear();
-  const M = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const D = String(d.getUTCDate()).padStart(2, "0");
-  return `${Y}${M}${D}`;
+// formatea Date -> YYYYMMDD para VALUE=DATE, usando timezone Europe/Madrid
+function fmtICSDateFromDate(dt) {
+  if (!(dt instanceof Date) || isNaN(dt)) {
+    return "19700101";
+  }
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: ICS_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(dt);
+  const y = parts.find(p => p.type === "year").value;
+  const mo = parts.find(p => p.type === "month").value;
+  const d = parts.find(p => p.type === "day").value;
+  return `${y}${mo}${d}`;
 }
 
+function escapeICSText(s) {
+  if (!s) return "";
+  return String(s).replace(/\r\n/g, '\\n').replace(/\n/g, '\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+}
+
+// --- formato ICS (timed con TZ y allday con DTEND = end+1) ---
 function writeICS(team, category, events) {
-  const safeCat = category.toLowerCase().replace(/\s+/g, "_");
-  const safeTeam = team.replace(/\s+/g, "_").toLowerCase();
+  const safeCat = (category || "sin_categoria").toLowerCase().replace(/\s+/g, "_");
+  const safeTeam = (team || "equipo").replace(/\s+/g, "_").toLowerCase();
   const filename = `calendarios/federado_${safeCat}_${safeTeam}.ics`;
 
   let ics = `BEGIN:VCALENDAR
@@ -76,19 +116,27 @@ PRODID:-//Las Flores//Calendarios Federado//ES
 `;
 
   for (const evt of events) {
+    if (!evt) continue;
     if (evt.type === "timed") {
+      const dtStr = fmtICSDateTimeTZID(evt.start);
       ics += `BEGIN:VEVENT
-SUMMARY:${evt.summary}
-LOCATION:${evt.location}
-DTSTART:${fmtICSDateTime(evt.start)}
+SUMMARY:${escapeICSText(evt.summary)}
+LOCATION:${escapeICSText(evt.location || "")}
+DTSTART;TZID=${ICS_TZ}:${dtStr}
+DESCRIPTION:${escapeICSText(evt.description || "")}
 END:VEVENT
 `;
     } else if (evt.type === "allday") {
+      // DTSTART: fecha tal cual; DTEND: end + 1 day (ICS exclusive)
+      const dtStart = fmtICSDateFromDate(evt.start);
+      const dtEndDate = addDays(evt.end, 1); // end + 1
+      const dtEnd = fmtICSDateFromDate(dtEndDate);
       ics += `BEGIN:VEVENT
-SUMMARY:${evt.summary}
-LOCATION:${evt.location}
-DTSTART;VALUE=DATE:${fmtICSDate(evt.start)}
-DTEND;VALUE=DATE:${fmtICSDate(evt.end)}
+SUMMARY:${escapeICSText(evt.summary)}
+LOCATION:${escapeICSText(evt.location || "")}
+DTSTART;VALUE=DATE:${dtStart}
+DTEND;VALUE=DATE:${dtEnd}
+DESCRIPTION:${escapeICSText(evt.description || "")}
 END:VEVENT
 `;
     }
@@ -97,9 +145,10 @@ END:VEVENT
   ics += "END:VCALENDAR\n";
   fs.mkdirSync("calendarios", { recursive: true });
   fs.writeFileSync(filename, ics);
-  console.log(`✅ ${filename} (${events.length} eventos)`);
+  console.log(`✅ ${filename} (${events.filter(e => e).length} eventos)`);
 }
 
+// ---------------- parseFederadoHTML ----------------
 function parseFederadoHTML(html, meta) {
   const eventsByTeam = new Map();
   const jornadas = html.split(/<h2[^>]*>[^<]*Jornada/i).slice(1);
@@ -152,30 +201,32 @@ function parseFederadoHTML(html, meta) {
         if (localN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamA);
         if (visitN.includes(normLower(TEAM_NEEDLE))) equiposInvolucrados.push(teamB);
 
-        let evt;
+        let evt = null;
         if (date instanceof Date && !isNaN(date)) {
-          // 🔧 Ajuste horario: +1 hora
-          const localDate = new Date(date.getTime() + 60 * 60 * 1000);
-
+          // <-- CORRECCIÓN: NO sumar +1h. date ya contiene el offset +01:00 (o +02 en verano).
           evt = {
             type: "timed",
-            start: localDate,
+            start: date,
             summary: `${teamA} vs ${teamB}`,
             location: lugar,
+            description: ""
           };
         } else if (weekendStart instanceof Date && weekendEnd instanceof Date) {
-          // 🔧 Ajuste fechas: +1 día
-          const fixedStart = addDays(weekendStart, 1);
-          const fixedEnd = addDays(weekendEnd, 1);
-
+          // <-- CORRECCIÓN: usar exactamente el rango detectado.
+          // Para ICS almacenamos start = weekendStart, end = weekendEnd (DTEND se hará +1 día en writeICS)
           evt = {
             type: "allday",
-            start: fixedStart,
-            end: fixedEnd,
+            start: weekendStart,
+            end: weekendEnd,
             summary: `${teamA} vs ${teamB}`,
             location: lugar,
+            description: ""
           };
-          console.log(`📅 Sin hora: jornada ${fmtICSDate(fixedStart)}–${fmtICSDate(fixedEnd)} para ${teamA} vs ${teamB}`);
+          console.log(`📅 Sin hora: jornada ${fmtICSDateFromDate(weekendStart)}–${fmtICSDateFromDate(weekendEnd)} para ${teamA} vs ${teamB}`);
+        } else {
+          // no date & no jornada range -> skip (or create minimal allday of unknown day? decide skip)
+          // we'll skip to avoid wrong guesses
+          continue;
         }
 
         for (const t of equiposInvolucrados) {
@@ -189,7 +240,12 @@ function parseFederadoHTML(html, meta) {
   }
 
   for (const [team, evs] of eventsByTeam.entries()) {
-    evs.sort((a, b) => a.start - b.start);
+    evs.sort((a, b) => {
+      if (a.type === "allday" && b.type !== "allday") return -1;
+      if (b.type === "allday" && a.type !== "allday") return 1;
+      if (a.type === "timed" && b.type === "timed") return a.start - b.start;
+      return 0;
+    });
     writeICS(team, meta.category || "sin_categoria", evs);
   }
 
