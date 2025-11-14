@@ -399,6 +399,35 @@ async function parseFederadoInlineCalendar(driver, meta) {
 
   const outFiles = [];
   for (const [teamName, events] of teams.entries()) {
+
+  // --- DEBUG EXTRA ---------------------------------------------------
+  const displayName = normalizeTeamDisplay(teamName);
+  const teamSlug = normalizeTeamSlug(teamName);
+  const catSlug = slug(meta.category || "general");
+  const fnameOut = `federado_${catSlug}_${teamSlug}.ics`;
+
+  // Guardamos este info en un fichero JSON para inspección global
+  try {
+    const debugPath = path.join(DEBUG_DIR, `fed_last_teams.json`);
+    const prev = fs.existsSync(debugPath) ? JSON.parse(fs.readFileSync(debugPath,"utf8")) : [];
+    prev.push({ raw: teamName, displayName, slug: teamSlug, file: fnameOut });
+    fs.writeFileSync(debugPath, JSON.stringify(prev,null,2));
+  } catch(e){}
+
+  // Un log por consola antes de escribir el ICS
+  log(`📝 Generando ICS → ${fnameOut}
+     • Equipo RAW:        "${teamName}"
+     • Equipo mostrado:   "${displayName}"
+     • Slug archivo:      "${teamSlug}"
+     • Eventos:           ${events.length}`);
+  if (events.length) {
+    log(`     • Primer evento: "${events[0].summary}"`);
+  }
+  // -------------------------------------------------------------------
+
+  writeICS(fnameOut, events);
+  outFiles.push(fnameOut);
+}
     // ordenar: timed por start, allday quedan al principio (no crítico)
     events.sort((a, b) => {
       if (a.type === "allday" && b.type !== "allday") return -1;
