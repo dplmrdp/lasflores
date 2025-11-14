@@ -391,3 +391,286 @@ async function parseFederadoInlineCalendar(driver, meta) {
   log(`📦 Generados ${outFiles.length} calendarios inline para torneo=${meta.tournamentId}`);
   if (outFiles.length) log(`↪ ${outFiles.join(", ")}`);
 }
+// -------------------------
+// extractJornadaRangeFromHTML
+// -------------------------
+function extractJornadaRangeFromHTML(html) {
+  if (!html) return null;
+  const h = (html || "").replace(/\n/g, " ");
+  let m = h.match(/Jornada\s*\d+\s*<[^>]*>\s*\(?\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*(?:&nbsp;|&ndash;|&mdash;|–|—|-)\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*\)?/i);
+  if (!m) {
+    m = h.match(/Jornada\s*\d+[^<]*?\(?\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*(?:&nbsp;|&ndash;|&mdash;|–|—|-)\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*\)?/i);
+  }
+  if (!m) {
+    const idx = h.search(/Jornada/i);
+    if (idx !== -1) {
+      const snippet = h.slice(idx, idx + 200);
+      const m2 = snippet.match(/([\d]{2}\/[\d]{2}\/[\d]{2,4})\s*(?:&nbsp;|&ndash;|&mdash;|–|—|-)\s*([\d]{2}\/[\d]{2}\/[\d]{2,4})/);
+      if (m2) m = m2;
+    }
+  }
+  if (!m) return null;
+  const start = parseDateDDMMYYYY(m[1]);
+  const end = parseDateDDMMYYYY(m[2]);
+  if (!start || !end) return null;
+  return { start, end };
+}
+
+// -------------------------
+// parseFederadoCalendarPage (grupos -> calendar/<group>/all)
+// -------------------------
+async function parseFederadoCalendarPage(driver, meta) {
+  const url = `https://favoley.es/es/tournament/${meta.tournamentId}/calendar/${meta.groupId}/all`;
+  log(`➡️ Abriendo calendario: ${url}`);
+  await driver.get(url);
+
+  try {
+    await driver.wait(until.elementLocated(By.css("table, .table, tbody, .row")), 15000);
+  } catch (e) {}
+
+  const pageHTML = await driver.getPageSource();
+  const snapName = `fed_${meta.tournamentId}_${meta.groupId}.html`;
+  fs.writeFileSync(path.join(DEBUG_DIR, snapName), pageHTML);
+  log(`🧩 Snapshot guardado: ${snapName}`);
+
+  // Intentar parser específico si existe
+  try {
+    parseFederadoHTML(pageHTML, meta);
+  } catch (err) {
+    log(`⚠️ Error al parsear con parseFederadoHTML t=${meta.tournamentId} g=${meta.groupId}: ${err}`);
+  }
+
+  const jornadaRange = extractJornadaRangeFromHTML(pageHTML);
+  if (jornadaRange) {
+    log(`📆 Jornada rango detectado: ${jornadaRange.start.dd}/${jornadaRange.start.MM}/${jornadaRange.start.yyyy} – ${jornadaRange.end.dd}/${jornadaRange.end.MM}/${jornadaRange.end.yyyy}`);
+  }
+
+  // Extraer filas (varios planes: tabla clásica, filas genéricas, fallback texto)
+  let rows = [];
+  try { rows = await driver.findElements(By.css("table tbody tr")); } catch {}
+  if (!rows.length) {
+    try { rows = await driver.findElements(By.css("tr, .table-row")); } catch {}
+  }
+
+  const matches = [];
+
+  if (rows.length) {
+    for (const r of rows) {
+      try {
+        const tds = await r.findElements(By.css("td"));
+        if (tds.length >= 4) {
+          const fecha = (await tds[0].getText()).trim();
+          const horaRaw = (await tds[1].getText()).trim();
+          const hora = (horaRaw.match(/\d{2}:\d{2}/) || [])[0] || "";
+          const local = (await tds[2].getText()).trim();
+          const visitante = (await tds[3].getText()).trim();
+          const resultado = tds[4] ? (await tds[4].getText()).trim() : "";
+          const lugar = tds[5] ? (await tds[5].getText()).trim() : "";
+
+          if (fecha && local && visitante) {
+            matches.push({ fecha, hora, local, visitante, lugar, resultado });
+          } else if (local && visitante) {
+            matches.push({ fecha: "", hora: "", local, visitante, lugar, resultado });
+          }
+        }
+      } catch {}
+    }
+  }
+
+  // fallback por texto
+  if (!matches.length) {
+    const text = normalize(pageHTML);
+    const dateRegex = /(\d{2}\/\d{2}\/\d{2,4})/g;
+    let m;
+    while ((m = dateRegex.exec(text)) !== null) {
+      const fecha = m[1];
+      const start = Math.max(0, m.index - 200);
+      const end   = Math.min(text.length, m.index + 200);
+      const chunk = text.slice(start, end);
+
+      const horaM = chunk.match(/(\d{2}):(\d{2})/);
+      const hora = horaM ? `${horaM[1]}:${horaM[2]}` : "";
+
+      let local = "", visitante = "";
+      const vsM = chunk.match(/([A-Z0-9\.\-\sÁÉÍÓÚÜÑ/]+?)\s+(?:VS|vs|-\s|—\s|–\s)\s+([A-Z0-9\.\-\sÁÉÍÓÚÜÑ/]+?)(?:\s|$)/);
+      if (vsM) {
+        local = normalize(vsM[1]);
+        visitante = normalize(vsM[2]);
+      }
+
+      if (fecha && local && visitante) {
+        matches.push({ fecha, hora, local, visitante, lugar: "", resultado: "" });
+      }
+    }
+  }
+
+  if (!matches.length) {
+    log(`⚠️ t=${meta.tournamentId} g=${meta.groupId}: sin filas detectadas; revisa snapshot.`);
+  }
+
+  // Agrupar por equipo LAS FLORES (raw name key)
+  const teams = new Map();
+  for (const m of matches) {
+    const localN = normLower(m.local);
+    const visitN = normLower(m.visitante);
+    if (!localN.includes(TEAM_NEEDLE) && !visitN.includes(TEAM_NEEDLE)) continue;
+
+    const involved = [];
+    if (localN.includes(TEAM_NEEDLE)) involved.push(m.local);
+    if (visitN.includes(TEAM_NEEDLE)) involved.push(m.visitante);
+
+    const dParts = m.fecha ? parseDateDDMMYYYY(m.fecha) : null;
+    const tParts = m.hora ? parseTimeHHMM(m.hora) : null;
+
+    if (tParts && dParts) {
+      const startKey = Date.UTC(parseInt(dParts.yyyy,10), parseInt(dParts.MM,10)-1, parseInt(dParts.dd,10), parseInt(tParts.HH,10), parseInt(tParts.mm,10), 0);
+      const displayLocal = normalizeTeamDisplay(m.local);
+      const displayVisit = normalizeTeamDisplay(m.visitante);
+      const summary = `${displayLocal} vs ${displayVisit} (Federado)`;
+      const description = m.resultado && m.resultado !== "-" ? `Resultado: ${m.resultado}` : "";
+      const evt = { type: "timed", startKey, summary, location: m.lugar || "", description };
+      for (const teamName of involved) {
+        if (!teams.has(teamName)) teams.set(teamName, []);
+        teams.get(teamName).push(evt);
+      }
+      continue;
+    }
+
+    if (jornadaRange) {
+      const displayLocal = normalizeTeamDisplay(m.local);
+      const displayVisit = normalizeTeamDisplay(m.visitante);
+      const summary = `${displayLocal} vs ${displayVisit} (Jornada)`;
+      const description = m.resultado && m.resultado !== "-" ? `Resultado: ${m.resultado}` : "";
+      const evt = {
+        type: "allday",
+        startDateParts: jornadaRange.start,
+        endDateParts: jornadaRange.end,
+        summary,
+        location: m.lugar || "",
+        description
+      };
+      for (const teamName of involved) {
+        if (!teams.has(teamName)) teams.set(teamName, []);
+        teams.get(teamName).push(evt);
+      }
+      continue;
+    }
+
+    if (dParts) {
+      const displayLocal = normalizeTeamDisplay(m.local);
+      const displayVisit = normalizeTeamDisplay(m.visitante);
+      const summary = `${displayLocal} vs ${displayVisit} (Jornada)`;
+      const evt = {
+        type: "allday",
+        startDateParts: dParts,
+        endDateParts: dParts,
+        summary,
+        location: m.lugar || "",
+        description: m.resultado && m.resultado !== "-" ? `Resultado: ${m.resultado}` : ""
+      };
+      for (const teamName of involved) {
+        if (!teams.has(teamName)) teams.set(teamName, []);
+        teams.get(teamName).push(evt);
+      }
+    }
+  }
+
+  const outFiles = [];
+  for (const [teamName, events] of teams.entries()) {
+    events.sort((a, b) => {
+      if (a.type === "allday" && b.type !== "allday") return -1;
+      if (b.type === "allday" && a.type !== "allday") return 1;
+      if (a.type === "timed" && b.type === "timed") return a.startKey - b.startKey;
+      return 0;
+    });
+
+    const teamSlug = normalizeTeamSlug(teamName);
+    const catSlug = slug(meta.category || "general");
+    const fname = `federado_${catSlug}_${teamSlug}.ics`;
+
+    writeICS(fname, events);
+    outFiles.push(fname);
+  }
+
+  log(`📦 Generados ${outFiles.length} calendarios en t=${meta.tournamentId} g=${meta.groupId}`);
+  if (outFiles.length) log(`↪ ${outFiles.join(", ")}`);
+}
+
+// -------------------------
+// MAIN
+// -------------------------
+(async () => {
+  log("🏐 Iniciando scraping FEDERADO multi-equipos LAS FLORES…");
+
+  const tmpUserDir = fs.mkdtempSync(path.join(os.tmpdir(), "chrome-fed-"));
+  const options = new chrome.Options()
+    .addArguments("--headless=new")
+    .addArguments("--disable-gpu")
+    .addArguments("--no-sandbox")
+    .addArguments("--disable-dev-shm-usage")
+    .addArguments("--lang=es-ES")
+    .addArguments("--window-size=1280,1024")
+    .addArguments("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36")
+    .addArguments(`--user-data-dir=${tmpUserDir}`);
+
+  let driver;
+  try {
+    driver = await new Builder().forBrowser("chrome").setChromeOptions(options).build();
+    log("🚗 Chrome iniciado");
+
+    const tournaments = await discoverTournamentIds(driver);
+    if (!tournaments.length) {
+      log("⚠️ No hay torneos: revisa el snapshot de la lista y la URL de filtros.");
+    }
+
+    for (const t of tournaments) {
+      const category = (normalize(t.category) || normalize(t.label)).toUpperCase();
+      log(`\n======= 🏷 Torneo ${t.id} :: ${t.label} (cat: ${category}) =======`);
+
+      let groups = [];
+      try {
+        groups = await discoverGroupIds(driver, t.id);
+      } catch (e) {
+        onError(e, `discoverGroupIds t=${t.id}`);
+        continue;
+      }
+
+      log(`🔹 Grupos detectados: ${groups.length}${groups.length ? " → ["+groups.join(", ")+"]" : ""}`);
+
+      for (const g of groups) {
+        if (g === "__INLINE__") {
+          try {
+            await parseFederadoInlineCalendar(driver, {
+              tournamentId: t.id,
+              groupId: "inline",
+              category
+            });
+          } catch (e) {
+            onError(e, `parse inline calendar t=${t.id}`);
+          }
+          continue;
+        }
+
+        try {
+          await parseFederadoCalendarPage(driver, {
+            tournamentId: t.id,
+            groupId: g,
+            category
+          });
+        } catch (e) {
+          onError(e, `parse calendar t=${t.id} g=${g}`);
+        }
+
+        await driver.sleep(400);
+      }
+    }
+
+    log("\n✅ Scraping federado multi-equipos completado.");
+  } catch (err) {
+    onError(err, "MAIN");
+  } finally {
+    try { if (driver) await driver.quit(); } catch {}
+    log("🧹 Chrome cerrado");
+  }
+})();
+
