@@ -224,31 +224,6 @@ async function discoverTournamentIds(driver) {
 }
 
 
-
-
-  const tournaments = [];
-  for (const tr of trs) {
-    try {
-      const a = await tr.findElement(By.css('td.colstyle-estado a[href*="/tournament/"]'));
-      const href = await a.getAttribute("href");
-      const m = href && href.match(/\/tournament\/(\d+)\//);
-      if (!m) continue;
-
-      const id = m[1];
-      let label = "";
-      let category = "";
-      try { label = (await tr.findElement(By.css("td.colstyle-nombre")).getText()).trim(); } catch {}
-      try { category = (await tr.findElement(By.css("td.colstyle-categoria")).getText()).trim(); } catch {}
-
-      tournaments.push({ id, label: label || `Torneo ${id}`, category: category || "" });
-    } catch {}
-  }
-
-  log(`🔎 Torneos detectados: ${tournaments.length}`);
-  return tournaments;
-}
-
-
 // -------------------------
 // discoverGroupIds
 // -------------------------
