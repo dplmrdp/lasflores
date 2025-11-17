@@ -40,6 +40,12 @@ jobs:
 
       - name: Prepare debug folder
         run: mkdir -p calendarios/debug
+        
+      - name: Print Chrome and Chromedriver versions
+        run: |
+    /usr/bin/google-chrome --version || true
+    /usr/local/bin/chromedriver --version || true
+
 
       - name: Run update (Federado + IMD mínimo + IMD multi)
         env:
