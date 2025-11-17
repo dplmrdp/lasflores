@@ -192,50 +192,150 @@ END:VEVENT
 }
 
 // --- Reemplaza discoverTournamentIds por esta versión ---
+// -------------------------
+// discoverTournamentIds (robusta)
+// -------------------------
 async function discoverTournamentIds(driver) {
   log(`🌐 Página base: ${BASE_LIST_URL}`);
   await driver.get(BASE_LIST_URL);
 
-  // Guardar snapshot inicial (útil para debugging)
+  // Guardar snapshot inmediato (ya lo hacías)
   try {
     const html0 = await driver.getPageSource();
-    fs.writeFileSync(path.join(DEBUG_DIR, `fed_list_debug_${RUN_STAMP}.html`), html0);
-  } catch (e) { log("⚠️ no se pudo guardar snapshot inicial de favoley"); }
+    const listSnap = path.join(DEBUG_DIR, `fed_list_debug_${RUN_STAMP}.html`);
+    fs.writeFileSync(listSnap, html0);
+    log(`📄 Snapshot lista guardado en: ${listSnap}`);
+  } catch (e) {
+    log("⚠️ No se pudo guardar snapshot inicial de la lista: " + e);
+  }
 
-  // Espera tolerante: probar varios selectores y aumentar tiempo
-  const possibleSelectors = [
-    "table.tabletype-public tbody tr",
-    "table tbody tr",
-    ".tournaments-list tr",
-    "div.tournament-list tr"
-  ];
+  // 1) Intento normal (espera por la tabla)
+  try {
+    await driver.wait(until.elementLocated(By.css("table.tabletype-public tbody")), 12000);
+  } catch (e) {
+    log("⚠️ Timeout esperando tabla.tabletype-public — probando selectores alternativos");
+  }
 
+  // 2) Intentar varios selectores alternativos y forzar render
   let trs = [];
-  // esperar hasta 30s (polling corto) para que cargue la tabla dinámica
-  const deadline = Date.now() + 30000;
-  while (Date.now() < deadline) {
-    for (const sel of possibleSelectors) {
+  try {
+    // forzamos un pequeño scroll para disparar renderings lazy
+    await driver.executeScript("window.scrollTo(0, document.body.scrollHeight/3);");
+    await driver.sleep(400);
+    await driver.executeScript("window.scrollTo(0, 0);");
+    await driver.sleep(400);
+
+    // Probar selectores en orden de preferencia
+    const candidateSelectors = [
+      "table.tabletype-public tbody tr",
+      "table.tabletype-public tr",
+      "table tbody tr",
+      "table tr",
+      "div.table tbody tr",
+      "#content table tbody tr"
+    ];
+
+    for (const sel of candidateSelectors) {
       try {
-        trs = await driver.findElements(By.css(sel));
-        if (trs && trs.length) break;
+        const found = await driver.findElements(By.css(sel));
+        if (found && found.length) {
+          trs = found;
+          log(`🔎 Filas encontradas usando selector "${sel}" → ${trs.length}`);
+          break;
+        }
       } catch {}
     }
-    if (trs && trs.length) break;
-    await driver.sleep(800);
+  } catch (err) {
+    log("⚠️ Error buscando filas en DOM: " + err);
   }
 
+  // 3) Si no encontramos filas en el DOM, hacer fallback parseando el HTML bruto
+  const tournaments = [];
   if (!trs || !trs.length) {
-    // guardar un snapshot de la página completa para inspección en debug
     try {
-      const html = await driver.getPageSource();
-      const dbg = path.join(DEBUG_DIR, `fed_list_empty_${RUN_STAMP}.html`);
-      fs.writeFileSync(dbg, html);
-      log(`⚠️ No se localizaron filas de la tabla de torneos — snapshot guardado: ${dbg}`);
-    } catch (e) {
-      log("⚠️ No se localizaron filas y no se pudo guardar snapshot");
+      log("🔁 Fallback: parseando pageSource en busca de /tournament/<id>/ enlaces");
+      const raw = await driver.getPageSource();
+      // extraer líneas <a ... /tournament/<id>/ ...> y categoría/nombre desde celdas cercanas
+      // patrón: <a ... href="/tournament/(\d+)/"...>LABEL</a>
+      const aRegex = /<a[^>]+href=["']([^"']*\/tournament\/(\d+)\/[^"']*)["'][^>]*>([^<]+)<\/a>/gi;
+      let m;
+      const seen = new Set();
+      while ((m = aRegex.exec(raw)) !== null) {
+        const href = m[1];
+        const id = m[2];
+        const label = m[3].replace(/\s+/g, " ").trim();
+        if (seen.has(id)) continue;
+        seen.add(id);
+        // intentar localizar categoría cercano en HTML (simple heurística)
+        const snippetStart = Math.max(0, m.index - 200);
+        const snippet = raw.slice(snippetStart, m.index + 200);
+        let cat = "";
+        const catMatch = snippet.match(/<td[^>]*class=["']colstyle-categoria["'][^>]*>([^<]+)<\/td>/i)
+                     || snippet.match(/<td[^>]*class=["']colstyle-nombre["'][^>]*>([^<]+)<\/td>/i);
+        if (catMatch) cat = catMatch[1].replace(/\s+/g, " ").trim();
+        tournaments.push({ id, label: label.trim(), category: cat.trim() });
+      }
+      if (tournaments.length) {
+        log(`🔎 Fallback parse HTML: torneos detectados: ${tournaments.length}`);
+      } else {
+        log("⚠️ Fallback parse HTML no encontró torneos.");
+      }
+    } catch (err) {
+      log("❌ Error en fallback parse HTML: " + err);
     }
-    return [];
+  } else {
+    // 4) Si tenemos trs (elementos DOM), extraer info desde DOM
+    for (const tr of trs) {
+      try {
+        // Intentamos extraer el <a> dentro de td.colstyle-estado o td colstyle-nombre
+        let href = "";
+        try {
+          const a = await tr.findElement(By.css('td.colstyle-estado a[href*="/tournament/"]'));
+          href = await a.getAttribute("href");
+        } catch {
+          try {
+            const a2 = await tr.findElement(By.css('a[href*="/tournament/"]'));
+            href = await a2.getAttribute("href");
+          } catch {}
+        }
+        if (!href) continue;
+        const m = href.match(/\/tournament\/(\d+)\//);
+        if (!m) continue;
+        const id = m[1];
+
+        // Nombre y categoría (intento robusto)
+        let label = "";
+        let category = "";
+        try {
+          const nameTd = await tr.findElement(By.css("td.colstyle-nombre"));
+          label = (await nameTd.getText()).trim();
+        } catch {
+          try {
+            const firstTd = await tr.findElement(By.css("td"));
+            label = (await firstTd.getText()).trim();
+          } catch {}
+        }
+        try {
+          const catTd = await tr.findElement(By.css("td.colstyle-categoria"));
+          category = (await catTd.getText()).trim();
+        } catch {}
+        tournaments.push({ id, label: label || `Torneo ${id}`, category: category || "" });
+      } catch {}
+    }
+    log(`🔎 Torneos detectados (DOM): ${tournaments.length}`);
   }
+
+  if (!tournaments.length) {
+    log("⚠️ No se localizaron filas de la tabla de torneos — snapshot guardado: " + path.join(DEBUG_DIR, `fed_list_empty_${RUN_STAMP}.html`));
+    try {
+      const html0 = await driver.getPageSource();
+      fs.writeFileSync(path.join(DEBUG_DIR, `fed_list_empty_${RUN_STAMP}.html`), html0);
+    } catch (e) {}
+  }
+
+  return tournaments;
+}
+
 // ------------------------------------------------------------
 // 🔍 DEBUG PROFUNDO: capturar EXACTAMENTE lo que devuelve Favoley
 // ------------------------------------------------------------
