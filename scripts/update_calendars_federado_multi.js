@@ -626,7 +626,7 @@ async function parseFederadoCalendarPage(driver, meta) {
 (async () => {
   log("🏐 Iniciando scraping FEDERADO multi-equipos LAS FLORES…");
 
-  const tmpUserDir = fs.mkdtempSync(path.join(os.tmpdir(), "chrome-fed-"));
+  const tmpUserDir = fs.mkdtempSync(path.join(os.tmpdir(), "-fed-"));
   const options = new chrome.Options()
     .addArguments("--headless=new")
     .addArguments("--disable-gpu")
