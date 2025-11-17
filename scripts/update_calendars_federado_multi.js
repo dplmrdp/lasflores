@@ -195,16 +195,14 @@ async function discoverTournamentIds(driver) {
   log(`🌐 Página base: ${BASE_LIST_URL}`);
   await driver.get(BASE_LIST_URL);
 
-  await driver.sleep(2000); // esperar lo justo
-  
+  await driver.sleep(2000);
+
   const html = await driver.getPageSource();
   const snap = path.join(DEBUG_DIR, `fed_list_raw_${RUN_STAMP}.html`);
   fs.writeFileSync(snap, html);
   log(`🧪 RAW guardado: ${snap}`);
 
-  // EXTRAER TORNEOS DIRECTAMENTE DEL HTML RAW
   const tournaments = [];
-
   const regex = /\/tournament\/(\d+)\//g;
   const lines = html.split("\n");
 
@@ -213,11 +211,8 @@ async function discoverTournamentIds(driver) {
     while ((m = regex.exec(line)) !== null) {
       const id = m[1];
 
-      // intentar extraer el nombre cercano
-      const idx = line.indexOf(m[0]);
       let label = `Torneo ${id}`;
-
-      const matchName = line.substring(0, idx).match(/>([^<]+)</);
+      const matchName = line.match(/>([^<]+)</);
       if (matchName) label = matchName[1].trim();
 
       tournaments.push({ id, label, category: "" });
@@ -227,6 +222,7 @@ async function discoverTournamentIds(driver) {
   log(`🔎 Torneos detectados (RAW): ${tournaments.length}`);
   return tournaments;
 }
+
 
 
 // ------------------------------------------------------------
