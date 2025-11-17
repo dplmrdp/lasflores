@@ -191,27 +191,50 @@ END:VEVENT
   log(`✅ ICS escrito: ${out} (${events.length} eventos)`);
 }
 
-// -------------------------
-// discoverTournamentIds
-// -------------------------
+// --- Reemplaza discoverTournamentIds por esta versión ---
 async function discoverTournamentIds(driver) {
   log(`🌐 Página base: ${BASE_LIST_URL}`);
   await driver.get(BASE_LIST_URL);
-  const html0 = await driver.getPageSource();
-  const listSnap = path.join(DEBUG_DIR, `fed_list_debug_${RUN_STAMP}.html`);
-  fs.writeFileSync(listSnap, html0);
 
+  // Guardar snapshot inicial (útil para debugging)
   try {
-    await driver.wait(until.elementLocated(By.css("table.tabletype-public tbody")), 15000);
-  } catch (e) {}
+    const html0 = await driver.getPageSource();
+    fs.writeFileSync(path.join(DEBUG_DIR, `fed_list_debug_${RUN_STAMP}.html`), html0);
+  } catch (e) { log("⚠️ no se pudo guardar snapshot inicial de favoley"); }
+
+  // Espera tolerante: probar varios selectores y aumentar tiempo
+  const possibleSelectors = [
+    "table.tabletype-public tbody tr",
+    "table tbody tr",
+    ".tournaments-list tr",
+    "div.tournament-list tr"
+  ];
 
   let trs = [];
-  try {
-    trs = await driver.findElements(By.css("table.tabletype-public tbody tr"));
-  } catch {}
+  // esperar hasta 30s (polling corto) para que cargue la tabla dinámica
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    for (const sel of possibleSelectors) {
+      try {
+        trs = await driver.findElements(By.css(sel));
+        if (trs && trs.length) break;
+      } catch {}
+    }
+    if (trs && trs.length) break;
+    await driver.sleep(800);
+  }
 
   if (!trs || !trs.length) {
-    log("⚠️ No se localizaron filas de la tabla de torneos");
+    // guardar un snapshot de la página completa para inspección en debug
+    try {
+      const html = await driver.getPageSource();
+      const dbg = path.join(DEBUG_DIR, `fed_list_empty_${RUN_STAMP}.html`);
+      fs.writeFileSync(dbg, html);
+      log(`⚠️ No se localizaron filas de la tabla de torneos — snapshot guardado: ${dbg}`);
+    } catch (e) {
+      log("⚠️ No se localizaron filas y no se pudo guardar snapshot");
+    }
+    return [];
   }
 
   const tournaments = [];
@@ -221,20 +244,21 @@ async function discoverTournamentIds(driver) {
       const href = await a.getAttribute("href");
       const m = href && href.match(/\/tournament\/(\d+)\//);
       if (!m) continue;
+
       const id = m[1];
+      let label = "";
+      let category = "";
+      try { label = (await tr.findElement(By.css("td.colstyle-nombre")).getText()).trim(); } catch {}
+      try { category = (await tr.findElement(By.css("td.colstyle-categoria")).getText()).trim(); } catch {}
 
-      const nameTd = await tr.findElement(By.css("td.colstyle-nombre"));
-      const catTd  = await tr.findElement(By.css("td.colstyle-categoria"));
-      const label = (await nameTd.getText()).trim() || `Torneo ${id}`;
-      const category = (await catTd.getText()).trim() || "";
-
-      tournaments.push({ id, label, category });
+      tournaments.push({ id, label: label || `Torneo ${id}`, category: category || "" });
     } catch {}
   }
 
   log(`🔎 Torneos detectados: ${tournaments.length}`);
   return tournaments;
 }
+
 
 // -------------------------
 // discoverGroupIds
