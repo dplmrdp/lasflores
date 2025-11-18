@@ -192,27 +192,80 @@ END:VEVENT
 }
 
 // -------------------------
-// Nueva  SIN Selenium
-// Usa fetch() para evitar el bloqueo de FAVOLEY solo en la lista inicial
+// discoverTournamentIds (robusta): intenta fetch (con retries) y fallback a curl/http1.1
 // -------------------------
-async function discoverTournamentIds() {
-  log(`🌐 Descargando lista de torneos vía fetch (sin Selenium): ${BASE_LIST_URL}`);
+const { execSync } = require("child_process");
 
-  let html;
+async function downloadWithFetch(url, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const resp = await fetch(BASE_LIST_URL, { method: "GET" });
-    html = await resp.text();
+    const resp = await fetch(url, { signal: controller.signal, redirect: "follow" });
+    clearTimeout(id);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.text();
   } catch (err) {
-    log(`❌ Error descargando lista de torneos: ${err}`);
-    return [];
+    clearTimeout(id);
+    throw err;
+  }
+}
+
+function downloadWithCurlHttp1(url, outPath) {
+  try {
+    // -L follow redirects, --http1.1 force http/1.1, -sS show errors, -m max time
+    execSync(`curl --http1.1 -L -sS -m 20 "${url}" -o "${outPath}"`, { stdio: "inherit" });
+    return fs.readFileSync(outPath, "utf8");
+  } catch (err) {
+    // si falla, intentar con curl sin forzar http1
+    try {
+      execSync(`curl -L -sS -m 20 "${url}" -o "${outPath}"`, { stdio: "inherit" });
+      return fs.readFileSync(outPath, "utf8");
+    } catch (err2) {
+      throw new Error(`curl failed: ${err2 && err2.message ? err2.message : String(err2)}`);
+    }
+  }
+}
+
+async function discoverTournamentIds() {
+  log(`🌐 Descargando lista de torneos (robusta) : ${BASE_LIST_URL}`);
+
+  // 1) intentos con fetch
+  const maxFetchAttempts = 3;
+  let html = null;
+  for (let attempt = 1; attempt <= maxFetchAttempts; attempt++) {
+    try {
+      log(`↪ Intento fetch ${attempt}/${maxFetchAttempts} (timeout 12s)...`);
+      html = await downloadWithFetch(BASE_LIST_URL, 12000);
+      log(`✅ fetch OK en intento ${attempt}`);
+      break;
+    } catch (err) {
+      log(`⚠️ fetch intento ${attempt} falló: ${err && err.message ? err.message : String(err)}`);
+      // espera backoff pequeño
+      await new Promise(r => setTimeout(r, 1500 * attempt));
+    }
   }
 
-  // Guardar debug de la página descargada
-  const listSnap = path.join(DEBUG_DIR, `fed_list_fetch_${RUN_STAMP}.html`);
-  fs.writeFileSync(listSnap, html);
+  // 2) si fetch falló, fallback a curl/http1.1
+  const fetchSnap = path.join(DEBUG_DIR, `fed_list_fetch_${RUN_STAMP}.html`);
+  if (!html) {
+    log("↪ fetch falló todos los intentos — intentando fallback con curl --http1.1 ...");
+    try {
+      html = downloadWithCurlHttp1(BASE_LIST_URL, fetchSnap);
+      log("✅ curl http1.1 OK");
+    } catch (err) {
+      log(`❌ curl fallback falló: ${err && err.message ? err.message : String(err)}`);
+      // intentar guardar un pequeño placeholder y salir
+      try { fs.writeFileSync(fetchSnap, `ERROR: ${err && err.message ? err.message : String(err)}`); } catch {}
+      log("⚠️ No hay torneos: revisa el snapshot de la lista y la URL de filtros.");
+      return [];
+    }
+  } else {
+    // guardar snapshot del fetch exitoso
+    try { fs.writeFileSync(fetchSnap, html); } catch (e) { log(`⚠️ No se pudo escribir snapshot: ${e}`); }
+  }
 
-  // Extraer filas de torneos
-  // Buscamos enlaces del tipo /tournament/1234/
+  // 3) parse minimal de IDs y filas de la tabla (similar a lo anterior)
+  // Extraer IDs de /tournament/<id>/
   const regex = /\/tournament\/(\d+)\//g;
   const ids = new Set();
   let m;
@@ -225,31 +278,29 @@ async function discoverTournamentIds() {
     return [];
   }
 
-  // Para obtener nombres y categorías, buscamos las filas de la tabla
-  // y extraemos columnas colstyle-nombre y colstyle-categoria
+  // Intentamos extraer nombre y categoría por filas de tabla
   const tournaments = [];
-
   const rowRegex = /<tr[\s\S]*?<\/tr>/g;
   const rows = html.match(rowRegex) || [];
 
   for (const row of rows) {
     const idMatch = row.match(/\/tournament\/(\d+)\//);
     if (!idMatch) continue;
-
     const id = idMatch[1];
 
-    const name = (row.match(/colstyle-nombre[^>]*>(.*?)<\/td>/s) || [,""])[1]
+    const name = (row.match(/colstyle-nombre[^>]*>([\s\S]*?)<\/td>/i) || [,""])[1]
       .replace(/<[^>]+>/g, "").trim();
 
-    const category = (row.match(/colstyle-categoria[^>]*>(.*?)<\/td>/s) || [,""])[1]
+    const category = (row.match(/colstyle-categoria[^>]*>([\s\S]*?)<\/td>/i) || [,""])[1]
       .replace(/<[^>]+>/g, "").trim();
 
     tournaments.push({ id, label: name || `Torneo ${id}`, category });
   }
 
-  log(`🔎 Torneos detectados vía fetch: ${tournaments.length}`);
+  log(`🔎 Torneos detectados vía robust discover: ${tournaments.length}`);
   return tournaments;
 }
+
 
 
 // -------------------------
