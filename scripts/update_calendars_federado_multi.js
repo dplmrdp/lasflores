@@ -192,7 +192,7 @@ END:VEVENT
 }
 
 // -------------------------
-// Nueva discoverTournamentIds SIN Selenium
+// Nueva  SIN Selenium
 // Usa fetch() para evitar el bloqueo de FAVOLEY solo en la lista inicial
 // -------------------------
 async function discoverTournamentIds() {
@@ -638,7 +638,7 @@ async function parseFederadoCalendarPage(driver, meta) {
     driver = await new Builder().forBrowser("chrome").setChromeOptions(options).build();
     log("🚗 Chrome iniciado");
 
-    const tournaments = await discoverTournamentIds(driver);
+    const tournaments = await discoverTournamentIds();
     if (!tournaments.length) {
       log("⚠️ No hay torneos: revisa el snapshot de la lista y la URL de filtros.");
     }
