@@ -45,6 +45,48 @@ jobs:
         run: |
           /usr/bin/google-chrome --version || true
           /usr/local/bin/chromedriver --version || true
+          
+      - name: Debug connectivity to favoley
+        run: |
+          set -eux
+          mkdir -p calendarios/debug
+          echo "=== curl HTTP/2 verbose (full) ===" > calendarios/debug/favoley_debug_readme.txt
+
+          # petición completa (intento normal, puede usar HTTP/2)
+          curl --max-time 20 -v "https://favoley.es/es/tournaments?season=8565&category=&sex=2&sport=&tournament_status=&delegation=1630" -o calendarios/debug/favoley_full.html 2>calendarios/debug/favoley_curl_verbose.txt || true
+
+          # forzar HTTP/1.1
+          curl --http1.1 --max-time 20 -v "https://favoley.es/es/tournaments?season=8565&category=&sex=2&sport=&tournament_status=&delegation=1630" -o calendarios/debug/favoley_http1.html 2>calendarios/debug/favoley_http1_verbose.txt || true
+
+          # petición HEAD (encabezados)
+          curl -I --max-time 10 "https://favoley.es/es/tournaments?season=8565&category=&sex=2&sport=&tournament_status=&delegation=1630" -v > calendarios/debug/favoley_head.txt 2>&1 || true
+
+          # comprobar TLS/ALPN y certificados (openssl)
+          if command -v openssl >/dev/null 2>&1; then
+            printf "\n\n=== openssl s_client -alpn h2 ===\n" > calendarios/debug/openssl_alpn.txt
+            echo | openssl s_client -connect favoley.es:443 -servername favoley.es -alpn h2 -brief >> calendarios/debug/openssl_alpn.txt 2>&1 || true
+
+            printf "\n\n=== openssl s_client (sin alpn) ===\n" >> calendarios/debug/openssl_alpn.txt
+            echo | openssl s_client -connect favoley.es:443 -servername favoley.es >> calendarios/debug/openssl_alpn.txt 2>&1 || true
+          fi
+
+          # comprobar resolución DNS
+          if command -v nslookup >/dev/null 2>&1; then
+            nslookup favoley.es > calendarios/debug/nslookup.txt 2>&1 || true
+          else
+            dig favoley.es +short > calendarios/debug/dig.txt 2>&1 || true
+          fi
+
+          # listar debug dir
+          ls -la calendarios/debug > calendarios/debug/list_debug.txt 2>&1 || true
+        shell: bash
+
+      - name: Upload favoley debug artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: favoley-debug
+          path: calendarios/debug/
 
       - name: Run update (Federado + IMD mínimo + IMD multi)
         env:
