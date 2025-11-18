@@ -608,11 +608,12 @@ async function parseFederadoCalendarPage(driver, meta) {
     .addArguments("--disable-gpu")
     .addArguments("--no-sandbox")
     .addArguments("--disable-dev-shm-usage")
+    .addArguments("--disable-http2")               // ← AÑADE AQUÍ
     .addArguments("--lang=es-ES")
     .addArguments("--window-size=1280,1024")
     .addArguments("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36")
     .addArguments(`--user-data-dir=${tmpUserDir}`);
-    .addArguments("--disable-http2")
+
 
 
   let driver;
