@@ -19,18 +19,30 @@ const CATEGORIES_ORDER = [
 
 // iconos correctos por color
 const TEAM_ICONS = {
-  "LAS FLORES": "icons/flores.svg",
-  "LAS FLORES MORADO": "icons/flores-morado.svg",
-  "LAS FLORES AMARILLO": "icons/flores-amarillo.svg",
-  "LAS FLORES PÚRPURA": "icons/flores-purpura.svg",
-  "LAS FLORES ALBERO": "icons/flores-albero.svg",
+  "LAS FLORES": "calendarios/icons/flores.svg",
+  "LAS FLORES MORADO": "calendarios/icons/flores-morado.svg",
+  "LAS FLORES AMARILLO": "calendarios/icons/flores-amarillo.svg",
+  "LAS FLORES PÚRPURA": "calendarios/icons/flores-purpura.svg",
+  "LAS FLORES ALBERO": "calendarios/icons/flores-albero.svg",
 
-  "EVB LAS FLORES": "icons/flores.svg",
-  "EVB LAS FLORES MORADO": "icons/flores-morado.svg",
-  "EVB LAS FLORES AMARILLO": "icons/flores-amarillo.svg",
-  "EVB LAS FLORES PÚRPURA": "icons/flores-purpura.svg",
-  "EVB LAS FLORES ALBERO": "icons/flores-albero.svg",
+  "EVB LAS FLORES": "calendarios/icons/flores.svg",
+  "EVB LAS FLORES MORADO": "calendarios/icons/flores-morado.svg",
+  "EVB LAS FLORES AMARILLO": "calendarios/icons/flores-amarillo.svg",
+  "EVB LAS FLORES PÚRPURA": "calendarios/icons/flores-purpura.svg",
+  "EVB LAS FLORES ALBERO": "calendarios/icons/flores-albero.svg",
 };
+
+function detectCategoryFromFilename(filename) {
+  const lower = filename.toLowerCase();
+  if (lower.includes("benjamin")) return "BENJAMÍN";
+  if (lower.includes("alevin")) return "ALEVÍN";
+  if (lower.includes("infantil")) return "INFANTIL";
+  if (lower.includes("cadete")) return "CADETE";
+  if (lower.includes("juvenil")) return "JUVENIL";
+  if (lower.includes("junior")) return "JUNIOR";
+  if (lower.includes("senior")) return "SENIOR";
+  return "OTROS";
+}
 
 // -------------------------
 // Detectar color de un nombre ya normalizado
@@ -88,7 +100,8 @@ function collectCalendars() {
       .toUpperCase();
 
     const parts = clean.split(" ");
-    const category = parts[0] || "GENERAL";
+    const category = detectCategoryFromFilename(file);
+
 
     const rawName = clean.replace(category, "").trim();
     const pretty = normalizeTeamDisplay(rawName);
