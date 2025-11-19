@@ -131,7 +131,7 @@ jobs:
           name: debug-imd
           path: calendarios/debug/
 
-            - name: Commit and push calendar updates
+      - name: Commit and push calendar updates
         run: |
           git config user.email "github-actions@github.com"
           git config user.name "github-actions[bot]"
