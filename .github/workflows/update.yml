@@ -135,6 +135,12 @@ jobs:
         run: |
           git config user.email "github-actions@github.com"
           git config user.name "github-actions[bot]"
-          git add calendarios/*.ics index.html || true
+         # añadir calendarios, index y las páginas de equipos (si existen)
+          git add calendarios/*.ics index.html equipos/*.html || true
+
+          # también añadir cualquier debug HTML útil (opcional)
+          # git add calendarios/debug/* || true
+
           git commit -m "Automated update of calendars (IMD multi + FEDERADO + HTML) [ci skip]" || echo "No changes to commit"
           git push
+
