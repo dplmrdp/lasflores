@@ -173,7 +173,11 @@ function generateHTML(calendars) {
         html += `
 <li class="team-item">
   <img class="team-icon" src="${icon}" alt="${team}" />
-  <a class="team-link" href="${filePath}">${team}</a>
+  <a class="team-link" 
+   href="webcal://dplmrdp.github.io/cadete-morado/${filePath}">
+   ${team}
+</a>
+
 </li>`;
       }
 
