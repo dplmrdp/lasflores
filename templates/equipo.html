@@ -19,28 +19,40 @@
 </header>
 
 <section>
-  <h2>Clasificación</h2>
+  <h2>CLASIFICACIÓN</h2>
 
-  <div class="table-lite">
-    {{clasificacion}}
+  <table class="table-lite">
+    <thead>
+      <tr>
+        <th>EQUIPO</th>
+        <th>PTS</th>
+        <th>PJ</th>
+        <th>G</th>
+        <th>SG</th>
+        <th>SP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{clasificacion}}
+    </tbody>
+  </table>
+
+  <div class="small-links">
+    <a href="{{rankingUrl}}" target="_blank">Ver clasificación oficial</a>
   </div>
-
-  <p class="enlace-oficial">
-    {{rankingUrl}}
-  </p>
 </section>
+
 
 <section>
-  <h2>Próximos partidos</h2>
+  <h2>PRÓXIMOS PARTIDOS</h2>
 
-  <div class="proximos">
-    {{proximosPartidos}}
+  {{proximosPartidos}}
+
+  <div class="small-links">
+    <a href="{{calendarUrl}}" target="_blank">Ver calendario oficial</a>
   </div>
-
-  <p class="enlace-oficial">
-    {{calendarUrl}}
-  </p>
 </section>
+
 
 <section>
   <h2>Suscribirse</h2>
