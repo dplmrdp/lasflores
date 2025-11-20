@@ -8,7 +8,7 @@ const OUTPUT_HTML = "index.html";
 const CALENDAR_DIR = "calendarios";
 const EQUIPOS_DIR = "equipos";
 const BASE_WEBCAL_HOST = "dplmrdp.github.io";
-const BASE_REPO_PATH = "lasflores"; // actual repo/site path (ajusta si cambias el repo)
+const BASE_REPO_PATH = "lasflores";
 
 // orden de categorías en el HTML
 const CATEGORIES_ORDER = [
@@ -21,24 +21,22 @@ const CATEGORIES_ORDER = [
   "SENIOR",
 ];
 
-// -------------------------
-// Detectar color normalizado
-// -------------------------
+// ===========================
+//  Detectar color normalizado
+// ===========================
 function detectColorNorm(name) {
   if (!name) return "";
   const up = name.toUpperCase();
-
   if (up.includes("MORADO")) return "MORADO";
   if (up.includes("AMARILLO")) return "AMARILLO";
   if (up.includes("PÚRPURA") || up.includes("PURPURA")) return "PÚRPURA";
   if (up.includes("ALBERO")) return "ALBERO";
-
-  return ""; // sin color
+  return "";
 }
 
-// -------------------------
-// Tabla de iconos (tipo A, rutas completas correctas)
-// -------------------------
+// ===========================
+//  Iconos
+// ===========================
 const TEAM_ICONS = {
   "LAS FLORES": "calendarios/icons/flores.svg",
   "LAS FLORES MORADO": "calendarios/icons/flores-morado.svg",
@@ -53,82 +51,73 @@ const TEAM_ICONS = {
   "EVB LAS FLORES ALBERO": "calendarios/icons/flores-albero.svg",
 };
 
-// -------------------------
-// Asignar icono a cada equipo
-// -------------------------
+// ===========================
 function getIconForTeam(team) {
   const up = (team || "").toUpperCase();
   const isEVB = up.startsWith("EVB");
   const color = detectColorNorm(up);
 
-  // clave exacta
   const keyExact = (isEVB ? "EVB " : "") + "LAS FLORES" + (color ? ` ${color}` : "");
-
   if (TEAM_ICONS[keyExact]) return TEAM_ICONS[keyExact];
 
-  // fallback sin EVB
   const keyBase = "LAS FLORES" + (color ? ` ${color}` : "");
   if (TEAM_ICONS[keyBase]) return TEAM_ICONS[keyBase];
 
-  // fallback final
   return TEAM_ICONS["LAS FLORES"];
 }
 
-// -------------------------
+// ===========================
+//  Categoría por filename
+// ===========================
 function detectCategoryFromFilename(filename) {
-  const lower = filename.toLowerCase();
-  if (lower.includes("benjamin")) return "BENJAMÍN";
-  if (lower.includes("alevin")) return "ALEVÍN";
-  if (lower.includes("infantil")) return "INFANTIL";
-  if (lower.includes("cadete")) return "CADETE";
-  if (lower.includes("juvenil")) return "JUVENIL";
-  if (lower.includes("junior")) return "JUNIOR";
-  if (lower.includes("senior")) return "SENIOR";
+  const f = filename.toLowerCase();
+  if (f.includes("benjamin")) return "BENJAMÍN";
+  if (f.includes("alevin")) return "ALEVÍN";
+  if (f.includes("infantil")) return "INFANTIL";
+  if (f.includes("cadete")) return "CADETE";
+  if (f.includes("juvenil")) return "JUVENIL";
+  if (f.includes("junior")) return "JUNIOR";
+  if (f.includes("senior")) return "SENIOR";
   return "OTROS";
 }
 
-// -------------------------
-// Ordenar equipos según reglas
-// -------------------------
+// ===========================
+//  Orden de equipos
+// ===========================
 function sortTeams(a, b) {
-  const A = (a.team || "").toUpperCase();
-  const B = (b.team || "").toUpperCase();
+  const A = a.team.toUpperCase();
+  const B = b.team.toUpperCase();
 
   const aIsEVB = A.startsWith("EVB");
   const bIsEVB = B.startsWith("EVB");
-
   if (aIsEVB !== bIsEVB) return aIsEVB ? 1 : -1;
 
   const order = ["", "MORADO", "AMARILLO", "PÚRPURA", "ALBERO"];
-
   const colA = detectColorNorm(A);
   const colB = detectColorNorm(B);
 
   const idxA = order.indexOf(colA);
   const idxB = order.indexOf(colB);
-
   if (idxA !== idxB) return idxA - idxB;
 
-  return A.localeCompare(B, "es", { sensitivity: "base" });
+  return A.localeCompare(B, "es");
 }
 
-// -------------------------
-// Util: convertir path a URL-friendly (posix)
+// ===========================
 function toPosix(p) {
   return p.split(path.sep).join("/");
 }
 
-// -------------------------
-// Recopilar ficheros .ics
-// -------------------------
+// ===========================
+//  Recopilar archivos .ics
+// ===========================
 function collectCalendars() {
   if (!fs.existsSync(CALENDAR_DIR)) return {};
-  const allFiles = fs.readdirSync(CALENDAR_DIR).filter(f => f.toLowerCase().endsWith(".ics"));
+  const all = fs.readdirSync(CALENDAR_DIR).filter(f => f.endsWith(".ics"));
   const data = {};
 
-  for (const file of allFiles) {
+  for (const file of all) {
     const competition = file.startsWith("federado_") ? "FEDERADO" : "IMD";
-
     const category = detectCategoryFromFilename(file);
 
     const clean = file
@@ -141,55 +130,90 @@ function collectCalendars() {
     const rawName = clean.replace(category.toUpperCase(), "").trim();
     const pretty = normalizeTeamDisplay(rawName);
 
-    const filePath = path.join(CALENDAR_DIR, file); // filesystem path
-    const fileUrlPath = toPosix(filePath); // url path with forward slashes
-    const slug = file.replace(/\.ics$/i, ""); // filename without extension
+    const filePath = path.join(CALENDAR_DIR, file);
+    const fileUrlPath = toPosix(filePath);
+    const slug = file.replace(/\.ics$/i, "");
 
     if (!data[category]) data[category] = { FEDERADO: [], IMD: [] };
 
     data[category][competition].push({
       team: pretty,
+      filename: file,
       path: filePath,
       urlPath: fileUrlPath,
-      filename: file,
-      slug: slug,
+      slug
     });
   }
 
   return data;
 }
 
-// -------------------------
-// Generar página individual de equipo
-// -------------------------
-function generateTeamPage({ team, category, competition, filename, urlPath, slug, iconPath }) {
+// =======================================================
+//  PLACEHOLDERS DE CLASIFICACIÓN
+// =======================================================
+function buildPlaceholderClasificacion(team) {
+  const rows = [
+    { team: team, pts: 12, j: 6, g: 4, p: 2 },
+    { team: "EVB LAS FLORES", pts: 9, j: 6, g: 3, p: 3 },
+    { team: "Rival 1", pts: 7, j: 6, g: 2, p: 4 },
+  ];
+
+  return rows
+    .map(
+      r => `
+<div class="fila">
+  <span class="equipo">${escapeHtml(r.team)}</span>
+  <span class="datos">${r.pts} pts · J${r.j} · G${r.g} · P${r.p}</span>
+</div>`
+    )
+    .join("\n");
+}
+
+// =======================================================
+//  PLACEHOLDERS DE PRÓXIMOS PARTIDOS
+// =======================================================
+function buildPlaceholderProximos(team) {
+  return `
+<div class="partido">
+  <div class="fecha">Sáb 18 — 12:00</div>
+  <div class="vs">${escapeHtml(team)} vs Rival X</div>
+</div>
+<div class="partido">
+  <div class="fecha">Dom 19 — 10:00</div>
+  <div class="vs">Rival Y vs ${escapeHtml(team)}</div>
+</div>`;
+}
+
+// =======================================================
+//  GENERAR PÁGINA INDIVIDUAL
+// =======================================================
+function generateTeamPage({ team, category, competition, urlPath, slug, iconPath }) {
   const title = `${team} – ${category} (${competition})`;
   const webcalUrl = `webcal://${BASE_WEBCAL_HOST}/${BASE_REPO_PATH}/${encodeURI(urlPath)}`;
 
-  // cargar plantilla
   const templatePath = path.join(TEMPLATE_DIR, "equipo.html");
   let tpl = fs.readFileSync(templatePath, "utf8");
 
-  // reemplazar variables
+  // insertar datos reales
   tpl = tpl
     .replace(/{{title}}/g, escapeHtml(title))
     .replace(/{{team}}/g, escapeHtml(team))
     .replace(/{{category}}/g, escapeHtml(category))
     .replace(/{{competition}}/g, escapeHtml(competition))
     .replace(/{{icon}}/g, iconPath)
-    .replace(/{{webcal}}/g, webcalUrl);
+    .replace(/{{webcal}}/g, webcalUrl)
+    .replace(/{{clasificacion}}/g, buildPlaceholderClasificacion(team))
+    .replace(/{{proximosPartidos}}/g, buildPlaceholderProximos(team));
 
-  // crear destino
-  const outDir = path.join(EQUIPOS_DIR);
+  const outDir = EQUIPOS_DIR;
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-  const outPath = path.join(outDir, `${slug}.html`);
-  fs.writeFileSync(outPath, tpl, "utf8");
+  fs.writeFileSync(path.join(outDir, `${slug}.html`), tpl, "utf8");
 }
 
-
-// -------------------------
-// Escapar HTML simple (evita inyección accidental)
+// =======================================================
+//  ESCAPAR HTML
+// =======================================================
 function escapeHtml(s) {
   if (!s) return "";
   return String(s)
@@ -200,10 +224,10 @@ function escapeHtml(s) {
     .replace(/'/g, "&#39;");
 }
 
-// -------------------------
-// Generar HTML principal (index)
+// =======================================================
+//  GENERAR INDEX PRINCIPAL
+// =======================================================
 function generateHTML(calendars) {
-  // Asegurar carpeta equipos existencia (vacía/creada)
   if (!fs.existsSync(EQUIPOS_DIR)) fs.mkdirSync(EQUIPOS_DIR, { recursive: true });
 
   let html = `<!DOCTYPE html>
@@ -229,30 +253,25 @@ function generateHTML(calendars) {
       if (!teams || !teams.length) continue;
 
       html += `<div class="competition"><h3 class="competition-title">${comp}</h3><ul class="team-list">`;
-
       teams.sort(sortTeams);
 
-      for (const { team, path: filePath, urlPath, filename, slug } of teams) {
-        const icon = getIconForTeam(team);
+      for (const t of teams) {
+        const icon = getIconForTeam(t.team);
+        const page = `equipos/${t.slug}.html`;
 
-        // link to team page (opción A: slug = filename without .ics)
-        const equipoPage = `equipos/${slug}.html`;
-
-        // generar la página individual también
         generateTeamPage({
-          team,
+          team: t.team,
           category,
           competition: comp,
-          filename,
-          urlPath,
-          slug,
+          urlPath: t.urlPath,
+          slug: t.slug,
           iconPath: icon,
         });
 
         html += `
 <li class="team-item">
-  <img class="team-icon" src="${icon}" alt="${escapeHtml(team)}" />
-  <a class="team-link" href="${equipoPage}">${escapeHtml(team)}</a>
+  <img class="team-icon" src="${icon}" alt="${escapeHtml(t.team)}" />
+  <a class="team-link" href="${page}">${escapeHtml(t.team)}</a>
 </li>`;
       }
 
@@ -265,17 +284,16 @@ function generateHTML(calendars) {
   html += `
 </div>
 </body>
-</html>
-`;
+</html>`;
 
-  fs.writeFileSync(OUTPUT_HTML, html, "utf-8");
+  fs.writeFileSync(OUTPUT_HTML, html, "utf8");
   console.log("✅ index.html generado correctamente.");
 }
 
-// -------------------------
+// =======================================================
 (function main() {
   try {
-    console.log("📋 Generando index.html con nombres normalizados y páginas /equipos/...");
+    console.log("📋 Generando index.html con plantilla y páginas /equipos/ estilo app…");
     const calendars = collectCalendars();
     generateHTML(calendars);
   } catch (err) {
