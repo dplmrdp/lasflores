@@ -198,30 +198,89 @@ function generateTeamPage({ team, category, competition, urlPath, slug, iconPath
   const title = `${team} – ${category} (${competition})`;
   const webcalUrl = `webcal://${BASE_WEBCAL_HOST}/${BASE_REPO_PATH}/${encodeURI(urlPath)}`;
 
-  // cargar plantilla
-  const templatePath = path.join(TEMPLATE_DIR, "equipo.html");
-  let tpl = fs.readFileSync(templatePath, "utf8");
-
-  // calcular urls federado si hay mapping
+  // URLs oficiales (si existen)
   let rankingUrl = "";
   let calendarOfficialUrl = "";
   if (federadoInfo && federadoInfo.tournament && federadoInfo.group) {
-    // group === 0 => no group / no ranking (lo dejamos en blanco)
-    if (Number(federadoInfo.group) !== 0) {
-      rankingUrl = `https://favoley.es/es/tournament/${federadoInfo.tournament}/ranking/${federadoInfo.group}`;
-      calendarOfficialUrl = `https://favoley.es/es/tournament/${federadoInfo.tournament}/calendar/${federadoInfo.group}/all`;
+    const t = federadoInfo.tournament;
+    const g = federadoInfo.group;
+    if (Number(g) !== 0) {
+      rankingUrl = `https://favoley.es/es/tournament/${t}/ranking/${g}`;
+      calendarOfficialUrl = `https://favoley.es/es/tournament/${t}/calendar/${g}/all`;
     } else {
-      // si group==0 intentamos calendar con group si aplica (pero dejamos ranking vacío)
-      calendarOfficialUrl = `https://favoley.es/es/tournament/${federadoInfo.tournament}/calendar/`;
+      calendarOfficialUrl = `https://favoley.es/es/tournament/${t}/calendar/`;
     }
   }
 
-  // generar placeholders básicos (actualmente usamos placeholders locales)
-  const clasificacionHtml = buildPlaceholderClasificacion(team);
-  const proximosHtml = buildPlaceholderProximos(team);
+  // ================================
+  // CLASIFICACIÓN (placeholder real)
+  // ================================
+  const clasificacionHtml = `
+<table class="table-lite">
+  <thead>
+    <tr>
+      <th>Equipo</th>
+      <th>PTS</th>
+      <th>PJ</th>
+      <th>PG</th>
+      <th>PP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="equipo">${escapeHtml(team)}</td>
+      <td class="num">12</td>
+      <td class="num">6</td>
+      <td class="num">4</td>
+      <td class="num">2</td>
+    </tr>
+    <tr>
+      <td class="equipo">EVB Las Flores</td>
+      <td class="num">9</td>
+      <td class="num">6</td>
+      <td class="num">3</td>
+      <td class="num">3</td>
+    </tr>
+    <tr>
+      <td class="equipo">Rival 1</td>
+      <td class="num">7</td>
+      <td class="num">6</td>
+      <td class="num">2</td>
+      <td class="num">4</td>
+    </tr>
+  </tbody>
+</table>
 
-  // reemplazar variables en plantilla
-   tpl = tpl
+<div class="small-links">
+  ${rankingUrl ? `<a href="${rankingUrl}" target="_blank">Clasificación oficial</a>` : ""}
+</div>
+`;
+
+  // ================================
+  // PRÓXIMOS PARTIDOS (placeholder)
+  // ================================
+  const proximosHtml = `
+<div class="partido">
+  <div class="fecha">Sáb 18 — 12:00</div>
+  <div class="vs">${escapeHtml(team)} vs Rival X</div>
+</div>
+<div class="partido">
+  <div class="fecha">Dom 19 — 10:00</div>
+  <div class="vs">Rival Y vs ${escapeHtml(team)}</div>
+</div>
+
+<div class="small-links">
+  ${calendarOfficialUrl ? `<a href="${calendarOfficialUrl}" target="_blank">Calendario oficial</a>` : ""}
+</div>
+`;
+
+  // ================================
+  // CARGAR PLANTILLA
+  // ================================
+  const templatePath = path.join(TEMPLATE_DIR, "equipo.html");
+  let tpl = fs.readFileSync(templatePath, "utf8");
+
+  tpl = tpl
     .replace(/{{title}}/g, escapeHtml(title))
     .replace(/{{team}}/g, escapeHtml(team))
     .replace(/{{category}}/g, escapeHtml(category))
@@ -229,26 +288,16 @@ function generateTeamPage({ team, category, competition, urlPath, slug, iconPath
     .replace(/{{icon}}/g, iconPath)
     .replace(/{{webcal}}/g, webcalUrl)
     .replace(/{{clasificacion}}/g, clasificacionHtml)
-    .replace(/{{proximosPartidos}}/g, proximosHtml)
-   .replace(/{{rankingUrl}}/g,
-  rankingUrl
-    ? `Ver clasificación oficial: <a href="${rankingUrl}" target="_blank">favoley.es</a>`
-    : ""
-)
-.replace(/{{calendarUrl}}/g,
-  calendarOfficialUrl
-    ? `Ver calendario oficial: <a href="${calendarOfficialUrl}" target="_blank">favoley.es</a>`
-    : ""
-);
+    .replace(/{{proximosPartidos}}/g, proximosHtml);
 
-
-  // crear destino
-  const outDir = path.join(EQUIPOS_DIR);
+  // generar archivo HTML
+  const outDir = EQUIPOS_DIR;
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
   const outPath = path.join(outDir, `${slug}.html`);
   fs.writeFileSync(outPath, tpl, "utf8");
 }
+
 
 // -------------------------
 // Escapar HTML simple
