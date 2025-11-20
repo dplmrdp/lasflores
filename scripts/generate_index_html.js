@@ -230,8 +230,16 @@ function generateTeamPage({ team, category, competition, urlPath, slug, iconPath
     .replace(/{{webcal}}/g, webcalUrl)
     .replace(/{{clasificacion}}/g, clasificacionHtml)
     .replace(/{{proximosPartidos}}/g, proximosHtml)
-    .replace(/{{rankingUrl}}/g, rankingUrl)
-    .replace(/{{calendarOfficialUrl}}/g, calendarOfficialUrl);
+   .replace(/{{rankingUrl}}/g,
+  rankingUrl
+    ? `Ver clasificación oficial: <a href="${rankingUrl}" target="_blank">favoley.es</a>`
+    : ""
+)
+.replace(/{{calendarUrl}}/g,
+  calendarOfficialUrl
+    ? `Ver calendario oficial: <a href="${calendarOfficialUrl}" target="_blank">favoley.es</a>`
+    : ""
+);
 
 
   // crear destino
