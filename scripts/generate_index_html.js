@@ -289,32 +289,38 @@ function generateHTML(calendars, federadoMap) {
       teams.sort(sortTeams);
 
       for (const { team, path: filePath, urlPath, filename, slug } of teams) {
-        const icon = getIconForTeam(team);
+  const icon = getIconForTeam(team);
 
-        // link to team page (opción A: slug = filename without .ics)
-        const equipoPage = `equipos/${slug}.html`;
+  // link to team page (opción A: slug = filename without .ics)
+  const equipoPage = `equipos/${slug}.html`;
 
-        // buscar mapping federado por clave = filename sin .ics
-        const key = slug;
-        const federadoInfo = (federadoMap && federadoMap[key]) ? federadoMap[key] : null;
+  // buscar mapping federado por clave = filename sin .ics
+  const key = slug;
+  const federadoInfo = (federadoMap && federadoMap[key]) ? federadoMap[key] : null;
 
-        // generar la página individual también
-        generateTeamPage({
-          team: team,
-          category,
-          competition: comp,
-          urlPath,
-          slug,
-          iconPath: icon,
-          federadoInfo
-        });
+  // 🔍 DEBUG: comprobar si federadoInfo existe
+  if (comp === "FEDERADO" && !federadoInfo) {
+    console.log(`ℹ️ federado_ids.json: no mapping for key="${key}" (file=${filename})`);
+  }
 
-        html += `
+  // generar la página individual también
+  generateTeamPage({
+    team: team,
+    category,
+    competition: comp,
+    urlPath,
+    slug,
+    iconPath: icon,
+    federadoInfo
+  });
+
+  html += `
 <li class="team-item">
   <img class="team-icon" src="${icon}" alt="${escapeHtml(team)}" />
   <a class="team-link" href="${equipoPage}">${escapeHtml(team)}</a>
 </li>`;
-      }
+}
+
 
       html += `</ul></div>`;
     }
