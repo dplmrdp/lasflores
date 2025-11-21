@@ -1,7 +1,5 @@
-// scripts/fetch_federado_ranking.js
-// Descarga y parsea la clasificación oficial desde favoley.es usando cheerio
-
 const cheerio = require("cheerio");
+const fetch = require("node-fetch");
 
 async function fetchFederadoRanking(tournamentId, groupId) {
   const url = `https://favoley.es/es/tournament/${tournamentId}/ranking/${groupId}`;
@@ -23,19 +21,16 @@ async function fetchFederadoRanking(tournamentId, groupId) {
     }
 
     html = await res.text();
-
   } catch (err) {
     console.error("❌ Error al descargar ranking:", err);
     return null;
   }
 
   const $ = cheerio.load(html);
-
-  // Tabla estándar
   const rows = $("table tbody tr");
 
   if (!rows.length) {
-    console.warn("⚠️ No se encontraron filas de clasificación en la página");
+    console.warn("⚠️ No se encontraron filas de clasificación");
     return null;
   }
 
@@ -43,8 +38,6 @@ async function fetchFederadoRanking(tournamentId, groupId) {
 
   rows.each((i, tr) => {
     const teamName = $(tr).find(".colstyle-nombre").text().trim();
-
-    // Si la fila está vacía o es incorrecta, la saltamos
     if (!teamName) return;
 
     const pts = clean($(tr).find(".colstyle-puntos span").text());
@@ -54,26 +47,14 @@ async function fetchFederadoRanking(tournamentId, groupId) {
     const sg  = clean($(tr).find(".colstyle-valor span").text());
     const sp  = clean($(tr).find(".colstyle-contravalor span").text());
 
-    result.push({
-      team: teamName,
-      pts,
-      pj,
-      pg,
-      pp,
-      sg,
-      sp
-    });
+    result.push({ team: teamName, pts, pj, pg, pp, sg, sp });
   });
 
   return result;
 }
 
-// Limpia caracteres invisibles, saltos, espacios adicionales
 function clean(txt) {
-  return (txt || "")
-    .replace(/\s+/g, " ")
-    .replace(",", ".")       // por si aparece 1,35 → 1.35
-    .trim();
+  return (txt || "").replace(/\s+/g, " ").replace(",", ".").trim();
 }
 
 module.exports = { fetchFederadoRanking };
