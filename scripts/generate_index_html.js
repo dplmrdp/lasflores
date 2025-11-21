@@ -396,9 +396,9 @@ async function generateHTML(calendars, federadoMap) {
 }
 
 // -------------------------
-// MAIN
+// MAIN (async)
 // -------------------------
-(function main() {
+(async function main() {
   try {
     console.log("📋 Generando index.html con nombres normalizados y páginas /equipos/ (integrando federado_ids.json) ...");
 
@@ -419,8 +419,10 @@ async function generateHTML(calendars, federadoMap) {
 
     const calendars = collectCalendars();
     await generateHTML(calendars, federadoMap);
+
   } catch (err) {
     console.error("❌ ERROR GENERAL:", err);
     process.exit(1);
   }
 })();
+
