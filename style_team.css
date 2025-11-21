@@ -166,3 +166,24 @@ section h2 {
   color: #0a58ca;
   text-decoration: none;
 }
+
+.clasificacion {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.clasificacion th {
+  text-align: left;
+  font-weight: bold;
+  padding: 4px 2px;
+}
+
+.clasificacion td {
+  padding: 4px 2px;
+}
+
+.clasificacion tbody tr:nth-child(odd) {
+  background: #fafafa;
+}
+
