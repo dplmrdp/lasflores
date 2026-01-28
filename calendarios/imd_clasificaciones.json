@@ -38,21 +38,21 @@
     },
     {
       "team": "CADETE ALL SPORTS BERMEJALES",
-      "pts": 9,
+      "pts": 11,
       "pj": 8,
-      "pg": 2,
+      "pg": 3,
       "pp": 5,
-      "sg": 5,
+      "sg": 8,
       "sp": 16
     },
     {
       "team": "CD COLEGIO CLARET",
-      "pts": 7,
+      "pts": 8,
       "pj": 7,
       "pg": 1,
-      "pp": 5,
+      "pp": 6,
       "sg": 2,
-      "sp": 16
+      "sp": 19
     },
     {
       "team": "COLEGIO SANTA ANA B",
@@ -315,6 +315,15 @@
       "sp": 0
     },
     {
+      "team": "COLEGIO SANTA ANA B",
+      "pts": 16,
+      "pj": 9,
+      "pg": 7,
+      "pp": 2,
+      "sg": 18,
+      "sp": 9
+    },
+    {
       "team": "CD SALESIANOS TRINIDAD ROSA",
       "pts": 15,
       "pj": 9,
@@ -322,15 +331,6 @@
       "pp": 3,
       "sg": 17,
       "sp": 10
-    },
-    {
-      "team": "COLEGIO SANTA ANA B",
-      "pts": 14,
-      "pj": 9,
-      "pg": 6,
-      "pp": 2,
-      "sg": 16,
-      "sp": 8
     },
     {
       "team": "C.D. SANEL AZUL",
@@ -342,6 +342,15 @@
       "sp": 8
     },
     {
+      "team": "BAÑOS MEDINA ALJARAFE B CD QUIMERA",
+      "pts": 12,
+      "pj": 9,
+      "pg": 4,
+      "pp": 4,
+      "sg": 12,
+      "sp": 12
+    },
+    {
       "team": "SITTING VOLLEY SEVILLA",
       "pts": 12,
       "pj": 9,
@@ -349,15 +358,6 @@
       "pp": 6,
       "sg": 12,
       "sp": 15
-    },
-    {
-      "team": "BAÑOS MEDINA ALJARAFE B CD QUIMERA",
-      "pts": 11,
-      "pj": 9,
-      "pg": 4,
-      "pp": 3,
-      "sg": 11,
-      "sp": 10
     },
     {
       "team": "CD ADRIANO D",
@@ -621,21 +621,12 @@
     },
     {
       "team": "C.D.MARISTAS SEVILLA CELESTE",
-      "pts": 13,
-      "pj": 9,
-      "pg": 5,
-      "pp": 3,
-      "sg": 16,
-      "sp": 8
-    },
-    {
-      "team": "GOLDEN A",
       "pts": 11,
       "pj": 9,
-      "pg": 3,
-      "pp": 5,
-      "sg": 9,
-      "sp": 15
+      "pg": 4,
+      "pp": 3,
+      "sg": 13,
+      "sp": 8
     },
     {
       "team": "CD ARBOLEDA NEGRO",
@@ -645,6 +636,15 @@
       "pp": 2,
       "sg": 13,
       "sp": 5
+    },
+    {
+      "team": "GOLDEN A",
+      "pts": 10,
+      "pj": 9,
+      "pg": 3,
+      "pp": 4,
+      "sg": 9,
+      "sp": 12
     },
     {
       "team": "EVB LAS FLORES ALBERO",
