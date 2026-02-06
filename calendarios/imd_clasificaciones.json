@@ -185,6 +185,24 @@
       "sp": 17
     },
     {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 12,
+      "pj": 10,
+      "pg": 4,
+      "pp": 4,
+      "sg": 16,
+      "sp": 15
+    },
+    {
+      "team": "FLORIN VB-SVS",
+      "pts": 12,
+      "pj": 11,
+      "pg": 3,
+      "pp": 6,
+      "sg": 13,
+      "sp": 19
+    },
+    {
       "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
       "pts": 12,
       "pj": 12,
@@ -194,15 +212,6 @@
       "sp": 25
     },
     {
-      "team": "CD LAS FLORES SEVILLA",
-      "pts": 11,
-      "pj": 10,
-      "pg": 4,
-      "pp": 3,
-      "sg": 15,
-      "sp": 12
-    },
-    {
       "team": "C.V.ROCHELAMBERT",
       "pts": 11,
       "pj": 10,
@@ -210,15 +219,6 @@
       "pp": 3,
       "sg": 14,
       "sp": 13
-    },
-    {
-      "team": "FLORIN VB-SVS",
-      "pts": 10,
-      "pj": 11,
-      "pg": 2,
-      "pp": 6,
-      "sg": 10,
-      "sp": 18
     },
     {
       "team": "CD ADRIANO",
