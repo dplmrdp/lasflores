@@ -259,6 +259,15 @@
       "sp": 12
     },
     {
+      "team": "JVSEVILLA-BEATERIO 2",
+      "pts": 13,
+      "pj": 11,
+      "pg": 6,
+      "pp": 1,
+      "sg": 17,
+      "sp": 4
+    },
+    {
       "team": "LOPE DE VEGA",
       "pts": 12,
       "pj": 12,
@@ -277,22 +286,13 @@
       "sp": 27
     },
     {
-      "team": "JVSEVILLA-BEATERIO 2",
-      "pts": 11,
-      "pj": 10,
-      "pg": 5,
-      "pp": 1,
-      "sg": 15,
-      "sp": 3
-    },
-    {
       "team": "SANTA ISABEL",
-      "pts": 11,
-      "pj": 11,
+      "pts": 12,
+      "pj": 12,
       "pg": 2,
-      "pp": 7,
-      "sg": 7,
-      "sp": 20
+      "pp": 8,
+      "sg": 8,
+      "sp": 22
     },
     {
       "team": "CD ADRIANO D",
@@ -304,7 +304,80 @@
       "sp": 22
     }
   ],
-  "imd_infantil_femenino_cd_las_flores_sevilla_morado": [],
+  "imd_infantil_femenino_cd_las_flores_sevilla_morado": [
+    {
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 20,
+      "pj": 11,
+      "pg": 10,
+      "pp": 0,
+      "sg": 30,
+      "sp": 0
+    },
+    {
+      "team": "CD SALESIANOS TRINIDAD ROSA",
+      "pts": 17,
+      "pj": 11,
+      "pg": 7,
+      "pp": 3,
+      "sg": 19,
+      "sp": 11
+    },
+    {
+      "team": "C.D. SANEL AZUL",
+      "pts": 17,
+      "pj": 11,
+      "pg": 7,
+      "pp": 3,
+      "sg": 22,
+      "sp": 8
+    },
+    {
+      "team": "COLEGIO SANTA ANA B",
+      "pts": 17,
+      "pj": 11,
+      "pg": 7,
+      "pp": 3,
+      "sg": 19,
+      "sp": 11
+    },
+    {
+      "team": "BAÑOS MEDINA ALJARAFE B CD QUIMERA",
+      "pts": 15,
+      "pj": 11,
+      "pg": 5,
+      "pp": 5,
+      "sg": 15,
+      "sp": 15
+    },
+    {
+      "team": "SITTING VOLLEY SEVILLA",
+      "pts": 15,
+      "pj": 11,
+      "pg": 4,
+      "pp": 7,
+      "sg": 14,
+      "sp": 19
+    },
+    {
+      "team": "CD ADRIANO D",
+      "pts": 12,
+      "pj": 11,
+      "pg": 1,
+      "pp": 10,
+      "sg": 4,
+      "sp": 29
+    },
+    {
+      "team": "VOLEIBOL SERVET NEGRO",
+      "pts": 10,
+      "pj": 11,
+      "pg": 0,
+      "pp": 10,
+      "sg": 0,
+      "sp": 30
+    }
+  ],
   "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD ARBOLEDA BLANCO",
@@ -743,11 +816,11 @@
   "imd_infantil_femenino_evb_las_flores_purpura": [
     {
       "team": "CD ADRIANO",
-      "pts": 20,
+      "pts": 22,
       "pj": 11,
-      "pg": 10,
+      "pg": 11,
       "pp": 0,
-      "sg": 30,
+      "sg": 33,
       "sp": 0
     },
     {
@@ -761,12 +834,12 @@
     },
     {
       "team": "BUEN PASTOR",
-      "pts": 17,
+      "pts": 18,
       "pj": 11,
       "pg": 7,
-      "pp": 3,
+      "pp": 4,
       "sg": 21,
-      "sp": 9
+      "sp": 12
     },
     {
       "team": "GOLDEN TEAM",
