@@ -150,21 +150,12 @@
     },
     {
       "team": "CV YUSIHAYAS",
-      "pts": 20,
-      "pj": 13,
-      "pg": 9,
-      "pp": 2,
-      "sg": 29,
-      "sp": 12
-    },
-    {
-      "team": "PALESTRA C.V.",
       "pts": 18,
-      "pj": 13,
-      "pg": 7,
-      "pp": 4,
-      "sg": 27,
-      "sp": 15
+      "pj": 12,
+      "pg": 8,
+      "pp": 2,
+      "sg": 26,
+      "sp": 12
     },
     {
       "team": "CD LAS FLORES SEVILLA",
@@ -176,6 +167,15 @@
       "sp": 20
     },
     {
+      "team": "PALESTRA C.V.",
+      "pts": 16,
+      "pj": 12,
+      "pg": 6,
+      "pp": 4,
+      "sg": 24,
+      "sp": 15
+    },
+    {
       "team": "C.V.ROCHELAMBERT",
       "pts": 16,
       "pj": 12,
@@ -183,15 +183,6 @@
       "pp": 4,
       "sg": 21,
       "sp": 16
-    },
-    {
-      "team": "CV ALCORES ARBOLEDA",
-      "pts": 16,
-      "pj": 13,
-      "pg": 5,
-      "pp": 6,
-      "sg": 19,
-      "sp": 22
     },
     {
       "team": "FLORIN VB-SVS",
@@ -203,9 +194,18 @@
       "sp": 28
     },
     {
-      "team": "JVSEVILLA-SAMU",
+      "team": "CV ALCORES ARBOLEDA",
       "pts": 14,
       "pj": 12,
+      "pg": 4,
+      "pp": 6,
+      "sg": 16,
+      "sp": 22
+    },
+    {
+      "team": "JVSEVILLA-SAMU",
+      "pts": 14,
+      "pj": 11,
       "pg": 5,
       "pp": 4,
       "sg": 21,
@@ -219,15 +219,6 @@
       "pp": 8,
       "sg": 15,
       "sp": 25
-    },
-    {
-      "team": "CD ADRIANO",
-      "pts": 12,
-      "pj": 13,
-      "pg": 0,
-      "pp": 12,
-      "sg": 1,
-      "sp": 36
     }
   ],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
@@ -416,6 +407,15 @@
       "sp": 11
     },
     {
+      "team": "CD SALESIANOS TRINIDAD AMARILLO",
+      "pts": 12,
+      "pj": 11,
+      "pg": 4,
+      "pp": 4,
+      "sg": 11,
+      "sp": 13
+    },
+    {
       "team": "A.D.C. EPOPEYA",
       "pts": 11,
       "pj": 11,
@@ -425,22 +425,13 @@
       "sp": 19
     },
     {
-      "team": "CD SALESIANOS TRINIDAD AMARILLO",
-      "pts": 10,
-      "pj": 11,
-      "pg": 3,
-      "pp": 4,
-      "sg": 9,
-      "sp": 12
-    },
-    {
       "team": "C.D. SANEL BLANCO",
-      "pts": 10,
+      "pts": 11,
       "pj": 11,
       "pg": 2,
-      "pp": 6,
-      "sg": 5,
-      "sp": 19
+      "pp": 7,
+      "sg": 6,
+      "sp": 21
     },
     {
       "team": "C.D SANTA AURELIA FISIONEXT",
@@ -517,154 +508,8 @@
       "sp": 18
     }
   ],
-  "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [
-    {
-      "team": "CD LAS FLORES SEVILLA PURPURA",
-      "pts": 19,
-      "pj": 11,
-      "pg": 9,
-      "pp": 1,
-      "sg": 24,
-      "sp": 6
-    },
-    {
-      "team": "CD ADRIANO B",
-      "pts": 17,
-      "pj": 10,
-      "pg": 8,
-      "pp": 1,
-      "sg": 25,
-      "sp": 2
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD AZUL",
-      "pts": 13,
-      "pj": 11,
-      "pg": 5,
-      "pp": 3,
-      "sg": 17,
-      "sp": 7
-    },
-    {
-      "team": "C.D. SANEL BLANCO",
-      "pts": 13,
-      "pj": 9,
-      "pg": 5,
-      "pp": 3,
-      "sg": 12,
-      "sp": 12
-    },
-    {
-      "team": "CD ARBOLEDA NARANJA",
-      "pts": 12,
-      "pj": 11,
-      "pg": 3,
-      "pp": 6,
-      "sg": 12,
-      "sp": 15
-    },
-    {
-      "team": "JVSEVILLA-TEJARES",
-      "pts": 10,
-      "pj": 11,
-      "pg": 0,
-      "pp": 10,
-      "sg": 1,
-      "sp": 29
-    },
-    {
-      "team": "SANTA ISABEL",
-      "pts": 9,
-      "pj": 10,
-      "pg": 2,
-      "pp": 5,
-      "sg": 5,
-      "sp": 16
-    },
-    {
-      "team": "PALESTRA C.V.  A",
-      "pts": 9,
-      "pj": 11,
-      "pg": 2,
-      "pp": 5,
-      "sg": 6,
-      "sp": 15
-    }
-  ],
-  "imd_cadete_femenino_evb_las_flores_albero": [
-    {
-      "team": "CD ADRIANO",
-      "pts": 20,
-      "pj": 11,
-      "pg": 10,
-      "pp": 0,
-      "sg": 29,
-      "sp": 1
-    },
-    {
-      "team": "VOLEIBOL MIGUEL SERVET",
-      "pts": 18,
-      "pj": 11,
-      "pg": 7,
-      "pp": 4,
-      "sg": 21,
-      "sp": 12
-    },
-    {
-      "team": "SITTING VOLLEY SEVILLA",
-      "pts": 18,
-      "pj": 11,
-      "pg": 7,
-      "pp": 4,
-      "sg": 19,
-      "sp": 14
-    },
-    {
-      "team": "C.D.MARISTAS SEVILLA CELESTE",
-      "pts": 15,
-      "pj": 11,
-      "pg": 6,
-      "pp": 3,
-      "sg": 18,
-      "sp": 9
-    },
-    {
-      "team": "CD ARBOLEDA NEGRO",
-      "pts": 15,
-      "pj": 11,
-      "pg": 5,
-      "pp": 5,
-      "sg": 18,
-      "sp": 12
-    },
-    {
-      "team": "GOLDEN A",
-      "pts": 13,
-      "pj": 11,
-      "pg": 4,
-      "pp": 5,
-      "sg": 11,
-      "sp": 16
-    },
-    {
-      "team": "EVB LAS FLORES ALBERO",
-      "pts": 11,
-      "pj": 11,
-      "pg": 1,
-      "pp": 9,
-      "sg": 3,
-      "sp": 27
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD AMARILLO",
-      "pts": 10,
-      "pj": 11,
-      "pg": 0,
-      "pp": 10,
-      "sg": 1,
-      "sp": 29
-    }
-  ],
+  "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [],
+  "imd_cadete_femenino_evb_las_flores_albero": [],
   "imd_infantil_femenino_evb_las_flores_albero": [
     {
       "team": "C.D. SANEL CELESTE",
@@ -741,72 +586,72 @@
   ],
   "imd_cadete_femenino_evb_las_flores_purpura": [
     {
+      "team": "COLEGIO SANTA ANA A",
+      "pts": 20,
+      "pj": 12,
+      "pg": 8,
+      "pp": 4,
+      "sg": 24,
+      "sp": 12
+    },
+    {
       "team": "A.D.C. EPOPEYA",
       "pts": 19,
-      "pj": 11,
+      "pj": 12,
       "pg": 9,
       "pp": 1,
       "sg": 23,
       "sp": 7
     },
     {
-      "team": "COLEGIO SANTA ANA A",
-      "pts": 19,
-      "pj": 11,
-      "pg": 8,
-      "pp": 3,
-      "sg": 24,
-      "sp": 9
-    },
-    {
       "team": "CD ADRIANO B",
       "pts": 18,
-      "pj": 11,
+      "pj": 12,
       "pg": 7,
       "pp": 4,
       "sg": 19,
       "sp": 14
     },
     {
+      "team": "SALESIANOS TRIANA A",
+      "pts": 17,
+      "pj": 12,
+      "pg": 6,
+      "pp": 5,
+      "sg": 17,
+      "sp": 16
+    },
+    {
       "team": "SAN JOSÉ SS.CC.",
       "pts": 15,
-      "pj": 11,
+      "pj": 12,
       "pg": 5,
       "pp": 5,
       "sg": 15,
       "sp": 15
-    },
-    {
-      "team": "SALESIANOS TRIANA A",
-      "pts": 15,
-      "pj": 11,
-      "pg": 5,
-      "pp": 5,
-      "sg": 15,
-      "sp": 15
-    },
-    {
-      "team": "EVB LAS FLORES PURPURA",
-      "pts": 12,
-      "pj": 11,
-      "pg": 3,
-      "pp": 6,
-      "sg": 10,
-      "sp": 17
     },
     {
       "team": "PALESTRA C.V.  B",
-      "pts": 12,
-      "pj": 11,
-      "pg": 3,
+      "pts": 14,
+      "pj": 12,
+      "pg": 4,
       "pp": 6,
-      "sg": 14,
+      "sg": 17,
       "sp": 13
+    },
+    {
+      "team": "EVB LAS FLORES PURPURA",
+      "pts": 13,
+      "pj": 12,
+      "pg": 3,
+      "pp": 7,
+      "sg": 11,
+      "sp": 19
     },
     {
       "team": "LA FÁBRICA VARA DE REY",
       "pts": 10,
-      "pj": 11,
+      "pj": 12,
       "pg": 0,
       "pp": 10,
       "sg": 0,
