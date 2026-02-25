@@ -138,7 +138,89 @@
       "sp": 33
     }
   ],
-  "imd_senior_femenino_cd_las_flores_sevilla": [],
+  "imd_senior_femenino_cd_las_flores_sevilla": [
+    {
+      "team": "CD COLEGIO CLARET",
+      "pts": 20,
+      "pj": 14,
+      "pg": 10,
+      "pp": 0,
+      "sg": 30,
+      "sp": 9
+    },
+    {
+      "team": "CV YUSIHAYAS",
+      "pts": 19,
+      "pj": 13,
+      "pg": 8,
+      "pp": 3,
+      "sg": 27,
+      "sp": 15
+    },
+    {
+      "team": "PALESTRA C.V.",
+      "pts": 18,
+      "pj": 13,
+      "pg": 7,
+      "pp": 4,
+      "sg": 27,
+      "sp": 16
+    },
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 18,
+      "pj": 13,
+      "pg": 7,
+      "pp": 4,
+      "sg": 24,
+      "sp": 17
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 18,
+      "pj": 14,
+      "pg": 6,
+      "pp": 6,
+      "sg": 23,
+      "sp": 23
+    },
+    {
+      "team": "CV ALCORES ARBOLEDA",
+      "pts": 16,
+      "pj": 13,
+      "pg": 5,
+      "pp": 6,
+      "sg": 19,
+      "sp": 24
+    },
+    {
+      "team": "JVSEVILLA-SAMU",
+      "pts": 15,
+      "pj": 12,
+      "pg": 5,
+      "pp": 5,
+      "sg": 23,
+      "sp": 20
+    },
+    {
+      "team": "FLORIN VB-SVS",
+      "pts": 15,
+      "pj": 14,
+      "pg": 3,
+      "pp": 9,
+      "sg": 15,
+      "sp": 28
+    },
+    {
+      "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
+      "pts": 14,
+      "pj": 13,
+      "pg": 3,
+      "pp": 8,
+      "sg": 15,
+      "sp": 25
+    }
+  ],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
@@ -224,6 +306,15 @@
       "sp": 0
     },
     {
+      "team": "CD SALESIANOS TRINIDAD ROSA",
+      "pts": 19,
+      "pj": 12,
+      "pg": 8,
+      "pp": 3,
+      "sg": 22,
+      "sp": 11
+    },
+    {
       "team": "COLEGIO SANTA ANA B",
       "pts": 18,
       "pj": 12,
@@ -239,15 +330,6 @@
       "pg": 7,
       "pp": 4,
       "sg": 22,
-      "sp": 11
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD ROSA",
-      "pts": 17,
-      "pj": 12,
-      "pg": 7,
-      "pp": 3,
-      "sg": 19,
       "sp": 11
     },
     {
@@ -279,12 +361,12 @@
     },
     {
       "team": "VOLEIBOL SERVET NEGRO",
-      "pts": 10,
+      "pts": 11,
       "pj": 12,
       "pg": 0,
-      "pp": 10,
+      "pp": 11,
       "sg": 0,
-      "sp": 30
+      "sp": 33
     }
   ],
   "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
@@ -574,80 +656,7 @@
       "sp": 31
     }
   ],
-  "imd_infantil_femenino_evb_las_flores_albero": [
-    {
-      "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
-      "pts": 20,
-      "pj": 12,
-      "pg": 10,
-      "pp": 0,
-      "sg": 27,
-      "sp": 3
-    },
-    {
-      "team": "C.D. SANEL CELESTE",
-      "pts": 20,
-      "pj": 12,
-      "pg": 9,
-      "pp": 2,
-      "sg": 25,
-      "sp": 8
-    },
-    {
-      "team": "VOLEIBOL SERVET BLANCO",
-      "pts": 18,
-      "pj": 12,
-      "pg": 7,
-      "pp": 4,
-      "sg": 22,
-      "sp": 11
-    },
-    {
-      "team": "CD ADRIANO C",
-      "pts": 16,
-      "pj": 11,
-      "pg": 6,
-      "pp": 4,
-      "sg": 17,
-      "sp": 13
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD ROJO",
-      "pts": 13,
-      "pj": 12,
-      "pg": 3,
-      "pp": 7,
-      "sg": 11,
-      "sp": 19
-    },
-    {
-      "team": "SALESIANOS TRIANA A",
-      "pts": 12,
-      "pj": 11,
-      "pg": 3,
-      "pp": 6,
-      "sg": 8,
-      "sp": 19
-    },
-    {
-      "team": "EVB LAS FLORES ALBERO",
-      "pts": 12,
-      "pj": 12,
-      "pg": 2,
-      "pp": 8,
-      "sg": 9,
-      "sp": 21
-    },
-    {
-      "team": "COLEGIO SAGRADO CORAZON DE JESUS B",
-      "pts": 12,
-      "pj": 12,
-      "pg": 1,
-      "pp": 10,
-      "sg": 4,
-      "sp": 29
-    }
-  ],
+  "imd_infantil_femenino_evb_las_flores_albero": [],
   "imd_cadete_femenino_evb_las_flores_purpura": [
     {
       "team": "A.D.C. EPOPEYA",
