@@ -149,6 +149,15 @@
       "sp": 9
     },
     {
+      "team": "PALESTRA C.V.",
+      "pts": 20,
+      "pj": 13,
+      "pg": 8,
+      "pp": 4,
+      "sg": 30,
+      "sp": 17
+    },
+    {
       "team": "CV YUSIHAYAS",
       "pts": 19,
       "pj": 13,
@@ -156,15 +165,6 @@
       "pp": 3,
       "sg": 27,
       "sp": 15
-    },
-    {
-      "team": "PALESTRA C.V.",
-      "pts": 18,
-      "pj": 13,
-      "pg": 7,
-      "pp": 4,
-      "sg": 27,
-      "sp": 16
     },
     {
       "team": "C.V.ROCHELAMBERT",
@@ -185,15 +185,6 @@
       "sp": 23
     },
     {
-      "team": "FLORIN VB-SVS",
-      "pts": 16,
-      "pj": 14,
-      "pg": 3,
-      "pp": 10,
-      "sg": 15,
-      "sp": 31
-    },
-    {
       "team": "CV ALCORES ARBOLEDA",
       "pts": 16,
       "pj": 13,
@@ -204,12 +195,21 @@
     },
     {
       "team": "JVSEVILLA-SAMU",
-      "pts": 15,
+      "pts": 16,
       "pj": 12,
       "pg": 5,
-      "pp": 5,
-      "sg": 23,
-      "sp": 20
+      "pp": 6,
+      "sg": 24,
+      "sp": 23
+    },
+    {
+      "team": "FLORIN VB-SVS",
+      "pts": 16,
+      "pj": 14,
+      "pg": 3,
+      "pp": 10,
+      "sg": 15,
+      "sp": 31
     },
     {
       "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
@@ -241,6 +241,15 @@
       "sp": 10
     },
     {
+      "team": "LOPE DE VEGA",
+      "pts": 18,
+      "pj": 12,
+      "pg": 7,
+      "pp": 4,
+      "sg": 18,
+      "sp": 15
+    },
+    {
       "team": "CD ARBOLEDA ROJO",
       "pts": 17,
       "pj": 12,
@@ -250,22 +259,13 @@
       "sp": 15
     },
     {
-      "team": "LOPE DE VEGA",
-      "pts": 16,
-      "pj": 12,
-      "pg": 6,
-      "pp": 4,
-      "sg": 15,
-      "sp": 15
-    },
-    {
       "team": "JVSEVILLA-BEATERIO 2",
-      "pts": 14,
+      "pts": 15,
       "pj": 12,
       "pg": 6,
-      "pp": 2,
+      "pp": 3,
       "sg": 17,
-      "sp": 7
+      "sp": 10
     },
     {
       "team": "SANTA ISABEL",
@@ -482,12 +482,12 @@
     },
     {
       "team": "COLEGIO SANTA ANA B",
-      "pts": 12,
-      "pj": 10,
+      "pts": 13,
+      "pj": 11,
       "pg": 3,
-      "pp": 6,
-      "sg": 9,
-      "sp": 18
+      "pp": 7,
+      "sg": 10,
+      "sp": 20
     },
     {
       "team": "GOLDEN TEAM",
@@ -500,12 +500,12 @@
     },
     {
       "team": "BUEN PASTOR B",
-      "pts": 8,
-      "pj": 10,
-      "pg": 0,
+      "pts": 10,
+      "pj": 11,
+      "pg": 1,
       "pp": 8,
-      "sg": 2,
-      "sp": 21
+      "sg": 4,
+      "sp": 22
     }
   ],
   "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [
@@ -530,7 +530,7 @@
     {
       "team": "CD SALESIANOS TRINIDAD AZUL",
       "pts": 16,
-      "pj": 12,
+      "pj": 11,
       "pg": 6,
       "pp": 4,
       "sg": 20,
@@ -548,7 +548,7 @@
     {
       "team": "CD ARBOLEDA NARANJA",
       "pts": 13,
-      "pj": 12,
+      "pj": 11,
       "pg": 3,
       "pp": 7,
       "sg": 12,
@@ -659,11 +659,11 @@
   "imd_infantil_femenino_evb_las_flores_albero": [
     {
       "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
-      "pts": 20,
+      "pts": 22,
       "pj": 12,
-      "pg": 10,
+      "pg": 11,
       "pp": 0,
-      "sg": 27,
+      "sg": 30,
       "sp": 3
     },
     {
@@ -704,12 +704,12 @@
     },
     {
       "team": "CD SALESIANOS TRINIDAD ROJO",
-      "pts": 14,
+      "pts": 15,
       "pj": 12,
       "pg": 3,
-      "pp": 8,
+      "pp": 9,
       "sg": 11,
-      "sp": 22
+      "sp": 25
     },
     {
       "team": "EVB LAS FLORES ALBERO",
@@ -808,7 +808,7 @@
     {
       "team": "CD ADRIANO",
       "pts": 24,
-      "pj": 12,
+      "pj": 13,
       "pg": 12,
       "pp": 0,
       "sg": 36,
@@ -816,44 +816,44 @@
     },
     {
       "team": "VOLEIBOL MIGUEL SERVET",
-      "pts": 21,
-      "pj": 12,
-      "pg": 10,
+      "pts": 23,
+      "pj": 13,
+      "pg": 11,
       "pp": 1,
-      "sg": 28,
+      "sg": 31,
       "sp": 5
     },
     {
       "team": "BUEN PASTOR",
       "pts": 18,
-      "pj": 12,
+      "pj": 13,
       "pg": 7,
       "pp": 4,
       "sg": 21,
       "sp": 12
     },
     {
+      "team": "GOLDEN TEAM",
+      "pts": 17,
+      "pj": 13,
+      "pg": 5,
+      "pp": 7,
+      "sg": 14,
+      "sp": 22
+    },
+    {
       "team": "PALESTRA  C.V.   R",
       "pts": 16,
-      "pj": 12,
+      "pj": 13,
       "pg": 5,
       "pp": 6,
       "sg": 17,
       "sp": 16
     },
     {
-      "team": "GOLDEN TEAM",
-      "pts": 16,
-      "pj": 12,
-      "pg": 5,
-      "pp": 6,
-      "sg": 14,
-      "sp": 19
-    },
-    {
       "team": "EVB LAS FLORES PURPURA",
       "pts": 14,
-      "pj": 12,
+      "pj": 13,
       "pg": 3,
       "pp": 8,
       "sg": 8,
@@ -862,7 +862,7 @@
     {
       "team": "COLEGIO SAGRADO CORAZON DE JESUS",
       "pts": 14,
-      "pj": 12,
+      "pj": 13,
       "pg": 2,
       "pp": 10,
       "sg": 9,
@@ -871,7 +871,7 @@
     {
       "team": "CD SALESIANOS TRINIDAD AMARILLO",
       "pts": 12,
-      "pj": 12,
+      "pj": 13,
       "pg": 1,
       "pp": 10,
       "sg": 2,
