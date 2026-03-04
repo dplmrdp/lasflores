@@ -306,6 +306,15 @@
       "sp": 0
     },
     {
+      "team": "C.D. SANEL AZUL",
+      "pts": 20,
+      "pj": 12,
+      "pg": 8,
+      "pp": 4,
+      "sg": 25,
+      "sp": 11
+    },
+    {
       "team": "CD SALESIANOS TRINIDAD ROSA",
       "pts": 19,
       "pj": 12,
@@ -322,15 +331,6 @@
       "pp": 5,
       "sg": 20,
       "sp": 16
-    },
-    {
-      "team": "C.D. SANEL AZUL",
-      "pts": 18,
-      "pj": 12,
-      "pg": 7,
-      "pp": 4,
-      "sg": 22,
-      "sp": 11
     },
     {
       "team": "BAÑOS MEDINA ALJARAFE B CD QUIMERA",
@@ -361,12 +361,12 @@
     },
     {
       "team": "VOLEIBOL SERVET NEGRO",
-      "pts": 11,
+      "pts": 12,
       "pj": 12,
       "pg": 0,
-      "pp": 11,
+      "pp": 12,
       "sg": 0,
-      "sp": 33
+      "sp": 36
     }
   ],
   "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
@@ -808,7 +808,7 @@
     {
       "team": "CD ADRIANO",
       "pts": 24,
-      "pj": 13,
+      "pj": 14,
       "pg": 12,
       "pp": 0,
       "sg": 36,
@@ -817,34 +817,34 @@
     {
       "team": "VOLEIBOL MIGUEL SERVET",
       "pts": 23,
-      "pj": 13,
+      "pj": 14,
       "pg": 11,
       "pp": 1,
       "sg": 31,
       "sp": 5
     },
     {
+      "team": "GOLDEN TEAM",
+      "pts": 19,
+      "pj": 14,
+      "pg": 6,
+      "pp": 7,
+      "sg": 16,
+      "sp": 23
+    },
+    {
       "team": "BUEN PASTOR",
       "pts": 18,
-      "pj": 13,
+      "pj": 14,
       "pg": 7,
       "pp": 4,
       "sg": 21,
       "sp": 12
     },
     {
-      "team": "GOLDEN TEAM",
-      "pts": 17,
-      "pj": 13,
-      "pg": 5,
-      "pp": 7,
-      "sg": 14,
-      "sp": 22
-    },
-    {
       "team": "PALESTRA  C.V.   R",
       "pts": 16,
-      "pj": 13,
+      "pj": 14,
       "pg": 5,
       "pp": 6,
       "sg": 17,
@@ -853,7 +853,7 @@
     {
       "team": "EVB LAS FLORES PURPURA",
       "pts": 14,
-      "pj": 13,
+      "pj": 14,
       "pg": 3,
       "pp": 8,
       "sg": 8,
@@ -862,7 +862,7 @@
     {
       "team": "COLEGIO SAGRADO CORAZON DE JESUS",
       "pts": 14,
-      "pj": 13,
+      "pj": 14,
       "pg": 2,
       "pp": 10,
       "sg": 9,
@@ -870,12 +870,12 @@
     },
     {
       "team": "CD SALESIANOS TRINIDAD AMARILLO",
-      "pts": 12,
-      "pj": 13,
+      "pts": 13,
+      "pj": 14,
       "pg": 1,
-      "pp": 10,
-      "sg": 2,
-      "sp": 31
+      "pp": 11,
+      "sg": 3,
+      "sp": 33
     }
   ],
   "imd_alevin_femenino_evb_las_flores_purpura": [
