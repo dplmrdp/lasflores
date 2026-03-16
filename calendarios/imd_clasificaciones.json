@@ -149,6 +149,15 @@
       "sp": 13
     },
     {
+      "team": "PALESTRA C.V.",
+      "pts": 24,
+      "pj": 15,
+      "pg": 10,
+      "pp": 4,
+      "sg": 36,
+      "sp": 20
+    },
+    {
       "team": "C.V.ROCHELAMBERT",
       "pts": 22,
       "pj": 15,
@@ -156,15 +165,6 @@
       "pp": 4,
       "sg": 30,
       "sp": 18
-    },
-    {
-      "team": "PALESTRA C.V.",
-      "pts": 22,
-      "pj": 15,
-      "pg": 9,
-      "pp": 4,
-      "sg": 33,
-      "sp": 19
     },
     {
       "team": "CV YUSIHAYAS",
@@ -195,12 +195,12 @@
     },
     {
       "team": "CV ALCORES ARBOLEDA",
-      "pts": 17,
+      "pts": 18,
       "pj": 15,
       "pg": 5,
-      "pp": 7,
-      "sg": 19,
-      "sp": 27
+      "pp": 8,
+      "sg": 20,
+      "sp": 30
     },
     {
       "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
@@ -538,12 +538,21 @@
     },
     {
       "team": "C.D. SANEL BLANCO",
-      "pts": 19,
+      "pts": 20,
       "pj": 13,
       "pg": 7,
-      "pp": 5,
+      "pp": 6,
       "sg": 18,
-      "sp": 20
+      "sp": 21
+    },
+    {
+      "team": "CD ARBOLEDA NARANJA",
+      "pts": 19,
+      "pj": 14,
+      "pg": 5,
+      "pp": 9,
+      "sg": 18,
+      "sp": 24
     },
     {
       "team": "SANTA ISABEL",
@@ -553,15 +562,6 @@
       "pp": 8,
       "sg": 12,
       "sp": 27
-    },
-    {
-      "team": "CD ARBOLEDA NARANJA",
-      "pts": 17,
-      "pj": 14,
-      "pg": 4,
-      "pp": 9,
-      "sg": 17,
-      "sp": 24
     },
     {
       "team": "PALESTRA C.V.  A",
@@ -737,7 +737,7 @@
       "pj": 14,
       "pg": 13,
       "pp": 1,
-      "sg": 31,
+      "sg": 32,
       "sp": 10
     },
     {
@@ -765,7 +765,7 @@
       "pg": 8,
       "pp": 6,
       "sg": 22,
-      "sp": 19
+      "sp": 20
     },
     {
       "team": "SALESIANOS TRIANA A",
@@ -890,12 +890,12 @@
     },
     {
       "team": "CD RECRESPORT SAFA",
-      "pts": 20,
+      "pts": 22,
       "pj": 12,
-      "pg": 9,
+      "pg": 10,
       "pp": 2,
-      "sg": 23,
-      "sp": 10
+      "sg": 25,
+      "sp": 11
     },
     {
       "team": "EVB LAS FLORES PURPURA",
@@ -908,12 +908,12 @@
     },
     {
       "team": "A.D.C. EPOPEYA B",
-      "pts": 17,
+      "pts": 18,
       "pj": 12,
       "pg": 6,
-      "pp": 5,
-      "sg": 18,
-      "sp": 15
+      "pp": 6,
+      "sg": 19,
+      "sp": 17
     },
     {
       "team": "LOPE DE VEGA A",
