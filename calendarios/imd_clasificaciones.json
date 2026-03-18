@@ -878,5 +878,69 @@
       "sp": 38
     }
   ],
-  "imd_alevin_femenino_evb_las_flores_purpura": []
+  "imd_alevin_femenino_evb_las_flores_purpura": [
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 22,
+      "pj": 12,
+      "pg": 10,
+      "pp": 2,
+      "sg": 25,
+      "sp": 11
+    },
+    {
+      "team": "CD RECRESPORT SAFA",
+      "pts": 22,
+      "pj": 12,
+      "pg": 10,
+      "pp": 2,
+      "sg": 25,
+      "sp": 11
+    },
+    {
+      "team": "EVB LAS FLORES PURPURA",
+      "pts": 18,
+      "pj": 12,
+      "pg": 6,
+      "pp": 6,
+      "sg": 17,
+      "sp": 19
+    },
+    {
+      "team": "A.D.C. EPOPEYA B",
+      "pts": 18,
+      "pj": 12,
+      "pg": 6,
+      "pp": 6,
+      "sg": 19,
+      "sp": 17
+    },
+    {
+      "team": "LOPE DE VEGA A",
+      "pts": 16,
+      "pj": 12,
+      "pg": 4,
+      "pp": 8,
+      "sg": 15,
+      "sp": 21
+    },
+    {
+      "team": "VOLEIBOL SERVET NEGRO",
+      "pts": 16,
+      "pj": 12,
+      "pg": 4,
+      "pp": 8,
+      "sg": 14,
+      "sp": 22
+    },
+    {
+      "team": "CLUB VOLEIBOL BIANCHI",
+      "pts": 14,
+      "pj": 12,
+      "pg": 2,
+      "pp": 10,
+      "sg": 11,
+      "sp": 25
+    }
+  ]
 }
