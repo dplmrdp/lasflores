@@ -369,80 +369,7 @@
       "sp": 42
     }
   ],
-  "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
-    {
-      "team": "CD ARBOLEDA BLANCO",
-      "pts": 28,
-      "pj": 14,
-      "pg": 14,
-      "pp": 0,
-      "sg": 40,
-      "sp": 2
-    },
-    {
-      "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 26,
-      "pj": 14,
-      "pg": 12,
-      "pp": 2,
-      "sg": 37,
-      "sp": 5
-    },
-    {
-      "team": "LOPE DE VEGA",
-      "pts": 23,
-      "pj": 14,
-      "pg": 9,
-      "pp": 5,
-      "sg": 25,
-      "sp": 17
-    },
-    {
-      "team": "COLEGIO SANTA ANA C",
-      "pts": 20,
-      "pj": 14,
-      "pg": 6,
-      "pp": 8,
-      "sg": 21,
-      "sp": 21
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD AMARILLO",
-      "pts": 20,
-      "pj": 14,
-      "pg": 6,
-      "pp": 8,
-      "sg": 17,
-      "sp": 25
-    },
-    {
-      "team": "A.D.C. EPOPEYA",
-      "pts": 20,
-      "pj": 14,
-      "pg": 6,
-      "pp": 8,
-      "sg": 16,
-      "sp": 26
-    },
-    {
-      "team": "C.D. SANEL BLANCO",
-      "pts": 17,
-      "pj": 14,
-      "pg": 3,
-      "pp": 11,
-      "sg": 9,
-      "sp": 33
-    },
-    {
-      "team": "C.D SANTA AURELIA FISIONEXT",
-      "pts": 14,
-      "pj": 14,
-      "pg": 0,
-      "pp": 14,
-      "sg": 3,
-      "sp": 39
-    }
-  ],
+  "imd_alevin_femenino_cd_las_flores_sevilla_morado": [],
   "imd_benjamin_femenino_cd_las_flores_sevilla_morado": [],
   "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [
     {
@@ -474,12 +401,12 @@
     },
     {
       "team": "C.D. SANEL BLANCO",
-      "pts": 20,
-      "pj": 13,
-      "pg": 7,
+      "pts": 22,
+      "pj": 14,
+      "pg": 8,
       "pp": 6,
-      "sg": 18,
-      "sp": 21
+      "sg": 20,
+      "sp": 22
     },
     {
       "team": "CD ARBOLEDA NARANJA",
@@ -492,12 +419,12 @@
     },
     {
       "team": "SANTA ISABEL",
-      "pts": 18,
-      "pj": 13,
+      "pts": 19,
+      "pj": 14,
       "pg": 5,
-      "pp": 8,
-      "sg": 12,
-      "sp": 27
+      "pp": 9,
+      "sg": 13,
+      "sp": 29
     },
     {
       "team": "PALESTRA C.V.  A",
