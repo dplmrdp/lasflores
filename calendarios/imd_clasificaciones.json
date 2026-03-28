@@ -1,12 +1,271 @@
 {
-  "imd_cadete_femenino_cd_las_flores_sevilla": [],
-  "imd_juvenil_femenino_cd_las_flores_sevilla": [],
+  "imd_cadete_femenino_cd_las_flores_sevilla": [
+    {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "COLEGIO SAGRADO CORAZON DE JESUS",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "PALESTRA C.V.  A",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "GOLDEN TEAM",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ],
+  "imd_juvenil_femenino_cd_las_flores_sevilla": [
+    {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "PALESTRA C.V.  M",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "C.D. SANEL BLANCO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ],
   "imd_senior_femenino_cd_las_flores_sevilla": [],
-  "imd_cadete_femenino_cd_las_flores_sevilla_morado": [],
-  "imd_infantil_femenino_cd_las_flores_sevilla_morado": [],
-  "imd_alevin_femenino_cd_las_flores_sevilla_morado": [],
-  "imd_benjamin_femenino_cd_las_flores_sevilla_morado": [],
-  "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [],
+  "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
+    {
+      "team": "SITTING VOLLEY SEVILLA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "GOLDEN B",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "CLUB DEPORTIVO VOLEY 10",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ],
+  "imd_infantil_femenino_cd_las_flores_sevilla_morado": [
+    {
+      "team": "CD ADRIANO B",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "A.D.C. EPOPEYA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ],
+  "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
+    {
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "GOLDEN TEAM",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "SITTING VOLLEY SEVILLA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ],
+  "imd_benjamin_femenino_cd_las_flores_sevilla_morado": [
+    {
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "BUEN PASTOR",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "CD ARBOLEDA BLANCO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "C.D. SANEL BLANCO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ],
+  "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [
+    {
+      "team": "CD COLEGIO CLARET",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA PURPURA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "PALESTRA C.V. B",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "VOLEIBOL MIGUEL SERVET",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ],
   "imd_cadete_femenino_evb_las_flores_albero": [
     {
       "team": "CD ADRIANO",
@@ -303,5 +562,42 @@
       "sp": 38
     }
   ],
-  "imd_alevin_femenino_evb_las_flores_purpura": []
+  "imd_alevin_femenino_evb_las_flores_purpura": [
+    {
+      "team": "EVB LAS FLORES PURPURA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "LOPE DE VEGA",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "CD SALESIANOS TRINIDAD ROJO",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    },
+    {
+      "team": "C.D. SANEL AZUL",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
+    }
+  ]
 }
