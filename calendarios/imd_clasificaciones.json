@@ -1,9 +1,27 @@
 {
   "imd_cadete_femenino_cd_las_flores_sevilla": [
     {
+      "team": "PALESTRA C.V.  A",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 3,
+      "sp": 0
+    },
+    {
+      "team": "GOLDEN TEAM",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 0,
+      "sp": 3
+    },
+    {
       "team": "CD LAS FLORES SEVILLA",
       "pts": 0,
-      "pj": 0,
+      "pj": 1,
       "pg": 0,
       "pp": 0,
       "sg": 0,
@@ -12,25 +30,7 @@
     {
       "team": "COLEGIO SAGRADO CORAZON DE JESUS",
       "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "PALESTRA C.V.  A",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "GOLDEN TEAM",
-      "pts": 0,
-      "pj": 0,
+      "pj": 1,
       "pg": 0,
       "pp": 0,
       "sg": 0,
