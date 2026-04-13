@@ -10,7 +10,16 @@
       "sp": 0
     },
     {
-      "team": "GOLDEN TEAM",
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 3,
+      "sp": 0
+    },
+    {
+      "team": "COLEGIO SAGRADO CORAZON DE JESUS",
       "pts": 1,
       "pj": 1,
       "pg": 0,
@@ -19,283 +28,283 @@
       "sp": 3
     },
     {
-      "team": "CD LAS FLORES SEVILLA",
-      "pts": 0,
+      "team": "GOLDEN TEAM",
+      "pts": 1,
       "pj": 1,
       "pg": 0,
-      "pp": 0,
+      "pp": 1,
       "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "COLEGIO SAGRADO CORAZON DE JESUS",
-      "pts": 0,
-      "pj": 1,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sp": 3
     }
   ],
   "imd_juvenil_femenino_cd_las_flores_sevilla": [
     {
       "team": "CD LAS FLORES SEVILLA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 3,
+      "sp": 1
     },
     {
       "team": "PALESTRA C.V.  M",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 3,
+      "sp": 2
     },
     {
       "team": "C.D. SANEL BLANCO",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 1,
+      "sg": 2,
+      "sp": 3
+    },
+    {
+      "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 3
     }
   ],
   "imd_senior_femenino_cd_las_flores_sevilla": [],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
     {
-      "team": "SITTING VOLLEY SEVILLA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
+      "sg": 3,
       "sp": 0
+    },
+    {
+      "team": "SITTING VOLLEY SEVILLA",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "GOLDEN B",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
     },
     {
       "team": "CLUB DEPORTIVO VOLEY 10",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
+      "pp": 1,
       "sg": 0,
-      "sp": 0
+      "sp": 3
     }
   ],
   "imd_infantil_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD ADRIANO B",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "A.D.C. EPOPEYA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "C.V.ROCHELAMBERT",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
+    },
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
+    },
+    {
+      "team": "A.D.C. EPOPEYA",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
     }
   ],
   "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
+      "sg": 3,
       "sp": 0
     },
     {
       "team": "GOLDEN TEAM",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "SITTING VOLLEY SEVILLA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "C.V.ROCHELAMBERT",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
+    },
+    {
+      "team": "SITTING VOLLEY SEVILLA",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
       "sg": 0,
-      "sp": 0
+      "sp": 3
     }
   ],
   "imd_benjamin_femenino_cd_las_flores_sevilla_morado": [
     {
-      "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "team": "C.D. SANEL BLANCO",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "BUEN PASTOR",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "CD ARBOLEDA BLANCO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
     },
     {
-      "team": "C.D. SANEL BLANCO",
-      "pts": 0,
-      "pj": 0,
+      "team": "BUEN PASTOR",
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
     }
   ],
   "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [
     {
-      "team": "CD COLEGIO CLARET",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "CD LAS FLORES SEVILLA PURPURA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
       "team": "PALESTRA C.V. B",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
+    },
+    {
+      "team": "CD COLEGIO CLARET",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "VOLEIBOL MIGUEL SERVET",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA PURPURA",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
     }
   ],
   "imd_cadete_femenino_evb_las_flores_albero": [
     {
-      "team": "EVB LAS FLORES ALBERO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "team": "CD SALESIANOS TRINIDAD AZUL",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "COLEGIO SANTA ANA B",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "LA FÁBRICA VARA DE REY",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
+      "sg": 3,
       "sp": 0
     },
     {
       "team": "CADETE ALL SPORTS BERMEJALES",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 3,
+      "sp": 0
+    },
+    {
+      "team": "LA FÁBRICA VARA DE REY",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 0,
+      "sp": 3
+    },
+    {
+      "team": "EVB LAS FLORES ALBERO",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 0,
+      "sp": 3
+    },
+    {
+      "team": "COLEGIO SANTA ANA B",
       "pts": 0,
       "pj": 0,
       "pg": 0,
@@ -311,22 +320,31 @@
       "pp": 0,
       "sg": 0,
       "sp": 0
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD AZUL",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
     }
   ],
   "imd_infantil_femenino_evb_las_flores_albero": [
     {
+      "team": "EVB LAS FLORES ALBERO",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 3,
+      "sp": 0
+    },
+    {
+      "team": "CD ADRIANO E",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 0,
+      "sp": 3
+    },
+    {
       "team": "PALESTRA C.V.  A",
       "pts": 0,
-      "pj": 0,
+      "pj": 1,
       "pg": 0,
       "pp": 0,
       "sg": 0,
@@ -335,16 +353,7 @@
     {
       "team": "SAN JOSÉ SS.CC. A",
       "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "CD ADRIANO E",
-      "pts": 0,
-      "pj": 0,
+      "pj": 1,
       "pg": 0,
       "pp": 0,
       "sg": 0,
@@ -358,47 +367,29 @@
       "pp": 0,
       "sg": 0,
       "sp": 0
-    },
-    {
-      "team": "EVB LAS FLORES ALBERO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
     }
   ],
   "imd_cadete_femenino_evb_las_flores_purpura": [
     {
       "team": "VOLEIBOL MIGUEL SERVET",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "EVB LAS FLORES PURPURA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "SAN JOSÉ SS.CC.",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
     },
     {
-      "team": "CD COLEGIO CLARET",
+      "team": "EVB LAS FLORES PURPURA",
       "pts": 0,
       "pj": 0,
       "pg": 0,
@@ -414,44 +405,53 @@
       "pp": 0,
       "sg": 0,
       "sp": 0
+    },
+    {
+      "team": "CD COLEGIO CLARET",
+      "pts": 0,
+      "pj": 0,
+      "pg": 0,
+      "pp": 0,
+      "sg": 0,
+      "sp": 0
     }
   ],
   "imd_infantil_femenino_evb_las_flores_purpura": [
     {
       "team": "JVSEVILLA-BEATERIO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
+      "sg": 3,
       "sp": 0
     },
     {
       "team": "CD ARBOLEDA NARANJA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "CD SALESIANOS TRINIDAD ROJO",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
     },
     {
       "team": "INFANTIL ALL SPORTS BERMEJALES",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
+      "pp": 1,
       "sg": 0,
-      "sp": 0
+      "sp": 3
     },
     {
       "team": "EVB LAS FLORES PURPURA",
@@ -465,40 +465,40 @@
   ],
   "imd_alevin_femenino_evb_las_flores_purpura": [
     {
-      "team": "EVB LAS FLORES PURPURA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
       "team": "LOPE DE VEGA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
+      "sg": 3,
       "sp": 0
     },
     {
       "team": "CD SALESIANOS TRINIDAD ROJO",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 2,
+      "sp": 1
     },
     {
       "team": "C.D. SANEL AZUL",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
+    },
+    {
+      "team": "EVB LAS FLORES PURPURA",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
       "sg": 0,
-      "sp": 0
+      "sp": 3
     }
   ]
 }
