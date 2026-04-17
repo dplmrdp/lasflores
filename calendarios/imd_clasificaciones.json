@@ -2,26 +2,26 @@
   "imd_cadete_femenino_cd_las_flores_sevilla": [
     {
       "team": "PALESTRA C.V.  A",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
       "pp": 0,
-      "sg": 3,
-      "sp": 0
+      "sg": 5,
+      "sp": 1
     },
     {
       "team": "CD LAS FLORES SEVILLA",
-      "pts": 2,
-      "pj": 1,
+      "pts": 3,
+      "pj": 2,
       "pg": 1,
-      "pp": 0,
-      "sg": 3,
-      "sp": 0
+      "pp": 1,
+      "sg": 4,
+      "sp": 2
     },
     {
       "team": "COLEGIO SAGRADO CORAZON DE JESUS",
       "pts": 1,
-      "pj": 1,
+      "pj": 2,
       "pg": 0,
       "pp": 1,
       "sg": 0,
@@ -30,7 +30,7 @@
     {
       "team": "GOLDEN TEAM",
       "pts": 1,
-      "pj": 1,
+      "pj": 2,
       "pg": 0,
       "pp": 1,
       "sg": 0,
@@ -419,21 +419,30 @@
   "imd_infantil_femenino_evb_las_flores_purpura": [
     {
       "team": "JVSEVILLA-BEATERIO",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
       "pp": 0,
-      "sg": 3,
-      "sp": 0
+      "sg": 5,
+      "sp": 1
     },
     {
       "team": "CD ARBOLEDA NARANJA",
       "pts": 2,
-      "pj": 1,
+      "pj": 2,
       "pg": 1,
       "pp": 0,
       "sg": 2,
       "sp": 1
+    },
+    {
+      "team": "EVB LAS FLORES PURPURA",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 2
     },
     {
       "team": "CD SALESIANOS TRINIDAD ROJO",
@@ -447,20 +456,11 @@
     {
       "team": "INFANTIL ALL SPORTS BERMEJALES",
       "pts": 1,
-      "pj": 1,
+      "pj": 2,
       "pg": 0,
       "pp": 1,
       "sg": 0,
       "sp": 3
-    },
-    {
-      "team": "EVB LAS FLORES PURPURA",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
     }
   ],
   "imd_alevin_femenino_evb_las_flores_purpura": [
