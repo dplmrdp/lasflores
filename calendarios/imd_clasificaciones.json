@@ -75,7 +75,89 @@
       "sp": 6
     }
   ],
-  "imd_senior_femenino_cd_las_flores_sevilla": [],
+  "imd_senior_femenino_cd_las_flores_sevilla": [
+    {
+      "team": "CD COLEGIO CLARET",
+      "pts": 32,
+      "pj": 17,
+      "pg": 15,
+      "pp": 2,
+      "sg": 48,
+      "sp": 19
+    },
+    {
+      "team": "PALESTRA C.V.",
+      "pts": 29,
+      "pj": 17,
+      "pg": 12,
+      "pp": 5,
+      "sg": 42,
+      "sp": 24
+    },
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 28,
+      "pj": 17,
+      "pg": 11,
+      "pp": 6,
+      "sg": 39,
+      "sp": 26
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 28,
+      "pj": 17,
+      "pg": 11,
+      "pp": 6,
+      "sg": 38,
+      "sp": 27
+    },
+    {
+      "team": "CV YUSIHAYAS",
+      "pts": 27,
+      "pj": 17,
+      "pg": 10,
+      "pp": 7,
+      "sg": 38,
+      "sp": 27
+    },
+    {
+      "team": "JVSEVILLA-SAMU",
+      "pts": 24,
+      "pj": 17,
+      "pg": 7,
+      "pp": 10,
+      "sg": 34,
+      "sp": 39
+    },
+    {
+      "team": "CV ALCORES ARBOLEDA",
+      "pts": 23,
+      "pj": 17,
+      "pg": 6,
+      "pp": 11,
+      "sg": 27,
+      "sp": 40
+    },
+    {
+      "team": "FLORIN VB-SVS",
+      "pts": 22,
+      "pj": 17,
+      "pg": 5,
+      "pp": 12,
+      "sg": 21,
+      "sp": 40
+    },
+    {
+      "team": "BAÑOS MEDINA ALJARAFE CD QUIMERA",
+      "pts": 21,
+      "pj": 17,
+      "pg": 4,
+      "pp": 13,
+      "sg": 23,
+      "sp": 42
+    }
+  ],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
@@ -335,7 +417,7 @@
     {
       "team": "PALESTRA C.V.  A",
       "pts": 2,
-      "pj": 2,
+      "pj": 3,
       "pg": 1,
       "pp": 0,
       "sg": 3,
@@ -344,7 +426,7 @@
     {
       "team": "CD ADRIANO E",
       "pts": 1,
-      "pj": 1,
+      "pj": 2,
       "pg": 0,
       "pp": 1,
       "sg": 0,
@@ -362,7 +444,7 @@
     {
       "team": "COLEGIO SAGRADO CORAZON DE JESUS",
       "pts": 0,
-      "pj": 1,
+      "pj": 3,
       "pg": 0,
       "pp": 0,
       "sg": 0,
@@ -380,6 +462,15 @@
       "sp": 2
     },
     {
+      "team": "SAN JOSÉ SS.CC.",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 4,
+      "sp": 2
+    },
+    {
       "team": "EVB LAS FLORES PURPURA",
       "pts": 1,
       "pj": 1,
@@ -389,27 +480,18 @@
       "sp": 2
     },
     {
-      "team": "SAN JOSÉ SS.CC.",
+      "team": "CD COLEGIO CLARET",
       "pts": 1,
-      "pj": 2,
+      "pj": 1,
       "pg": 0,
       "pp": 1,
-      "sg": 1,
-      "sp": 2
+      "sg": 0,
+      "sp": 3
     },
     {
       "team": "JVSEVILLA-TEJARES",
       "pts": 0,
       "pj": 0,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
-      "team": "CD COLEGIO CLARET",
-      "pts": 0,
-      "pj": 1,
       "pg": 0,
       "pp": 0,
       "sg": 0,
