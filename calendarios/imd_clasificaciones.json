@@ -267,27 +267,27 @@
   ],
   "imd_infantil_femenino_cd_las_flores_sevilla_purpura": [
     {
+      "team": "CD LAS FLORES SEVILLA PURPURA",
+      "pts": 5,
+      "pj": 3,
+      "pg": 2,
+      "pp": 1,
+      "sg": 7,
+      "sp": 2
+    },
+    {
       "team": "PALESTRA C.V. B",
       "pts": 4,
-      "pj": 2,
+      "pj": 3,
       "pg": 2,
       "pp": 0,
       "sg": 5,
       "sp": 1
     },
     {
-      "team": "CD LAS FLORES SEVILLA PURPURA",
-      "pts": 3,
-      "pj": 2,
-      "pg": 1,
-      "pp": 1,
-      "sg": 4,
-      "sp": 2
-    },
-    {
       "team": "CD COLEGIO CLARET",
       "pts": 3,
-      "pj": 2,
+      "pj": 3,
       "pg": 1,
       "pp": 1,
       "sg": 2,
@@ -295,12 +295,12 @@
     },
     {
       "team": "VOLEIBOL MIGUEL SERVET",
-      "pts": 2,
-      "pj": 2,
+      "pts": 3,
+      "pj": 3,
       "pg": 0,
-      "pp": 2,
+      "pp": 3,
       "sg": 1,
-      "sp": 5
+      "sp": 8
     }
   ],
   "imd_cadete_femenino_evb_las_flores_albero": [
