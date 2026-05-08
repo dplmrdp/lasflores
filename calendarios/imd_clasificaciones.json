@@ -192,26 +192,26 @@
   "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 4,
-      "pj": 2,
-      "pg": 2,
+      "pts": 6,
+      "pj": 3,
+      "pg": 3,
       "pp": 0,
-      "sg": 5,
+      "sg": 8,
       "sp": 1
     },
     {
       "team": "GOLDEN TEAM",
-      "pts": 4,
-      "pj": 2,
+      "pts": 5,
+      "pj": 3,
       "pg": 2,
-      "pp": 0,
+      "pp": 1,
       "sg": 5,
-      "sp": 1
+      "sp": 4
     },
     {
       "team": "C.V.ROCHELAMBERT",
       "pts": 2,
-      "pj": 2,
+      "pj": 3,
       "pg": 0,
       "pp": 2,
       "sg": 2,
@@ -220,7 +220,7 @@
     {
       "team": "SITTING VOLLEY SEVILLA",
       "pts": 2,
-      "pj": 2,
+      "pj": 3,
       "pg": 0,
       "pp": 2,
       "sg": 0,
@@ -306,6 +306,15 @@
   "imd_cadete_femenino_evb_las_flores_albero": [
     {
       "team": "CADETE ALL SPORTS BERMEJALES",
+      "pts": 5,
+      "pj": 3,
+      "pg": 2,
+      "pp": 1,
+      "sg": 6,
+      "sp": 3
+    },
+    {
+      "team": "PALESTRA C.V.  B",
       "pts": 4,
       "pj": 2,
       "pg": 2,
@@ -316,47 +325,38 @@
     {
       "team": "CD SALESIANOS TRINIDAD AZUL",
       "pts": 3,
-      "pj": 2,
+      "pj": 3,
       "pg": 1,
       "pp": 1,
       "sg": 4,
       "sp": 2
     },
     {
-      "team": "PALESTRA C.V.  B",
+      "team": "COLEGIO SANTA ANA B",
       "pts": 2,
-      "pj": 1,
+      "pj": 2,
       "pg": 1,
       "pp": 0,
       "sg": 3,
       "sp": 0
     },
     {
-      "team": "LA FÁBRICA VARA DE REY",
+      "team": "EVB LAS FLORES ALBERO",
       "pts": 2,
-      "pj": 2,
+      "pj": 3,
       "pg": 0,
       "pp": 2,
       "sg": 0,
       "sp": 6
     },
     {
-      "team": "EVB LAS FLORES ALBERO",
-      "pts": 1,
-      "pj": 2,
+      "team": "LA FÁBRICA VARA DE REY",
+      "pts": 2,
+      "pj": 3,
       "pg": 0,
-      "pp": 1,
+      "pp": 2,
       "sg": 0,
-      "sp": 3
-    },
-    {
-      "team": "COLEGIO SANTA ANA B",
-      "pts": 0,
-      "pj": 1,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sp": 6
     }
   ],
   "imd_infantil_femenino_evb_las_flores_albero": [
