@@ -77,36 +77,36 @@
   ],
   "imd_senior_femenino_cd_las_flores_sevilla": [
     {
-      "team": "CD COLEGIO CLARET",
-      "pts": 0,
-      "pj": 0,
-      "pg": 0,
+      "team": "PALESTRA C.V.",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
       "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "sg": 3,
+      "sp": 1
     },
     {
       "team": "C.V.ROCHELAMBERT",
-      "pts": 0,
-      "pj": 0,
+      "pts": 1,
+      "pj": 1,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 1,
+      "sg": 1,
+      "sp": 3
     },
     {
       "team": "CD LAS FLORES SEVILLA",
       "pts": 0,
-      "pj": 0,
+      "pj": 1,
       "pg": 0,
       "pp": 0,
       "sg": 0,
       "sp": 0
     },
     {
-      "team": "PALESTRA C.V.",
+      "team": "CD COLEGIO CLARET",
       "pts": 0,
-      "pj": 0,
+      "pj": 1,
       "pg": 0,
       "pp": 0,
       "sg": 0,
@@ -151,82 +151,8 @@
       "sp": 7
     }
   ],
-  "imd_infantil_femenino_cd_las_flores_sevilla_morado": [
-    {
-      "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 6,
-      "pj": 3,
-      "pg": 3,
-      "pp": 0,
-      "sg": 7,
-      "sp": 2
-    },
-    {
-      "team": "C.V.ROCHELAMBERT",
-      "pts": 5,
-      "pj": 3,
-      "pg": 2,
-      "pp": 1,
-      "sg": 6,
-      "sp": 3
-    },
-    {
-      "team": "CD ADRIANO B",
-      "pts": 4,
-      "pj": 3,
-      "pg": 1,
-      "pp": 2,
-      "sg": 4,
-      "sp": 5
-    },
-    {
-      "team": "A.D.C. EPOPEYA",
-      "pts": 3,
-      "pj": 3,
-      "pg": 0,
-      "pp": 3,
-      "sg": 1,
-      "sp": 8
-    }
-  ],
-  "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
-    {
-      "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 6,
-      "pj": 3,
-      "pg": 3,
-      "pp": 0,
-      "sg": 8,
-      "sp": 1
-    },
-    {
-      "team": "GOLDEN TEAM",
-      "pts": 5,
-      "pj": 3,
-      "pg": 2,
-      "pp": 1,
-      "sg": 5,
-      "sp": 4
-    },
-    {
-      "team": "SITTING VOLLEY SEVILLA",
-      "pts": 4,
-      "pj": 3,
-      "pg": 1,
-      "pp": 2,
-      "sg": 3,
-      "sp": 6
-    },
-    {
-      "team": "C.V.ROCHELAMBERT",
-      "pts": 3,
-      "pj": 3,
-      "pg": 0,
-      "pp": 3,
-      "sg": 2,
-      "sp": 7
-    }
-  ],
+  "imd_infantil_femenino_cd_las_flores_sevilla_morado": [],
+  "imd_alevin_femenino_cd_las_flores_sevilla_morado": [],
   "imd_benjamin_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD ARBOLEDA BLANCO",
@@ -427,21 +353,21 @@
     },
     {
       "team": "EVB LAS FLORES PURPURA",
-      "pts": 1,
+      "pts": 3,
       "pj": 2,
-      "pg": 0,
+      "pg": 1,
       "pp": 1,
-      "sg": 1,
-      "sp": 2
+      "sg": 3,
+      "sp": 3
     },
     {
       "team": "CD COLEGIO CLARET",
-      "pts": 1,
+      "pts": 2,
       "pj": 2,
       "pg": 0,
-      "pp": 1,
-      "sg": 0,
-      "sp": 3
+      "pp": 2,
+      "sg": 1,
+      "sp": 5
     },
     {
       "team": "JVSEVILLA-TEJARES",
