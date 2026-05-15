@@ -306,17 +306,17 @@
   "imd_cadete_femenino_evb_las_flores_albero": [
     {
       "team": "CADETE ALL SPORTS BERMEJALES",
-      "pts": 5,
-      "pj": 3,
-      "pg": 2,
+      "pts": 7,
+      "pj": 4,
+      "pg": 3,
       "pp": 1,
-      "sg": 6,
+      "sg": 9,
       "sp": 3
     },
     {
       "team": "PALESTRA C.V.  B",
       "pts": 4,
-      "pj": 2,
+      "pj": 3,
       "pg": 2,
       "pp": 0,
       "sg": 5,
@@ -325,7 +325,7 @@
     {
       "team": "EVB LAS FLORES ALBERO",
       "pts": 4,
-      "pj": 3,
+      "pj": 4,
       "pg": 1,
       "pp": 2,
       "sg": 3,
@@ -334,29 +334,29 @@
     {
       "team": "CD SALESIANOS TRINIDAD AZUL",
       "pts": 3,
-      "pj": 2,
+      "pj": 3,
       "pg": 1,
       "pp": 1,
       "sg": 4,
       "sp": 2
     },
     {
+      "team": "COLEGIO SANTA ANA B",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 3,
+      "sp": 3
+    },
+    {
       "team": "LA FÁBRICA VARA DE REY",
       "pts": 3,
-      "pj": 3,
+      "pj": 4,
       "pg": 0,
       "pp": 3,
       "sg": 0,
       "sp": 9
-    },
-    {
-      "team": "COLEGIO SANTA ANA B",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
-      "pp": 0,
-      "sg": 3,
-      "sp": 0
     }
   ],
   "imd_infantil_femenino_evb_las_flores_albero": [
@@ -428,7 +428,7 @@
     {
       "team": "EVB LAS FLORES PURPURA",
       "pts": 3,
-      "pj": 2,
+      "pj": 3,
       "pg": 1,
       "pp": 1,
       "sg": 3,
@@ -446,7 +446,7 @@
     {
       "team": "JVSEVILLA-TEJARES",
       "pts": 1,
-      "pj": 1,
+      "pj": 2,
       "pg": 0,
       "pp": 1,
       "sg": 0,
