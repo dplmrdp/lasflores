@@ -77,6 +77,15 @@
   ],
   "imd_senior_femenino_cd_las_flores_sevilla": [
     {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 3,
+      "sp": 0
+    },
+    {
       "team": "PALESTRA C.V.",
       "pts": 2,
       "pj": 1,
@@ -95,22 +104,13 @@
       "sp": 3
     },
     {
-      "team": "CD LAS FLORES SEVILLA",
-      "pts": 0,
-      "pj": 1,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
-    },
-    {
       "team": "CD COLEGIO CLARET",
-      "pts": 0,
+      "pts": 1,
       "pj": 1,
       "pg": 0,
-      "pp": 0,
+      "pp": 1,
       "sg": 0,
-      "sp": 0
+      "sp": 3
     }
   ],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
@@ -417,6 +417,15 @@
       "sp": 2
     },
     {
+      "team": "EVB LAS FLORES PURPURA",
+      "pts": 5,
+      "pj": 3,
+      "pg": 2,
+      "pp": 1,
+      "sg": 5,
+      "sp": 4
+    },
+    {
       "team": "VOLEIBOL MIGUEL SERVET",
       "pts": 4,
       "pj": 2,
@@ -424,15 +433,6 @@
       "pp": 0,
       "sg": 4,
       "sp": 2
-    },
-    {
-      "team": "EVB LAS FLORES PURPURA",
-      "pts": 3,
-      "pj": 3,
-      "pg": 1,
-      "pp": 1,
-      "sg": 3,
-      "sp": 3
     },
     {
       "team": "CD COLEGIO CLARET",
@@ -445,35 +445,44 @@
     },
     {
       "team": "JVSEVILLA-TEJARES",
-      "pts": 1,
+      "pts": 2,
       "pj": 2,
       "pg": 0,
-      "pp": 1,
-      "sg": 0,
-      "sp": 3
+      "pp": 2,
+      "sg": 1,
+      "sp": 5
     }
   ],
   "imd_infantil_femenino_evb_las_flores_purpura": [
     {
       "team": "CD ARBOLEDA NARANJA",
-      "pts": 6,
-      "pj": 3,
-      "pg": 3,
+      "pts": 8,
+      "pj": 4,
+      "pg": 4,
       "pp": 0,
-      "sg": 7,
-      "sp": 2
+      "sg": 9,
+      "sp": 3
     },
     {
       "team": "JVSEVILLA-BEATERIO",
-      "pts": 4,
-      "pj": 2,
+      "pts": 5,
+      "pj": 3,
       "pg": 2,
-      "pp": 0,
-      "sg": 5,
-      "sp": 1
+      "pp": 1,
+      "sg": 6,
+      "sp": 3
     },
     {
       "team": "EVB LAS FLORES PURPURA",
+      "pts": 4,
+      "pj": 3,
+      "pg": 1,
+      "pp": 2,
+      "sg": 4,
+      "sp": 5
+    },
+    {
+      "team": "CD SALESIANOS TRINIDAD ROJO",
       "pts": 2,
       "pj": 2,
       "pg": 0,
@@ -489,15 +498,6 @@
       "pp": 2,
       "sg": 0,
       "sp": 6
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD ROJO",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
-      "pp": 1,
-      "sg": 1,
-      "sp": 2
     }
   ],
   "imd_alevin_femenino_evb_las_flores_purpura": [
