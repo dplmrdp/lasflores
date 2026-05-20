@@ -75,7 +75,44 @@
       "sp": 0
     }
   ],
-  "imd_senior_femenino_cd_las_flores_sevilla": [],
+  "imd_senior_femenino_cd_las_flores_sevilla": [
+    {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 3,
+      "sp": 0
+    },
+    {
+      "team": "PALESTRA C.V.",
+      "pts": 2,
+      "pj": 1,
+      "pg": 1,
+      "pp": 0,
+      "sg": 3,
+      "sp": 1
+    },
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 1,
+      "sp": 3
+    },
+    {
+      "team": "CD COLEGIO CLARET",
+      "pts": 1,
+      "pj": 1,
+      "pg": 0,
+      "pp": 1,
+      "sg": 0,
+      "sp": 3
+    }
+  ],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "PALESTRA C.V.  A",
@@ -277,13 +314,22 @@
       "sp": 3
     },
     {
-      "team": "PALESTRA C.V.  B",
+      "team": "LA FÁBRICA VARA DE REY",
+      "pts": 5,
+      "pj": 4,
+      "pg": 1,
+      "pp": 3,
+      "sg": 2,
+      "sp": 10
+    },
+    {
+      "team": "CD SALESIANOS TRINIDAD AZUL",
       "pts": 4,
       "pj": 3,
-      "pg": 2,
-      "pp": 0,
+      "pg": 1,
+      "pp": 2,
       "sg": 5,
-      "sp": 1
+      "sp": 4
     },
     {
       "team": "EVB LAS FLORES ALBERO",
@@ -295,13 +341,13 @@
       "sp": 6
     },
     {
-      "team": "CD SALESIANOS TRINIDAD AZUL",
-      "pts": 3,
+      "team": "PALESTRA C.V.  B",
+      "pts": 4,
       "pj": 3,
-      "pg": 1,
-      "pp": 1,
-      "sg": 4,
-      "sp": 2
+      "pg": 2,
+      "pp": 0,
+      "sg": 5,
+      "sp": 1
     },
     {
       "team": "COLEGIO SANTA ANA B",
@@ -311,15 +357,6 @@
       "pp": 1,
       "sg": 3,
       "sp": 3
-    },
-    {
-      "team": "LA FÁBRICA VARA DE REY",
-      "pts": 3,
-      "pj": 4,
-      "pg": 0,
-      "pp": 3,
-      "sg": 0,
-      "sp": 9
     }
   ],
   "imd_infantil_femenino_evb_las_flores_albero": [
