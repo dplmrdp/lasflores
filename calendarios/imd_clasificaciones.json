@@ -314,6 +314,24 @@
       "sp": 3
     },
     {
+      "team": "PALESTRA C.V.  B",
+      "pts": 6,
+      "pj": 3,
+      "pg": 3,
+      "pp": 0,
+      "sg": 8,
+      "sp": 1
+    },
+    {
+      "team": "EVB LAS FLORES ALBERO",
+      "pts": 5,
+      "pj": 4,
+      "pg": 1,
+      "pp": 3,
+      "sg": 3,
+      "sp": 9
+    },
+    {
       "team": "LA FÁBRICA VARA DE REY",
       "pts": 5,
       "pj": 4,
@@ -330,24 +348,6 @@
       "pp": 2,
       "sg": 5,
       "sp": 4
-    },
-    {
-      "team": "EVB LAS FLORES ALBERO",
-      "pts": 4,
-      "pj": 4,
-      "pg": 1,
-      "pp": 2,
-      "sg": 3,
-      "sp": 6
-    },
-    {
-      "team": "PALESTRA C.V.  B",
-      "pts": 4,
-      "pj": 3,
-      "pg": 2,
-      "pp": 0,
-      "sg": 5,
-      "sp": 1
     },
     {
       "team": "COLEGIO SANTA ANA B",
