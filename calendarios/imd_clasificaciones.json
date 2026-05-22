@@ -78,39 +78,39 @@
   "imd_senior_femenino_cd_las_flores_sevilla": [
     {
       "team": "CD LAS FLORES SEVILLA",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
       "pp": 0,
-      "sg": 3,
-      "sp": 0
-    },
-    {
-      "team": "PALESTRA C.V.",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
-      "pp": 0,
-      "sg": 3,
+      "sg": 6,
       "sp": 1
     },
     {
-      "team": "C.V.ROCHELAMBERT",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
+      "team": "PALESTRA C.V.",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
       "pp": 1,
-      "sg": 1,
-      "sp": 3
+      "sg": 4,
+      "sp": 4
     },
     {
       "team": "CD COLEGIO CLARET",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
       "pp": 1,
-      "sg": 0,
+      "sg": 3,
       "sp": 3
+    },
+    {
+      "team": "C.V.ROCHELAMBERT",
+      "pts": 2,
+      "pj": 2,
+      "pg": 0,
+      "pp": 2,
+      "sg": 1,
+      "sp": 6
     }
   ],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
@@ -323,6 +323,15 @@
       "sp": 1
     },
     {
+      "team": "CD SALESIANOS TRINIDAD AZUL",
+      "pts": 6,
+      "pj": 4,
+      "pg": 2,
+      "pp": 2,
+      "sg": 7,
+      "sp": 5
+    },
+    {
       "team": "EVB LAS FLORES ALBERO",
       "pts": 5,
       "pj": 4,
@@ -341,22 +350,13 @@
       "sp": 10
     },
     {
-      "team": "CD SALESIANOS TRINIDAD AZUL",
+      "team": "COLEGIO SANTA ANA B",
       "pts": 4,
       "pj": 3,
       "pg": 1,
       "pp": 2,
-      "sg": 5,
-      "sp": 4
-    },
-    {
-      "team": "COLEGIO SANTA ANA B",
-      "pts": 3,
-      "pj": 2,
-      "pg": 1,
-      "pp": 1,
-      "sg": 3,
-      "sp": 3
+      "sg": 4,
+      "sp": 5
     }
   ],
   "imd_infantil_femenino_evb_las_flores_albero": [
@@ -483,21 +483,21 @@
     },
     {
       "team": "CD SALESIANOS TRINIDAD ROJO",
-      "pts": 2,
-      "pj": 2,
-      "pg": 0,
+      "pts": 4,
+      "pj": 3,
+      "pg": 1,
       "pp": 2,
-      "sg": 2,
-      "sp": 4
+      "sg": 4,
+      "sp": 5
     },
     {
       "team": "INFANTIL ALL SPORTS BERMEJALES",
-      "pts": 2,
-      "pj": 2,
+      "pts": 3,
+      "pj": 3,
       "pg": 0,
-      "pp": 2,
-      "sg": 0,
-      "sp": 6
+      "pp": 3,
+      "sg": 1,
+      "sp": 8
     }
   ],
   "imd_alevin_femenino_evb_las_flores_purpura": [
