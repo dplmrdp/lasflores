@@ -40,39 +40,39 @@
   "imd_juvenil_femenino_cd_las_flores_sevilla": [
     {
       "team": "PALESTRA C.V.  A",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
       "pp": 0,
-      "sg": 3,
-      "sp": 0
+      "sg": 6,
+      "sp": 1
     },
     {
       "team": "CD COLEGIO CLARET",
-      "pts": 2,
-      "pj": 1,
+      "pts": 3,
+      "pj": 2,
       "pg": 1,
-      "pp": 0,
-      "sg": 3,
-      "sp": 2
+      "pp": 1,
+      "sg": 4,
+      "sp": 5
     },
     {
       "team": "CD LAS FLORES SEVILLA",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
       "pp": 1,
-      "sg": 2,
+      "sg": 5,
       "sp": 3
     },
     {
       "team": "GOLDEN TEAM",
-      "pts": 1,
-      "pj": 1,
+      "pts": 2,
+      "pj": 2,
       "pg": 0,
-      "pp": 1,
+      "pp": 2,
       "sg": 0,
-      "sp": 3
+      "sp": 6
     }
   ],
   "imd_senior_femenino_cd_las_flores_sevilla": [
@@ -115,116 +115,116 @@
   ],
   "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
     {
-      "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
+      "team": "PALESTRA C.V.  A",
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
       "pp": 0,
-      "sg": 2,
-      "sp": 0
+      "sg": 5,
+      "sp": 1
     },
     {
-      "team": "CD ADRIANO",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
+      "team": "CD LAS FLORES SEVILLA MORADO",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
       "pp": 1,
-      "sg": 0,
+      "sg": 4,
       "sp": 2
     },
     {
-      "team": "PALESTRA C.V.  A",
-      "pts": 0,
-      "pj": 1,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "team": "CD ADRIANO",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 3,
+      "sp": 3
     },
     {
       "team": "CD ARBOLEDA CELESTE",
-      "pts": 0,
-      "pj": 1,
+      "pts": 2,
+      "pj": 2,
       "pg": 0,
-      "pp": 0,
+      "pp": 2,
       "sg": 0,
-      "sp": 0
+      "sp": 6
     }
   ],
   "imd_infantil_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
       "pp": 0,
-      "sg": 3,
-      "sp": 0
-    },
-    {
-      "team": "CD ARBOLEDA BLANCO",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
-      "pp": 1,
-      "sg": 0,
-      "sp": 3
+      "sg": 5,
+      "sp": 1
     },
     {
       "team": "PALESTRA C.V. B",
-      "pts": 0,
-      "pj": 1,
-      "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 3,
+      "sp": 3
     },
     {
       "team": "CD ADRIANO",
-      "pts": 0,
-      "pj": 1,
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 3,
+      "sp": 3
+    },
+    {
+      "team": "CD ARBOLEDA BLANCO",
+      "pts": 2,
+      "pj": 2,
       "pg": 0,
-      "pp": 0,
-      "sg": 0,
-      "sp": 0
+      "pp": 2,
+      "sg": 1,
+      "sp": 5
     }
   ],
   "imd_alevin_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD ARBOLEDA BLANCO",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
       "pp": 0,
-      "sg": 2,
+      "sg": 5,
       "sp": 1
-    },
-    {
-      "team": "CD SALESIANOS TRINIDAD ROJO",
-      "pts": 2,
-      "pj": 1,
-      "pg": 1,
-      "pp": 0,
-      "sg": 2,
-      "sp": 1
-    },
-    {
-      "team": "CD ADRIANO",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
-      "pp": 1,
-      "sg": 1,
-      "sp": 2
     },
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 1,
-      "pj": 1,
-      "pg": 0,
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
       "pp": 1,
-      "sg": 1,
+      "sg": 4,
       "sp": 2
+    },
+    {
+      "team": "CD SALESIANOS TRINIDAD ROJO",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 2,
+      "sp": 4
+    },
+    {
+      "team": "CD ADRIANO",
+      "pts": 2,
+      "pj": 2,
+      "pg": 0,
+      "pp": 2,
+      "sg": 1,
+      "sp": 5
     }
   ],
   "imd_benjamin_femenino_cd_las_flores_sevilla_morado": [
@@ -305,6 +305,15 @@
   ],
   "imd_cadete_femenino_evb_las_flores_albero": [
     {
+      "team": "CADETE ALL SPORTS BERMEJALES",
+      "pts": 9,
+      "pj": 5,
+      "pg": 4,
+      "pp": 1,
+      "sg": 12,
+      "sp": 3
+    },
+    {
       "team": "PALESTRA C.V.  B",
       "pts": 8,
       "pj": 4,
@@ -312,15 +321,6 @@
       "pp": 0,
       "sg": 11,
       "sp": 1
-    },
-    {
-      "team": "CADETE ALL SPORTS BERMEJALES",
-      "pts": 7,
-      "pj": 5,
-      "pg": 3,
-      "pp": 1,
-      "sg": 9,
-      "sp": 3
     },
     {
       "team": "CD SALESIANOS TRINIDAD AZUL",
@@ -341,6 +341,15 @@
       "sp": 5
     },
     {
+      "team": "EVB LAS FLORES ALBERO",
+      "pts": 6,
+      "pj": 5,
+      "pg": 1,
+      "pp": 4,
+      "sg": 3,
+      "sp": 12
+    },
+    {
       "team": "LA FÁBRICA VARA DE REY",
       "pts": 6,
       "pj": 5,
@@ -348,15 +357,6 @@
       "pp": 4,
       "sg": 2,
       "sp": 13
-    },
-    {
-      "team": "EVB LAS FLORES ALBERO",
-      "pts": 5,
-      "pj": 5,
-      "pg": 1,
-      "pp": 3,
-      "sg": 3,
-      "sp": 9
     }
   ],
   "imd_infantil_femenino_evb_las_flores_albero": [
@@ -473,6 +473,15 @@
       "sp": 3
     },
     {
+      "team": "INFANTIL ALL SPORTS BERMEJALES",
+      "pts": 5,
+      "pj": 4,
+      "pg": 1,
+      "pp": 3,
+      "sg": 3,
+      "sp": 9
+    },
+    {
       "team": "CD SALESIANOS TRINIDAD ROJO",
       "pts": 5,
       "pj": 4,
@@ -483,21 +492,12 @@
     },
     {
       "team": "EVB LAS FLORES PURPURA",
-      "pts": 4,
+      "pts": 5,
       "pj": 4,
       "pg": 1,
-      "pp": 2,
-      "sg": 4,
-      "sp": 5
-    },
-    {
-      "team": "INFANTIL ALL SPORTS BERMEJALES",
-      "pts": 3,
-      "pj": 4,
-      "pg": 0,
       "pp": 3,
-      "sg": 1,
-      "sp": 8
+      "sg": 5,
+      "sp": 7
     }
   ],
   "imd_alevin_femenino_evb_las_flores_purpura": [
