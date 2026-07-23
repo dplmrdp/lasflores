@@ -113,44 +113,7 @@
       "sp": 6
     }
   ],
-  "imd_cadete_femenino_cd_las_flores_sevilla_morado": [
-    {
-      "team": "PALESTRA C.V.  A",
-      "pts": 4,
-      "pj": 2,
-      "pg": 2,
-      "pp": 0,
-      "sg": 5,
-      "sp": 1
-    },
-    {
-      "team": "CD LAS FLORES SEVILLA MORADO",
-      "pts": 3,
-      "pj": 2,
-      "pg": 1,
-      "pp": 1,
-      "sg": 4,
-      "sp": 2
-    },
-    {
-      "team": "CD ADRIANO",
-      "pts": 3,
-      "pj": 2,
-      "pg": 1,
-      "pp": 1,
-      "sg": 3,
-      "sp": 3
-    },
-    {
-      "team": "CD ARBOLEDA CELESTE",
-      "pts": 2,
-      "pj": 2,
-      "pg": 0,
-      "pp": 2,
-      "sg": 0,
-      "sp": 6
-    }
-  ],
+  "imd_cadete_femenino_cd_las_flores_sevilla_morado": [],
   "imd_infantil_femenino_cd_las_flores_sevilla_morado": [
     {
       "team": "CD LAS FLORES SEVILLA MORADO",
