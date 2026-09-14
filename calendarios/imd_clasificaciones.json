@@ -37,7 +37,44 @@
       "sp": 8
     }
   ],
-  "imd_juvenil_femenino_cd_las_flores_sevilla": [],
+  "imd_juvenil_femenino_cd_las_flores_sevilla": [
+    {
+      "team": "PALESTRA C.V.  A",
+      "pts": 4,
+      "pj": 2,
+      "pg": 2,
+      "pp": 0,
+      "sg": 6,
+      "sp": 1
+    },
+    {
+      "team": "CD COLEGIO CLARET",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 4,
+      "sp": 5
+    },
+    {
+      "team": "CD LAS FLORES SEVILLA",
+      "pts": 3,
+      "pj": 2,
+      "pg": 1,
+      "pp": 1,
+      "sg": 5,
+      "sp": 3
+    },
+    {
+      "team": "GOLDEN TEAM",
+      "pts": 2,
+      "pj": 2,
+      "pg": 0,
+      "pp": 2,
+      "sg": 0,
+      "sp": 6
+    }
+  ],
   "imd_senior_femenino_cd_las_flores_sevilla": [
     {
       "team": "CD LAS FLORES SEVILLA",
